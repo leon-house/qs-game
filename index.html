@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>末世幸存者 - 挂机肉鸽</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <div class="app-content">
+            <!-- 顶部资源栏 -->
+            <div class="top-bar">
+                <div class="resource">
+                    <div class="resource-icon gold-icon">💰</div>
+                    <span class="gold-text" id="gold-display">100</span>
+                </div>
+                <div class="resource">
+                    <div class="resource-icon diamond-icon">💎</div>
+                    <span class="diamond-text" id="diamond-display">10</span>
+                </div>
+            </div>
+
+            <!-- 主内容区 -->
+            <div class="main-content">
+                <!-- 玩家信息 -->
+                <div class="player-card new-layout">
+                    <!-- 左边装备 -->
+                    <div class="equip-left">
+                        <div class="equip-slot" data-type="head" onclick="openEquipSelect('head')" title="头盔" id="equip-head"></div>
+                        <div class="equip-slot" data-type="clothes" onclick="openEquipSelect('clothes')" title="衣服" id="equip-clothes"></div>
+                        <div class="equip-slot" data-type="weapon" onclick="openEquipSelect('weapon')" title="武器" id="equip-weapon"></div>
+                        <div class="equip-slot" data-type="cloak" onclick="openEquipSelect('cloak')" title="披风" id="equip-cloak"></div>
+                    </div>
+
+                    <!-- 中间头像和属性 -->
+                    <div class="player-center">
+                        <div class="player-avatar" id="player-avatar" onclick="openStatsModal()">
+                            <img class="avatar-img" id="avatar-img" src="assets/images/hero.png" alt="英雄">
+                        </div>
+                        <!-- 战力 -->
+                        <div class="power-display">⚔️ 战力 <span id="power-display">0</span></div>
+                        <!-- 水晶 -->
+                        <div class="crystal-display" id="crystal-display" onclick="openCrystal()">
+                            💎 <span id="crystal-count">0</span>
+                        </div>
+                        <div class="player-name">
+                            <span id="player-name">幸存者</span>
+                            <span id="player-type" style="font-size:12px;color:var(--text-secondary);margin-left:8px;"></span>
+                        </div>
+                        <div class="player-level">等级 <span id="player-level">1</span></div>
+                        <div class="exp-bar-container">
+                            <div class="exp-bar" id="exp-bar" style="width: 0%"></div>
+                            <div class="exp-text"><span id="current-exp">0</span>/<span id="exp-needed">100</span></div>
+                        </div>
+                    </div>
+
+                    <!-- 右边装备 -->
+                    <div class="equip-right">
+                        <div class="equip-slot" data-type="armor" onclick="openEquipSelect('armor')" title="防具" id="equip-armor"></div>
+                        <div class="equip-slot" data-type="boots" onclick="openEquipSelect('boots')" title="鞋" id="equip-boots"></div>
+                        <div class="equip-slot" data-type="ring" onclick="openEquipSelect('ring')" title="戒指" id="equip-ring"></div>
+                        <div class="equip-slot" data-type="amulet" onclick="openEquipSelect('amulet')" title="护符" id="equip-amulet"></div>
+                        <div class="equip-slot" data-type="accessory" onclick="openEquipSelect('accessory')" title="饰品" id="equip-accessory"></div>
+                    </div>
+                </div>
+
+                <!-- 战斗场景 -->
+                <div class="battle-card">
+                    <div class="battle-header">
+                        <div class="battle-title">⚔️ 第 <span id="boss-level">1</span> 关</div>
+                        <div class="battle-level">进度 <span id="stage-progress">1/50</span></div>
+                    </div>
+                    <div class="battle-arena">
+                        <!-- 玩家 -->
+                        <div class="arena-player" id="arena-player">
+                            <img src="assets/images/hero.png" alt="玩家" class="arena-player-img">
+                            <div class="arena-hp-bar">
+                                <div class="arena-hp-fill player" id="arena-player-hp" style="width: 100%"></div>
+                            </div>
+                            <div class="arena-hp-text"><span id="arena-player-hp-text">100/100</span></div>
+                        </div>
+                        <!-- VS -->
+                        <div class="arena-vs">⚔️</div>
+                        <!-- Boss -->
+                        <div class="arena-boss" id="arena-boss">
+                            <div class="arena-boss-icon" id="arena-boss-icon">👹</div>
+                            <div class="arena-boss-name" id="arena-boss-name">变异体</div>
+                            <div class="arena-hp-bar">
+                                <div class="arena-hp-fill boss" id="arena-boss-hp" style="width: 100%"></div>
+                            </div>
+                            <div class="arena-hp-text"><span id="arena-boss-hp-text">100/100</span></div>
+                        </div>
+                    </div>
+                    <!-- 战斗日志 -->
+                    <div class="battle-log" id="battle-log">
+                        <div class="log-item">战斗准备中...</div>
+                    </div>
+                    <!-- 攻击按钮 -->
+                    <div class="battle-actions">
+                        <button class="attack-btn" id="attack-btn" onclick="manualAttack()">⚔️ 攻击</button>
+                        <button class="battle-btn-sub auto" id="auto-battle-btn" onclick="toggleAutoBattle()">🤖 自动</button>
+                        <button class="battle-btn-sub heal" onclick="healInBattle()">💊 恢复</button>
+                    </div>
+                </div>
+
+                <!-- 功能按钮 -->
+                <div class="action-buttons">
+                    <div class="action-btn shop" onclick="openShop()">
+                        <div class="action-btn-icon">🛒</div>
+                        <div class="action-btn-text">商店</div>
+                        <div class="action-btn-desc">购买物资</div>
+                    </div>
+                    <div class="action-btn shelter" onclick="openShelter()">
+                        <div class="action-btn-icon">🏠</div>
+                        <div class="action-btn-text">庇护所</div>
+                        <div class="action-btn-desc">升级加成</div>
+                    </div>
+                    <div class="action-btn bag" onclick="openBag()">
+                        <div class="action-btn-icon">🎒</div>
+                        <div class="action-btn-text">背包</div>
+                        <div class="action-btn-desc">装备管理</div>
+                    </div>
+                    <div class="action-btn battle" onclick="openBattle()">
+                        <div class="action-btn-icon">🔄</div>
+                        <div class="action-btn-text">换Boss</div>
+                        <div class="action-btn-desc">重置战斗</div>
+                    </div>
+                    <div class="action-btn" onclick="openChapter()">
+                        <div class="action-btn-icon">🎯</div>
+                        <div class="action-btn-text">章节</div>
+                        <div class="action-btn-desc">进度</div>
+                    </div>
+                    <div class="action-btn" onclick="openCheckIn()">
+                        <div class="action-btn-icon">📅</div>
+                        <div class="action-btn-text">签到</div>
+                        <div class="action-btn-desc">每日奖励</div>
+                    </div>
+                    <div class="action-btn" onclick="openTasks()">
+                        <div class="action-btn-icon">📋</div>
+                        <div class="action-btn-text">任务</div>
+                        <div class="action-btn-desc">每日</div>
+                    </div>
+                    <div class="action-btn" onclick="openAchievements()">
+                        <div class="action-btn-icon">🏆</div>
+                        <div class="action-btn-text">成就</div>
+                        <div class="action-btn-desc">里程碑</div>
+                    </div>
+                    <div class="action-btn" onclick="openCollection()">
+                        <div class="action-btn-icon">📖</div>
+                        <div class="action-btn-text">图鉴</div>
+                        <div class="action-btn-desc">收藏</div>
+                    </div>
+                    <div class="action-btn" onclick="openDungeons()">
+                        <div class="action-btn-icon">🏰</div>
+                        <div class="action-btn-text">副本</div>
+                        <div class="action-btn-desc">刷怪</div>
+                    </div>
+                    <div class="action-btn" onclick="showCurrentChapterStory()">
+                        <div class="action-btn-icon">📜</div>
+                        <div class="action-btn-text">剧情</div>
+                        <div class="action-btn-desc">故事</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 底部挂机收益 -->
+            <div class="idle-panel">
+                <div class="idle-info">
+                    <span class="idle-label">⚡ 挂机收益</span>
+                    <span class="idle-value">+<span id="idle-income">1</span> 金币/秒</span>
+                </div>
+                <div class="idle-bar">
+                    <div class="idle-progress" id="idle-progress" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 副本弹窗 -->
+    <div class="modal-overlay dungeon-modal" id="dungeon-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">🏰 副本</div>
+                <button class="modal-close" onclick="closeDungeons()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="dungeon-list" id="dungeon-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 副本战斗弹窗 -->
+    <div class="modal-overlay dungeon-battle-modal" id="dungeon-battle-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">⚔️ 副本战斗</div>
+                <button class="modal-close" onclick="closeDungeonBattle()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="dungeon-wave" id="dungeon-wave">第 1/10 波</div>
+                <div class="dungeon-combat">
+                    <div class="combat-unit player-combat">
+                        <div class="combat-avatar">👤</div>
+                        <div class="combat-name">你</div>
+                        <div class="combat-hp"><span id="dungeon-player-hp">100</span>/<span id="dungeon-player-max-hp">100</span></div>
+                        <div class="combat-hp-bar"><div id="dungeon-player-hp-bar" style="width:100%"></div></div>
+                    </div>
+                    <div class="combat-vs">VS</div>
+                    <div class="combat-unit enemy-combat">
+                        <div class="combat-avatar" id="dungeon-enemy-icon">👹</div>
+                        <div class="combat-name" id="dungeon-enemy-name">敌人</div>
+                        <div class="combat-hp"><span id="dungeon-enemy-hp">100</span>/<span id="dungeon-enemy-max-hp">100</span></div>
+                        <div class="combat-hp-bar"><div id="dungeon-enemy-hp-bar" style="width:100%"></div></div>
+                    </div>
+                </div>
+                <div class="dungeon-combo" id="dungeon-combo">连击: 0</div>
+            </div>
+            <div class="modal-footer">
+                <button class="combat-btn auto" onclick="startDungeonAutoBattle()">🤖 自动战斗</button>
+                <button class="combat-btn manual" onclick="performDungeonAttack()">💥 攻击</button>
+                <button class="combat-btn exit" onclick="closeDungeonBattle()">退出</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 随机事件弹窗 -->
+    <div class="modal-overlay event-modal" id="event-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">🎁 随机事件</div>
+                <button class="modal-close" onclick="closeEvent()">×</button>
+            </div>
+            <div class="modal-body" style="text-align: center; padding: 30px;">
+                <div style="font-size: 60px; margin-bottom: 16px;" id="event-icon">📦</div>
+                <div style="font-size: 20px; font-weight: 700; margin-bottom: 8px;" id="event-name">神秘宝箱</div>
+                <div style="color: var(--gold); font-size: 16px; margin-bottom: 20px;" id="event-reward">+100金币</div>
+            </div>
+            <div class="modal-footer">
+                <button class="combat-btn auto" onclick="claimEventReward()">🎁 领取奖励</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 商店弹窗 -->
+    <div class="modal-overlay shop-modal" id="shop-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">🛒 商店</div>
+                <button class="modal-close" onclick="closeShop()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="shop-grid" id="shop-grid"></div>
+            </div>
+            <div class="modal-footer">
+                <div class="refresh-info">
+                    <span>剩余刷新: <strong id="refresh-count">5</strong>/10</span>
+                    <span>价格: <strong id="refresh-cost" class="gold-text">50</strong></span>
+                </div>
+                <div class="refresh-panel">
+                    <button class="refresh-btn ad" onclick="watchAd()">📺 看广告 +1</button>
+                    <button class="refresh-btn gold" id="refresh-gold-btn" onclick="refreshShop()">💰 金币刷新</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 庇护所弹窗 -->
+    <div class="modal-overlay shelter-modal" id="shelter-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">🏠 庇护所</div>
+                <button class="modal-close" onclick="closeShelter()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="shelter-level">
+                    <div class="shelter-icon">🏰</div>
+                    <div class="shelter-title">Lv.<span id="shelter-level">1</span> 庇护所</div>
+                    <div class="shelter-subtitle">升级获得更强加成</div>
+                </div>
+                <div class="shelter-stats">
+                    <div class="shelter-stat">
+                        <div class="shelter-stat-label">挂机收益</div>
+                        <div class="shelter-stat-value">+<span id="shelter-income">0</span>%</div>
+                    </div>
+                    <div class="shelter-stat">
+                        <div class="shelter-stat-label">掉落率</div>
+                        <div class="shelter-stat-value">+<span id="shelter-drop">0</span>%</div>
+                    </div>
+                </div>
+                <div class="shelter-upgrade">
+                    <div class="upgrade-title">升级所需材料</div>
+                    <div class="upgrade-items" id="upgrade-items"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 属性弹窗 -->
+    <div class="modal-overlay" id="stats-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">📊 属性</div>
+                <button class="modal-close" onclick="closeStatsModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="stats-detail" id="stats-detail"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 背包弹窗 -->
+    <div class="modal-overlay" id="bag-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">🎒 背包</div>
+                <button class="modal-close" onclick="closeBag()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="bag-tabs">
+                    <button class="bag-tab active" data-type="all" onclick="switchBagTab('all')">全部</button>
+                    <button class="bag-tab" data-type="equipment" onclick="switchBagTab('equipment')">装备</button>
+                    <button class="bag-tab" data-type="material" onclick="switchBagTab('material')">材料</button>
+                    <button class="bag-tab" data-type="gems" onclick="switchBagTab('gems')">宝石</button>
+                    <button class="bag-tab" data-type="dismantle" onclick="switchBagTab('dismantle')">分解</button>
+                </div>
+                <div class="bag-grid" id="bag-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 角色选择弹窗 -->
+    <div class="modal-overlay" id="character-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">👤 选择你的幸存者</div>
+            </div>
+            <div class="modal-body">
+                <div class="character-intro">
+                    在这个末世中，每一个幸存者都有自己独特的生存之道。选择你的角色，开始你的末世之旅。
+                </div>
+                <div class="character-list" id="character-list"></div>
+                <div class="character-name-input">
+                    <input type="text" id="character-name-input" placeholder="输入你的幸存者名称" maxlength="10">
+                </div>
+                <button class="btn btn-primary btn-full" onclick="confirmCharacter()">开始末世求生</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 剧情弹窗 -->
+    <div class="modal-overlay" id="story-modal">
+        <div class="modal story-modal">
+            <div class="modal-header">
+                <div class="modal-title" id="story-title">序章</div>
+                <button class="modal-close" onclick="closeStory()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="story-content" id="story-content"></div>
+                <button class="btn btn-primary btn-full" onclick="closeStory()">继续</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 签到弹窗 -->
+    <div class="modal-overlay" id="checkin-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">📅 每日签到</div>
+                <button class="modal-close" onclick="closeCheckIn()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="checkin-info">
+                    <div class="streak-info">
+                        <span class="streak-label">连续签到</span>
+                        <span class="streak-count" id="streak-count">0</span>
+                        <span class="streak-unit">天</span>
+                    </div>
+                </div>
+                <div class="checkin-days" id="checkin-days"></div>
+                <button class="btn btn-primary btn-full" id="checkin-btn" onclick="doCheckIn()">签到</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 任务弹窗 -->
+    <div class="modal-overlay" id="tasks-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">📋 每日任务</div>
+                <button class="modal-close" onclick="closeTasks()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="tasks-list" id="tasks-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 成就弹窗 -->
+    <div class="modal-overlay" id="achievements-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">🏆 成就</div>
+                <button class="modal-close" onclick="closeAchievements()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="achievements-list" id="achievements-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 图鉴弹窗 -->
+    <div class="modal-overlay" id="collection-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">📖 图鉴</div>
+                <button class="modal-close" onclick="closeCollection()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="collection-tabs">
+                    <button class="collection-tab active" data-type="equipment" onclick="switchCollectionTab('equipment')">装备</button>
+                    <button class="collection-tab" data-type="materials" onclick="switchCollectionTab('materials')">材料</button>
+                    <button class="collection-tab" data-type="gems" onclick="switchCollectionTab('gems')">宝石</button>
+                    <button class="collection-tab" data-type="bosses" onclick="switchCollectionTab('bosses')">Boss</button>
+                </div>
+                <div class="collection-grid" id="collection-grid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 章节弹窗 -->
+    <div class="modal-overlay" id="chapter-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">🎯 章节进度</div>
+                <button class="modal-close" onclick="closeChapter()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="chapter-info">
+                    <div class="chapter-current">
+                        <span class="chapter-label">当前章节</span>
+                        <span class="chapter-num" id="current-chapter">1</span>
+                    </div>
+                    <div class="chapter-boss">
+                        <span class="boss-label">当前Boss</span>
+                        <span class="boss-level" id="current-boss-level">1</span>
+                    </div>
+                </div>
+                <div class="chapter-list" id="chapter-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast容器 -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- [主入口] 模块化游戏入口（main.js 自动 import 所有依赖） -->
+    <script type="module" src="src/main.js"></script>

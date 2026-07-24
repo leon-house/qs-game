@@ -1,0 +1,17 @@
+{
+  "name": "apocalypse-survivor",
+  "version": "2.0.0",
+  "description": "末世幸存者 - 挂机肉鸽游戏",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  },
+  "dependencies": {
+    "jsdom": "^29.1.1"
+  }
+}

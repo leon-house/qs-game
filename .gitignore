@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+test-index.html
+bundle.js
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test artifacts (keep source)
+dev-server.mjs
+browser-test.mjs
+ux-test.mjs
+
+# Env
+.env
+.env.local
+
+# Workbuddy memory
+.workbuddy/
