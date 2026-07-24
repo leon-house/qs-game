@@ -6,6 +6,14 @@ dist/
 test-index.html
 bundle.js
 
+# Temporary extract / historical files
+B_extracted.txt
+index_old.html
+test.html
+vite.config.js
+deploy.sh
+nginx_game.conf
+
 # IDE
 .vscode/
 .idea/
