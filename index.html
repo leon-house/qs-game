@@ -7,12 +7,12 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>末世幸存者 - 挂机肉鸽</title>
-    <link rel="stylesheet" href="style.css?v=close-backdrop-20260725f">
+    <link rel="stylesheet" href="style.css?v=equipment-showcase-20260725j">
 </head>
 <body>
     <!-- 版本号横幅（确认是否加载最新代码）-->
-    <div id="version-banner" style="position:fixed;top:4px;right:4px;z-index:9999;background:#ff0066;color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;font-family:monospace;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.5);">v=sprite-anim-20260725e</div>
-    <script>console.log('%c[VERSION] sprite-anim-20260725e','background:#ff0066;color:#fff;padding:2px 6px;border-radius:3px;font-weight:bold;');</script>
+    <div id="version-banner" style="position:fixed;top:4px;right:4px;z-index:9999;background:#ff0066;color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;font-family:monospace;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.5);">v=sprite-fix-20260725i</div>
+    <script>console.log('%c[VERSION] sprite-fix-20260725i','background:#ff0066;color:#fff;padding:2px 6px;border-radius:3px;font-weight:bold;');</script>
     <div id="app">
         <div class="app-content">
             <!-- 顶部资源栏 -->
@@ -31,8 +31,8 @@
             <div class="main-content">
                 <!-- 玩家信息 -->
                 <div class="player-card new-layout">
-                    <!-- 左边装备 -->
-                    <div class="equip-left">
+                    <!-- 装备展示（改由下方 showcase 承载） -->
+                    <div class="equip-left" style="display:none">
                         <div class="equip-slot" data-type="head" onclick="openEquipSelect('head')" title="头盔" id="equip-head"></div>
                         <div class="equip-slot" data-type="clothes" onclick="openEquipSelect('clothes')" title="衣服" id="equip-clothes"></div>
                         <div class="equip-slot" data-type="weapon" onclick="openEquipSelect('weapon')" title="武器" id="equip-weapon"></div>
@@ -57,14 +57,27 @@
                         </div>
                     </div>
 
-                    <!-- 右边装备 -->
-                    <div class="equip-right">
+                    <!-- 装备展示（改由下方 showcase 承载） -->
+                    <div class="equip-right" style="display:none">
                         <div class="equip-slot" data-type="armor" onclick="openEquipSelect('armor')" title="防具" id="equip-armor"></div>
                         <div class="equip-slot" data-type="boots" onclick="openEquipSelect('boots')" title="鞋" id="equip-boots"></div>
                         <div class="equip-slot" data-type="ring" onclick="openEquipSelect('ring')" title="戒指" id="equip-ring"></div>
                         <div class="equip-slot" data-type="amulet" onclick="openEquipSelect('amulet')" title="护符" id="equip-amulet"></div>
                         <div class="equip-slot" data-type="accessory" onclick="openEquipSelect('accessory')" title="饰品" id="equip-accessory"></div>
                     </div>
+                </div>
+
+                <!-- === 我的装备（首页核心展示区） === -->
+                <div class="equipment-showcase" id="equipment-showcase">
+                    <div class="equip-slot" data-type="head"     onclick="openEquipSelect('head')"     title="头盔" id="equip-head"></div>
+                    <div class="equip-slot" data-type="clothes"  onclick="openEquipSelect('clothes')"  title="衣服" id="equip-clothes"></div>
+                    <div class="equip-slot" data-type="weapon"   onclick="openEquipSelect('weapon')"   title="武器" id="equip-weapon"></div>
+                    <div class="equip-slot" data-type="cloak"    onclick="openEquipSelect('cloak')"    title="披风" id="equip-cloak"></div>
+                    <div class="equip-slot" data-type="armor"    onclick="openEquipSelect('armor')"    title="防具" id="equip-armor"></div>
+                    <div class="equip-slot" data-type="boots"    onclick="openEquipSelect('boots')"    title="鞋"   id="equip-boots"></div>
+                    <div class="equip-slot" data-type="ring"     onclick="openEquipSelect('ring')"     title="戒指" id="equip-ring"></div>
+                    <div class="equip-slot" data-type="amulet"   onclick="openEquipSelect('amulet')"   title="护符" id="equip-amulet"></div>
+                    <div class="equip-slot" data-type="accessory" onclick="openEquipSelect('accessory')" title="饰品" id="equip-accessory"></div>
                 </div>
 
                 <!-- 战斗场景 -->
@@ -451,4 +464,4 @@
     <div class="toast-container" id="toast-container"></div>
 
     <!-- [主入口] 模块化游戏入口（main.js 自动 import 所有依赖） -->
-    <script type="module" src="src/main.js?v=close-backdrop-20260725f"></script>
+    <script type="module" src="src/main.js?v=equipment-showcase-20260725j"></script>

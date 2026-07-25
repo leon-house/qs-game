@@ -1,9 +1,9 @@
 /**
  * 剧情展示系统
  */
-import { GameData, saveData } from '../data/gameData.js';
-import { Renderer } from '../core/renderer.js';
-import { CHAPTER_STORIES } from '../data/config.js';
+import { GameData, saveData } from '../data/gameData.js?v=equipment-showcase-20260725j';
+import { Renderer } from '../core/renderer.js?v=equipment-showcase-20260725j';
+import { CHAPTER_STORIES } from '../data/config.js?v=equipment-showcase-20260725j';
 
 export function showStory(chapterIndex) {
     const story = CHAPTER_STORIES[chapterIndex] || CHAPTER_STORIES[0];

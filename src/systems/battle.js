@@ -2,12 +2,15 @@
  * 战斗系统
  * 手动攻击、自动战斗、伤害计算、掉落
  */
-import { GameData, saveData } from '../data/gameData.js';
-import { calculateStats } from './equipment.js';
-import { initStageEnemy, updateArenaHp } from './stage.js';
-import { Renderer } from '../core/renderer.js';
-import { Timers } from '../core/events.js';
-import { EQUIPMENT_TEMPLATES, MATERIALS } from '../data/config.js';
+import { GameData, saveData } from '../data/gameData.js?v=equipment-showcase-20260725j';
+import { calculateStats } from './equipment.js?v=equipment-showcase-20260725j';
+import { initStageEnemy, updateArenaHp } from './stage.js?v=equipment-showcase-20260725j';
+import { Renderer } from '../core/renderer.js?v=equipment-showcase-20260725j';
+import { Timers } from '../core/events.js?v=equipment-showcase-20260725j';
+import { EQUIPMENT_TEMPLATES, MATERIALS } from '../data/config.js?v=equipment-showcase-20260725j';
+import { updateChapter } from './chapter.js?v=equipment-showcase-20260725j';
+import { showStory } from './story.js?v=equipment-showcase-20260725j';
+import { showToast } from '../ui/ui.js?v=equipment-showcase-20260725j';
 
 let isAutoBattle = false;
 let combatInterval = null;
@@ -186,11 +189,22 @@ function enemyDefeated() {
     addCombatLog('击败 ' + enemy.name + '！获得 ' + formatNumber(goldReward) + '金币 ' + expGain + '经验' + (dropText ? ' 掉落:' + dropText : ''), 'win');
 
     if (enemy.isBoss) {
+        const prevChapter = GameData.player.chapter || 1;
         GameData.player.stageCleared = Math.max(GameData.player.stageCleared, GameData.player.stageLevel);
         GameData.player.stageLevel++;
         GameData.player.stageProgress = 0;
         GameData.player.currentBossLevel++;
         addCombatLog('进入第 ' + GameData.player.stageLevel + ' 关！', 'system');
+        // 推进章节（chapter 变化时弹剧情）
+        updateChapter();
+        const newChapter = GameData.player.chapter || 1;
+        // 每次打 boss 都显示"剧情推进"toast（小步推）
+        const bossInChapter = GameData.player.currentBossLevel - ((newChapter - 1) * 10);
+        const totalInChapter = (newChapter <= 10) ? 10 : 0;
+        showToast(`📖 剧情推进：第${newChapter}章 - 进度 ${bossInChapter}/${totalInChapter}`, 'story');
+        if (newChapter > prevChapter) {
+            setTimeout(() => showStory(newChapter - 1), 1500);
+        }
     } else {
         GameData.player.stageProgress++;
         if (GameData.player.stageProgress >= 49) {
@@ -238,7 +252,21 @@ function generateDrops(dropBonus) {
 
         const quality = qualityPool[Math.floor(Math.random() * qualityPool.length)];
         const template = templates.find(t => t.quality === quality) || templates[0];
-        const item = { ...template, level: 1 };
+
+        // ★ 随机浮动属性：每件装备都有独立属性（±15% 基础值浮动）
+        const rand = (base) => Math.floor((base || 0) * (0.85 + Math.random() * 0.3));
+        const item = {
+            ...template,
+            id: `${template.id}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`,
+            level: 1,
+            baseAttack: rand(template.baseAttack),
+            baseDefense: rand(template.baseDefense),
+            baseHp: rand(template.baseHp),
+            baseCritRate: rand(template.baseCritRate),
+            baseCritDamage: rand(template.baseCritDamage),
+            baseLifeSteal: rand(template.baseLifeSteal),
+            baseCombo: rand(template.baseCombo)
+        };
         drops.push({ type: 'equipment', equipType: type, item });
     }
 

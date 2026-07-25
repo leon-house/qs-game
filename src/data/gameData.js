@@ -12,7 +12,7 @@
             player: {
                 gold: 100,
                 diamond: 10,
-                crystals: 0, // 水晶
+                // crystals: 已废弃（2026-07-25 移除水晶系统），保留字段以兼容旧存档
                 level: 1,
                 currentExp: 0,
                 expToNext: 100,
@@ -53,7 +53,7 @@ if (typeof window !== 'undefined') {
 /**
  * 新字段初始化（兼容旧存档）
  */
-export { saveData, loadData } from '../core/storage.js';
+export { saveData, loadData } from '../core/storage.js?v=equipment-showcase-20260725j';
 
 export function initNewFields() {
     const p = GameData.player;

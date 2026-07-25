@@ -1,9 +1,9 @@
 /**
  * 每日任务系统
  */
-import { GameData, saveData } from '../data/gameData.js';
-import { Renderer } from '../core/renderer.js';
-import { showToast, updateUI } from '../ui/ui.js';
+import { GameData, saveData } from '../data/gameData.js?v=equipment-showcase-20260725j';
+import { Renderer } from '../core/renderer.js?v=equipment-showcase-20260725j';
+import { showToast, updateUI } from '../ui/ui.js?v=equipment-showcase-20260725j';
 
 const DAILY_TASKS = [
     { id: 'kill_boss', name: '击败Boss', desc: '击败1个Boss', target: 1, reward: { gold: 200, diamond: 2 } },

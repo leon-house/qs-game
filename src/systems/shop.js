@@ -1,8 +1,8 @@
 /**
  * 商店系统
  */
-import { GameData, saveData } from '../data/gameData.js';
-import { Renderer } from '../core/renderer.js';
+import { GameData, saveData } from '../data/gameData.js?v=equipment-showcase-20260725j';
+import { Renderer } from '../core/renderer.js?v=equipment-showcase-20260725j';
 
 let shopItems = [];
 

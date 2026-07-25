@@ -2,10 +2,10 @@
  * 随机事件系统
  * 宝箱/商人/突袭等
  */
-import { GameData, saveData } from '../data/gameData.js';
-import { Renderer } from '../core/renderer.js';
-import { MATERIALS } from '../data/config.js';
-import { showToast, updateUI } from '../ui/ui.js';
+import { GameData, saveData } from '../data/gameData.js?v=equipment-showcase-20260725j';
+import { Renderer } from '../core/renderer.js?v=equipment-showcase-20260725j';
+import { MATERIALS } from '../data/config.js?v=equipment-showcase-20260725j';
+import { showToast, updateUI } from '../ui/ui.js?v=equipment-showcase-20260725j';
 
 const RANDOM_EVENTS = [
     { type: 'chest', name: '神秘宝箱', icon: '📦', weight: 30 },
@@ -54,7 +54,6 @@ export function claimEventReward() {
 
     if (currentEventReward.gold) GameData.player.gold += currentEventReward.gold;
     if (currentEventReward.diamond) GameData.player.diamond += currentEventReward.diamond;
-    if (currentEventReward.crystals) GameData.player.crystals = (GameData.player.crystals || 0) + currentEventReward.crystals;
     if (currentEventReward.material) {
         const existing = GameData.player.bag.material.find(m => m.id === currentEventReward.material.id);
         if (existing) existing.count += currentEventReward.material.count;
@@ -84,9 +83,8 @@ function generateEventRewards(type) {
             return { text: `恢复${heal}生命`, heal: heal };
         case 'treasure':
             const diamond = Math.floor(1 + Math.random() * 5);
-            const crystals = Math.floor(1 + Math.random() * 3);
             const mat = MATERIALS[Math.floor(Math.random() * MATERIALS.length)];
-            return { diamond, crystals, material: { ...mat, count: 2 }, text: `${diamond}💎 + ${crystals}🔮 + ${mat.name}x2` };
+            return { diamond, material: { ...mat, count: 2 }, text: `${diamond}💎 + ${mat.name}x2` };
         default:
             return { gold: 50, text: '50金币' };
     }

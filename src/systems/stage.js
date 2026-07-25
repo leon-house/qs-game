@@ -2,11 +2,11 @@
  * 关卡系统
  * 每关50个怪，第50只为Boss，击败Boss进入下一关
  */
-import { GameData } from '../data/gameData.js';
-import { ENEMY_TYPES, BOSS_TEMPLATES } from '../data/config.js';
-import { Renderer } from '../core/renderer.js';
-import { calculateStats } from './equipment.js';
-import { saveData } from '../data/gameData.js';
+import { GameData } from '../data/gameData.js?v=equipment-showcase-20260725j';
+import { ENEMY_TYPES, BOSS_TEMPLATES } from '../data/config.js?v=equipment-showcase-20260725j';
+import { Renderer } from '../core/renderer.js?v=equipment-showcase-20260725j';
+import { calculateStats } from './equipment.js?v=equipment-showcase-20260725j';
+import { saveData } from '../data/gameData.js?v=equipment-showcase-20260725j';
 
 /**
  * 生成普通关卡怪物
@@ -18,6 +18,7 @@ export function generateStageEnemy(stageLevel, progress) {
     return {
         name: template.name,
         icon: template.icon,
+        image: template.image,
         level: stageLevel,
         maxHp: Math.floor(template.baseHp * scale),
         currentHp: Math.floor(template.baseHp * scale),
@@ -39,6 +40,7 @@ export function generateBoss(level) {
     return {
         name: template.name,
         icon: template.icon,
+        image: template.image,
         level: level,
         maxHp: Math.floor(baseHp),
         currentHp: Math.floor(baseHp),
@@ -61,8 +63,19 @@ export function initStageEnemy() {
     } else {
         GameData.currentEnemy = generateStageEnemy(stage, progress);
     }
-    Renderer.setText('arena-boss-icon', GameData.currentEnemy.icon);
-    Renderer.setText('arena-boss-name', GameData.currentEnemy.name + (GameData.currentEnemy.isBoss ? ' [BOSS]' : ''));
+    // 渲染敌人：优先用像素图，缺失时回退 emoji
+    const enemy = GameData.currentEnemy;
+    if (enemy.image) {
+        // Boss 用 4 帧 sprite sheet（boss-sheet.png），普通小怪用单帧
+        if (enemy.isBoss) {
+            Renderer.setHTML('arena-boss-icon', `<div class="sprite-slot boss-sprite"><img class="boss-sprite-img" src="assets/images/sprites/boss-sheet.png" alt="${enemy.name}"></div>`);
+        } else {
+            Renderer.setHTML('arena-boss-icon', `<img src="${enemy.image}" class="arena-boss-img idle-anim" alt="${enemy.name}">`);
+        }
+    } else {
+        Renderer.setText('arena-boss-icon', enemy.icon);
+    }
+    Renderer.setText('arena-boss-name', enemy.name + (enemy.isBoss ? ' [BOSS]' : ''));
     updateArenaHp();
 }
 

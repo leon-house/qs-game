@@ -1,9 +1,9 @@
 /**
  * 图鉴系统
  */
-import { GameData } from '../data/gameData.js';
-import { EQUIPMENT_TEMPLATES } from '../data/config.js';
-import { Renderer } from '../core/renderer.js';
+import { GameData } from '../data/gameData.js?v=equipment-showcase-20260725j';
+import { EQUIPMENT_TEMPLATES } from '../data/config.js?v=equipment-showcase-20260725j';
+import { Renderer } from '../core/renderer.js?v=equipment-showcase-20260725j';
 
 let currentCollectionType = 'equipment';
 

@@ -2,10 +2,10 @@
  * 装备系统
  * 装备属性计算、穿戴/卸下、升级、分解
  */
-import { GameData } from '../data/gameData.js';
-import { EQUIPMENT_TEMPLATES, SETS, GEMS, SURVIVOR_TYPES } from '../data/config.js';
-import { Renderer } from '../core/renderer.js';
-import { saveData } from '../data/gameData.js';
+import { GameData } from '../data/gameData.js?v=equipment-showcase-20260725j';
+import { EQUIPMENT_TEMPLATES, SETS, GEMS, SURVIVOR_TYPES } from '../data/config.js?v=equipment-showcase-20260725j';
+import { Renderer } from '../core/renderer.js?v=equipment-showcase-20260725j';
+import { saveData } from '../data/gameData.js?v=equipment-showcase-20260725j';
 
 /**
  * 计算装备属性（含等级加成）
@@ -165,7 +165,7 @@ export function getEquipDesc(item) {
  */
 export function updateEquipmentBar() {
     const equipTypes = ['head', 'clothes', 'weapon', 'cloak', 'armor', 'boots', 'ring', 'amulet', 'accessory'];
-    const icons = { head: '⛑️', clothes: '👕', weapon: '🗡️', cloak: '🦺', armor: '🛡️', boots: '👢', ring: '💍', amulet: '🧿', accessory: '🎀' };
+    const icons = { head: '<img src="assets/images/equip/head.png" class="equip-slot-img">', clothes: '<img src="assets/images/equip/clothes.png" class="equip-slot-img">', weapon: '<img src="assets/images/equip/weapon.png" class="equip-slot-img">', cloak: '<img src="assets/images/equip/cloak.png" class="equip-slot-img">', armor: '<img src="assets/images/equip/armor.png" class="equip-slot-img">', boots: '<img src="assets/images/equip/boots.png" class="equip-slot-img">', ring: '<img src="assets/images/equip/ring.png" class="equip-slot-img">', amulet: '<img src="assets/images/equip/amulet.png" class="equip-slot-img">', accessory: '<img src="assets/images/equip/accessory.png" class="equip-slot-img">' };
 
     equipTypes.forEach(type => {
         let slot = Renderer.$(`equip-${type}`);

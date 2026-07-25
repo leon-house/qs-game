@@ -46,7 +46,12 @@
             { chapter: 2, title: '第二章：变异森林', story: '穿越城市废墟，你来到了这片被辐射污染的森林。树木扭曲变形，动物们发生了恐怖的变化。这里隐藏着更强大的变异体...' },
             { chapter: 3, title: '第三章：辐射沙漠', story: '一片荒芜的沙漠出现在面前。黄沙漫天，水源稀少。在这里你会遇到沙漠盗匪，他们可不会跟你讲道理...' },
             { chapter: 4, title: '第四章：沦陷基地', story: '一个废弃的军事基地。门上的血迹暗示着这里发生过惨剧。深入地下，你发现这里已经被某种恐怖生物占据...' },
-            { chapter: 5, title: '第五章：感染者巢穴', story: '最黑暗的区域。感染者的巢穴充满了腐臭和尖叫。这里是地狱，也是你必须跨越的坎...' }
+            { chapter: 5, title: '第五章：感染者巢穴', story: '最黑暗的区域。感染者的巢穴充满了腐臭和尖叫。这里是地狱，也是你必须跨越的坎...' },
+            { chapter: 6, title: '第六章：地下研究所', story: '在巢穴深处你发现了一个隐秘的入口——某个失踪的病毒研究所。实验记录暗示着这场末世的真正起源就在这里...' },
+            { chapter: 7, title: '第七章：变异海滩', story: '海洋被辐射污染后诞生了新的生态。沿海城市的废墟下，变异鲨鱼和触手怪盘踞着海岸线。你必须穿过这里才能继续前进...' },
+            { chapter: 8, title: '第八章：钢铁工厂', story: '一个仍在运作的自动化工厂，机器在无人状态下循环运作了数十年。但现在的工人们不再是人类——而是半机械的改造体...' },
+            { chapter: 9, title: '第九章：最终防线', story: '军方在末日前修建的最后一道防线。这里曾经是秩序的象征，如今却成了末世之主的宫殿。每一个角落都潜伏着致命的威胁...' },
+            { chapter: 10, title: '第十章：新世界', story: '打败末世之主后，你站在了曾经是城市最高点的废墟上。太阳从辐射云层中穿透出来——你意识到，活下来本身就是一种胜利。新的旅程即将开始...' }
         ];
 
         // 装备品质颜色
@@ -158,25 +163,30 @@
 
         // 普通怪物模板（每2关升一档）
         export const ENEMY_TYPES = [
-            { name: '辐射鼠', icon: '🐀', baseHp: 15, baseAttack: 2, baseDefense: 0 },
-            { name: '变异狗', icon: '🐕', baseHp: 25, baseAttack: 4, baseDefense: 1 },
-            { name: '感染者', icon: '🧟', baseHp: 40, baseAttack: 6, baseDefense: 2 },
-            { name: '变异蜘蛛', icon: '🕷️', baseHp: 55, baseAttack: 8, baseDefense: 3 },
-            { name: '腐尸', icon: '💀', baseHp: 70, baseAttack: 10, baseDefense: 4 },
-            { name: '变异蜥蜴', icon: '🦎', baseHp: 90, baseAttack: 12, baseDefense: 5 },
-            { name: '狂暴兽', icon: '🐗', baseHp: 110, baseAttack: 15, baseDefense: 6 },
-            { name: '暗影行者', icon: '👤', baseHp: 130, baseAttack: 18, baseDefense: 7 },
-            { name: '辐射巨蟒', icon: '🐍', baseHp: 160, baseAttack: 22, baseDefense: 8 },
-            { name: '机械犬', icon: '🐕‍🦺', baseHp: 200, baseAttack: 28, baseDefense: 10 }
+            { name: '辐射鼠', icon: '🐀', image: 'assets/images/monster/rat.png', baseHp: 15, baseAttack: 2, baseDefense: 0 },
+            { name: '变异狗', icon: '🐕', image: 'assets/images/monster/dog.png', baseHp: 25, baseAttack: 4, baseDefense: 1 },
+            { name: '感染者', icon: '🧟', image: 'assets/images/monster/zombie.png', baseHp: 40, baseAttack: 6, baseDefense: 2 },
+            { name: '变异蜘蛛', icon: '🕷️', image: 'assets/images/monster/spider.png', baseHp: 55, baseAttack: 8, baseDefense: 3 },
+            { name: '腐尸', icon: '💀', image: 'assets/images/monster/skeleton.png', baseHp: 70, baseAttack: 10, baseDefense: 4 },
+            { name: '变异蜥蜴', icon: '🦎', image: 'assets/images/monster/lizard.png', baseHp: 90, baseAttack: 12, baseDefense: 5 },
+            { name: '狂暴兽', icon: '🐗', image: 'assets/images/monster/boar.png', baseHp: 110, baseAttack: 15, baseDefense: 6 },
+            { name: '暗影行者', icon: '👤', image: 'assets/images/monster/shadow.png', baseHp: 130, baseAttack: 18, baseDefense: 7 },
+            { name: '辐射巨蟒', icon: '🐍', image: 'assets/images/monster/snake.png', baseHp: 160, baseAttack: 22, baseDefense: 8 },
+            { name: '机械犬', icon: '🐕‍🦺', image: 'assets/images/monster/cyberdog.png', baseHp: 200, baseAttack: 28, baseDefense: 10 }
         ];
 
-        // BOSS模板
+        // BOSS模板（10个Boss共用一张boss图，留接口便于后续分种类）
         export const BOSS_TEMPLATES = [
-            { name: '变异体', icon: '👹' }, { name: '感染者', icon: '🧟' },
-            { name: '巨型蜘蛛', icon: '🕷️' }, { name: '变异犬', icon: '🐕' },
-            { name: '机甲战士', icon: '🤖' }, { name: '辐射巨兽', icon: '🦖' },
-            { name: '暗影杀手', icon: '👤' }, { name: '堕落博士', icon: '👨‍🔬' },
-            { name: '终极形态', icon: '👺' }, { name: '末世之主', icon: '😈' }
+            { name: '变异体', icon: '👹', image: 'assets/images/boss.png' },
+            { name: '感染者', icon: '🧟', image: 'assets/images/boss.png' },
+            { name: '巨型蜘蛛', icon: '🕷️', image: 'assets/images/boss.png' },
+            { name: '变异犬', icon: '🐕', image: 'assets/images/boss.png' },
+            { name: '机甲战士', icon: '🤖', image: 'assets/images/boss.png' },
+            { name: '辐射巨兽', icon: '🦖', image: 'assets/images/boss.png' },
+            { name: '暗影杀手', icon: '👤', image: 'assets/images/boss.png' },
+            { name: '堕落博士', icon: '👨‍🔬', image: 'assets/images/boss.png' },
+            { name: '终极形态', icon: '👺', image: 'assets/images/boss.png' },
+            { name: '末世之主', icon: '😈', image: 'assets/images/boss.png' }
         ];
 
         // 庇护所升级

@@ -1,10 +1,10 @@
 /**
  * 角色选择系统
  */
-import { GameData, saveData } from '../data/gameData.js';
-import { Renderer } from '../core/renderer.js';
-import { SURVIVOR_TYPES } from '../data/config.js';
-import { showToast, updateUI } from '../ui/ui.js';
+import { GameData, saveData } from '../data/gameData.js?v=equipment-showcase-20260725j';
+import { Renderer } from '../core/renderer.js?v=equipment-showcase-20260725j';
+import { SURVIVOR_TYPES } from '../data/config.js?v=equipment-showcase-20260725j';
+import { showToast, updateUI } from '../ui/ui.js?v=equipment-showcase-20260725j';
 
 let selectedCharacterType = null;
 

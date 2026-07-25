@@ -2,10 +2,10 @@
  * UI更新层
  * 所有界面刷新函数集中管理
  */
-import { GameData, saveData } from '../data/gameData.js';
-import { calculateStats, calculatePower, updateEquipmentBar } from '../systems/equipment.js';
-import { initStageEnemy, updateArenaHp } from '../systems/stage.js';
-import { Renderer } from '../core/renderer.js';
+import { GameData, saveData } from '../data/gameData.js?v=equipment-showcase-20260725j';
+import { calculateStats, calculatePower, updateEquipmentBar } from '../systems/equipment.js?v=equipment-showcase-20260725j';
+import { initStageEnemy, updateArenaHp } from '../systems/stage.js?v=equipment-showcase-20260725j';
+import { Renderer } from '../core/renderer.js?v=equipment-showcase-20260725j';
 
 /**
  * 格式化数字
@@ -25,7 +25,6 @@ export function updateUI() {
 
     Renderer.setText('gold-display', formatNumber(GameData.player.gold));
     Renderer.setText('diamond-display', formatNumber(GameData.player.diamond));
-    Renderer.setText('crystal-count', formatNumber(GameData.player.crystals || 0));
     Renderer.setText('player-level', GameData.player.level);
     Renderer.setText('boss-level', GameData.player.stageLevel || 1);
     Renderer.setText('power-display', formatNumber(power));

@@ -1,12 +1,12 @@
 /**
  * 副本系统（普通/精英副本 + 扫荡）
  */
-import { GameData, saveData } from '../data/gameData.js';
-import { Renderer } from '../core/renderer.js';
-import { MATERIALS } from '../data/config.js';
-import { calculateStats } from './equipment.js';
-import { showToast, updateUI } from '../ui/ui.js';
-import { triggerRandomEvent } from './events.js';
+import { GameData, saveData } from '../data/gameData.js?v=equipment-showcase-20260725j';
+import { Renderer } from '../core/renderer.js?v=equipment-showcase-20260725j';
+import { MATERIALS } from '../data/config.js?v=equipment-showcase-20260725j';
+import { calculateStats } from './equipment.js?v=equipment-showcase-20260725j';
+import { showToast, updateUI } from '../ui/ui.js?v=equipment-showcase-20260725j';
+import { triggerRandomEvent } from './events.js?v=equipment-showcase-20260725j';
 
 const DUNGEONS = [
     { id: 'normal_1', name: '废墟副本', chapter: 1, waves: 10, hpScale: 0.3, rewardScale: 1, type: 'normal' },

@@ -1,35 +1,35 @@
 /**
  * 主入口 - 游戏初始化（接管 HTML 入口）
  */
-import { GameData, loadData, saveData, initNewFields } from './data/gameData.js';
-import { calculateStats, calculatePower } from './systems/equipment.js';
-import { initStageEnemy } from './systems/stage.js';
-import { manualAttack, toggleAutoBattle, healInBattle } from './systems/battle.js';
-import { updateUI, showToast } from './ui/ui.js';
-import { Renderer } from './core/renderer.js';
-import { Timers } from './core/events.js';
+import { GameData, loadData, saveData, initNewFields } from './data/gameData.js?v=equipment-showcase-20260725j';
+import { calculateStats, calculatePower } from './systems/equipment.js?v=equipment-showcase-20260725j';
+import { initStageEnemy } from './systems/stage.js?v=equipment-showcase-20260725j';
+import { manualAttack, toggleAutoBattle, healInBattle } from './systems/battle.js?v=equipment-showcase-20260725j';
+import { updateUI, showToast } from './ui/ui.js?v=equipment-showcase-20260725j';
+import { Renderer } from './core/renderer.js?v=equipment-showcase-20260725j';
+import { Timers } from './core/events.js?v=equipment-showcase-20260725j';
 
 import {
     openStatsModal, closeStatsModal,
     openBag, closeBag, switchBagTab,
     showItemMenu, closeItemMenu,
-    openEquipSelect, closeEquipSelect, equipFromSelect, unequipItem
-} from './ui/modals.js';
+    openEquipSelect, closeEquipSelect, equipFromSelect, unequipItem,
+    showEquipDetail, closeEquipDetail, equipItem, sellItem, decomposeItem
+} from './ui/modals.js?v=equipment-showcase-20260725j';
 
-import { openShop, closeShop, refreshShop, buyItem } from './systems/shop.js';
-import { openShelter, closeShelter, upgradeShelter } from './systems/shelter.js';
-import { openCollection, closeCollection, switchCollectionTab } from './systems/collection.js';
-import { resetBattle } from './systems/stage.js';
-import { openCrystal } from './systems/crystal.js';
-import { openCheckIn, closeCheckIn, doCheckIn } from './systems/checkin.js';
-import { openTasks, closeTasks, claimTask } from './systems/tasks.js';
-import { openAchievements, closeAchievements, checkAchievements } from './systems/achievements.js';
-import { openChapter, closeChapter } from './systems/chapter.js';
-import { openDungeons, closeDungeons, startDungeonAutoBattle, performDungeonAttack, closeDungeonBattle } from './systems/dungeons.js';
-import { closeEvent, claimEventReward, triggerRandomEvent } from './systems/events.js';
-import { closeStory, showCurrentChapterStory, showStory } from './systems/story.js';
-import { confirmCharacter, selectCharacter, renderCharacterSelection } from './systems/character.js';
-import { resetDailyTasks } from './systems/tasks.js';
+import { openShop, closeShop, refreshShop, buyItem } from './systems/shop.js?v=equipment-showcase-20260725j';
+import { openShelter, closeShelter, upgradeShelter } from './systems/shelter.js?v=equipment-showcase-20260725j';
+import { openCollection, closeCollection, switchCollectionTab } from './systems/collection.js?v=equipment-showcase-20260725j';
+import { resetBattle } from './systems/stage.js?v=equipment-showcase-20260725j';
+import { openCheckIn, closeCheckIn, doCheckIn } from './systems/checkin.js?v=equipment-showcase-20260725j';
+import { openTasks, closeTasks, claimTask } from './systems/tasks.js?v=equipment-showcase-20260725j';
+import { openAchievements, closeAchievements, checkAchievements } from './systems/achievements.js?v=equipment-showcase-20260725j';
+import { openChapter, closeChapter } from './systems/chapter.js?v=equipment-showcase-20260725j';
+import { openDungeons, closeDungeons, startDungeonAutoBattle, performDungeonAttack, closeDungeonBattle } from './systems/dungeons.js?v=equipment-showcase-20260725j';
+import { closeEvent, claimEventReward, triggerRandomEvent } from './systems/events.js?v=equipment-showcase-20260725j';
+import { closeStory, showCurrentChapterStory, showStory } from './systems/story.js?v=equipment-showcase-20260725j';
+import { confirmCharacter, selectCharacter, renderCharacterSelection } from './systems/character.js?v=equipment-showcase-20260725j';
+import { resetDailyTasks } from './systems/tasks.js?v=equipment-showcase-20260725j';
 
 /**
  * 初始化游戏
@@ -113,6 +113,27 @@ function formatNumber(num) {
     return Math.floor(num).toString();
 }
 
+function closeNavGroups() {
+    document.querySelectorAll('.nav-submenu.active').forEach(menu => menu.classList.remove('active'));
+    document.querySelectorAll('.nav-group > .action-btn.active').forEach(button => button.classList.remove('active'));
+}
+
+function toggleNavGroup(groupId, trigger) {
+    const menu = document.getElementById(groupId);
+    if (!menu) return;
+    const shouldOpen = !menu.classList.contains('active');
+    closeNavGroups();
+    if (shouldOpen) {
+        menu.classList.add('active');
+        trigger?.classList.add('active');
+    }
+}
+
+// 点击导航外部时收起二级功能面板
+ document.addEventListener('click', event => {
+    if (!event.target.closest('#game-nav')) closeNavGroups();
+});
+
 // ========================================================================
 // 暴露 window 全局（兼容 HTML onclick 调用）
 // ========================================================================
@@ -135,6 +156,11 @@ window.openEquipSelect = openEquipSelect;
 window.closeEquipSelect = closeEquipSelect;
 window.equipFromSelect = equipFromSelect;
 window.unequipItem = unequipItem;
+window.showEquipDetail = showEquipDetail;
+window.closeEquipDetail = closeEquipDetail;
+window.equipItem = equipItem;
+window.sellItem = sellItem;
+window.decomposeItem = decomposeItem;
 window.showStory = showStory;
 window.closeStory = closeStory;
 window.showCurrentChapterStory = showCurrentChapterStory;
@@ -155,8 +181,7 @@ window.openCollection = openCollection;
 window.closeCollection = closeCollection;
 window.switchCollectionTab = switchCollectionTab;
 
-// 水晶 / 签到 / 任务 / 成就 / 章节 / 副本 / 角色
-window.openCrystal = openCrystal;
+// 签到 / 任务 / 成就 / 章节 / 副本 / 角色
 window.openCheckIn = openCheckIn;
 window.closeCheckIn = closeCheckIn;
 window.doCheckIn = doCheckIn;
@@ -181,6 +206,10 @@ window.triggerRandomEvent = triggerRandomEvent;
 window.confirmCharacter = confirmCharacter;
 window.selectCharacter = selectCharacter;
 window.renderCharacterSelection = renderCharacterSelection;
+
+// 聚合底部导航
+window.toggleNavGroup = toggleNavGroup;
+window.closeNavGroups = closeNavGroups;
 
 // 启动
 if (document.readyState === 'loading') {

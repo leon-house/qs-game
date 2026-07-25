@@ -1,9 +1,9 @@
 /**
  * 章节系统
  */
-import { GameData } from '../data/gameData.js';
-import { Renderer } from '../core/renderer.js';
-import { showToast } from '../ui/ui.js';
+import { GameData } from '../data/gameData.js?v=equipment-showcase-20260725j';
+import { Renderer } from '../core/renderer.js?v=equipment-showcase-20260725j';
+import { showToast } from '../ui/ui.js?v=equipment-showcase-20260725j';
 
 const CHAPTERS = [
     { chapter: 1, name: '废墟之城', bossStart: 1, bossEnd: 10 },
