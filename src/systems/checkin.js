@@ -1,9 +1,9 @@
 /**
  * 每日签到系统
  */
-import { GameData, saveData } from '../data/gameData.js?v=equip-mini-btns-20260725n';
-import { Renderer } from '../core/renderer.js?v=equip-mini-btns-20260725n';
-import { showToast, updateUI } from '../ui/ui.js?v=equip-mini-btns-20260725n';
+import { GameData, saveData } from '../data/gameData.js?v=hero-sprite-fix-20260725o';
+import { Renderer } from '../core/renderer.js?v=hero-sprite-fix-20260725o';
+import { showToast, updateUI } from '../ui/ui.js?v=hero-sprite-fix-20260725o';
 
 const CHECKIN_REWARDS = [
     { day: 1, gold: 100, diamond: 0 },

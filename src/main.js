@@ -1,13 +1,13 @@
 /**
  * 主入口 - 游戏初始化（接管 HTML 入口）
  */
-import { GameData, loadData, saveData, initNewFields } from './data/gameData.js?v=equip-mini-btns-20260725n';
-import { calculateStats, calculatePower } from './systems/equipment.js?v=equip-mini-btns-20260725n';
-import { initStageEnemy } from './systems/stage.js?v=equip-mini-btns-20260725n';
-import { manualAttack, toggleAutoBattle, healInBattle } from './systems/battle.js?v=equip-mini-btns-20260725n';
-import { updateUI, showToast } from './ui/ui.js?v=equip-mini-btns-20260725n';
-import { Renderer } from './core/renderer.js?v=equip-mini-btns-20260725n';
-import { Timers } from './core/events.js?v=equip-mini-btns-20260725n';
+import { GameData, loadData, saveData, initNewFields } from './data/gameData.js?v=hero-sprite-fix-20260725o';
+import { calculateStats, calculatePower } from './systems/equipment.js?v=hero-sprite-fix-20260725o';
+import { initStageEnemy } from './systems/stage.js?v=hero-sprite-fix-20260725o';
+import { manualAttack, toggleAutoBattle, healInBattle } from './systems/battle.js?v=hero-sprite-fix-20260725o';
+import { updateUI, showToast } from './ui/ui.js?v=hero-sprite-fix-20260725o';
+import { Renderer } from './core/renderer.js?v=hero-sprite-fix-20260725o';
+import { Timers } from './core/events.js?v=hero-sprite-fix-20260725o';
 
 import {
     openStatsModal, closeStatsModal,
@@ -15,21 +15,21 @@ import {
     showItemMenu, closeItemMenu,
     openEquipSelect, closeEquipSelect, equipFromSelect, unequipItem,
     showEquipDetail, closeEquipDetail, equipItem, sellItem, decomposeItem
-} from './ui/modals.js?v=equip-mini-btns-20260725n';
+} from './ui/modals.js?v=hero-sprite-fix-20260725o';
 
-import { openShop, closeShop, refreshShop, buyItem } from './systems/shop.js?v=equip-mini-btns-20260725n';
-import { openShelter, closeShelter, upgradeShelter } from './systems/shelter.js?v=equip-mini-btns-20260725n';
-import { openCollection, closeCollection, switchCollectionTab } from './systems/collection.js?v=equip-mini-btns-20260725n';
-import { resetBattle } from './systems/stage.js?v=equip-mini-btns-20260725n';
-import { openCheckIn, closeCheckIn, doCheckIn } from './systems/checkin.js?v=equip-mini-btns-20260725n';
-import { openTasks, closeTasks, claimTask } from './systems/tasks.js?v=equip-mini-btns-20260725n';
-import { openAchievements, closeAchievements, checkAchievements } from './systems/achievements.js?v=equip-mini-btns-20260725n';
-import { openChapter, closeChapter } from './systems/chapter.js?v=equip-mini-btns-20260725n';
-import { openDungeons, closeDungeons, startDungeonAutoBattle, performDungeonAttack, closeDungeonBattle } from './systems/dungeons.js?v=equip-mini-btns-20260725n';
-import { closeEvent, claimEventReward, triggerRandomEvent } from './systems/events.js?v=equip-mini-btns-20260725n';
-import { closeStory, showCurrentChapterStory, showStory } from './systems/story.js?v=equip-mini-btns-20260725n';
-import { confirmCharacter, selectCharacter, renderCharacterSelection } from './systems/character.js?v=equip-mini-btns-20260725n';
-import { resetDailyTasks } from './systems/tasks.js?v=equip-mini-btns-20260725n';
+import { openShop, closeShop, refreshShop, buyItem } from './systems/shop.js?v=hero-sprite-fix-20260725o';
+import { openShelter, closeShelter, upgradeShelter } from './systems/shelter.js?v=hero-sprite-fix-20260725o';
+import { openCollection, closeCollection, switchCollectionTab } from './systems/collection.js?v=hero-sprite-fix-20260725o';
+import { resetBattle } from './systems/stage.js?v=hero-sprite-fix-20260725o';
+import { openCheckIn, closeCheckIn, doCheckIn } from './systems/checkin.js?v=hero-sprite-fix-20260725o';
+import { openTasks, closeTasks, claimTask } from './systems/tasks.js?v=hero-sprite-fix-20260725o';
+import { openAchievements, closeAchievements, checkAchievements } from './systems/achievements.js?v=hero-sprite-fix-20260725o';
+import { openChapter, closeChapter } from './systems/chapter.js?v=hero-sprite-fix-20260725o';
+import { openDungeons, closeDungeons, startDungeonAutoBattle, performDungeonAttack, closeDungeonBattle } from './systems/dungeons.js?v=hero-sprite-fix-20260725o';
+import { closeEvent, claimEventReward, triggerRandomEvent } from './systems/events.js?v=hero-sprite-fix-20260725o';
+import { closeStory, showCurrentChapterStory, showStory } from './systems/story.js?v=hero-sprite-fix-20260725o';
+import { confirmCharacter, selectCharacter, renderCharacterSelection } from './systems/character.js?v=hero-sprite-fix-20260725o';
+import { resetDailyTasks } from './systems/tasks.js?v=hero-sprite-fix-20260725o';
 
 /**
  * 初始化游戏

@@ -7,12 +7,12 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>末世幸存者 - 挂机肉鸽</title>
-    <link rel="stylesheet" href="style.css?v=equip-mini-btns-20260725n">
+    <link rel="stylesheet" href="style.css?v=hero-sprite-fix-20260725o">
 </head>
 <body>
     <!-- 版本号横幅（确认是否加载最新代码）-->
-    <div id="version-banner" style="position:fixed;top:4px;right:4px;z-index:9999;background:#ff0066;color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;font-family:monospace;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.5);">v=idle-breath-20260725k</div>
-    <script>console.log('%c[VERSION] idle-breath-20260725k','background:#ff0066;color:#fff;padding:2px 6px;border-radius:3px;font-weight:bold;');</script>
+    <div id="version-banner" style="position:fixed;top:4px;right:4px;z-index:9999;background:#ff0066;color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;font-family:monospace;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.5);">v=2d-model-style-20260725l</div>
+    <script>console.log('%c[VERSION] 2d-model-style-20260725l','background:#ff0066;color:#fff;padding:2px 6px;border-radius:3px;font-weight:bold;');</script>
     <div id="app">
         <div class="app-content">
             <!-- 顶部资源栏 -->
@@ -42,7 +42,7 @@
                     <!-- 中间头像和属性 -->
                     <div class="player-center">
                         <div class="player-avatar" id="player-avatar" onclick="openStatsModal()">
-                            <img class="avatar-img idle-breath" id="avatar-img" src="assets/images/hero.png" alt="英雄">
+                            <div class="sprite-slot hero-sprite"><img class="hero-sprite-img" src="assets/images/sprites/hero-sheet.png" alt="英雄"></div>
                         </div>
                         <!-- 战力 -->
                         <div class="power-display">⚔️ 战力 <span id="power-display">0</span></div>
@@ -84,7 +84,7 @@
                     <div class="battle-arena">
                         <!-- 玩家 -->
                         <div class="arena-player" id="arena-player">
-                            <img class="arena-player-img idle-breath" id="arena-player-img" src="assets/images/hero.png" alt="玩家">
+                            <div class="sprite-slot hero-sprite"><img class="hero-sprite-img" src="assets/images/sprites/hero-sheet.png" alt="玩家"></div>
                             <div class="arena-hp-bar">
                                 <div class="arena-hp-fill player" id="arena-player-hp" style="width: 100%"></div>
                             </div>
@@ -459,4 +459,4 @@
     <div class="toast-container" id="toast-container"></div>
 
     <!-- [主入口] 模块化游戏入口（main.js 自动 import 所有依赖） -->
-    <script type="module" src="src/main.js?v=equip-mini-btns-20260725n"></script>
+    <script type="module" src="src/main.js?v=hero-sprite-fix-20260725o"></script>

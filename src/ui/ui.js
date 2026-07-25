@@ -2,10 +2,10 @@
  * UI更新层
  * 所有界面刷新函数集中管理
  */
-import { GameData, saveData } from '../data/gameData.js?v=equip-mini-btns-20260725n';
-import { calculateStats, calculatePower, updateEquipmentBar } from '../systems/equipment.js?v=equip-mini-btns-20260725n';
-import { initStageEnemy, updateArenaHp } from '../systems/stage.js?v=equip-mini-btns-20260725n';
-import { Renderer } from '../core/renderer.js?v=equip-mini-btns-20260725n';
+import { GameData, saveData } from '../data/gameData.js?v=hero-sprite-fix-20260725o';
+import { calculateStats, calculatePower, updateEquipmentBar } from '../systems/equipment.js?v=hero-sprite-fix-20260725o';
+import { initStageEnemy, updateArenaHp } from '../systems/stage.js?v=hero-sprite-fix-20260725o';
+import { Renderer } from '../core/renderer.js?v=hero-sprite-fix-20260725o';
 
 /**
  * 格式化数字

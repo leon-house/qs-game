@@ -1,9 +1,9 @@
 /**
  * 每日任务系统
  */
-import { GameData, saveData } from '../data/gameData.js?v=equip-mini-btns-20260725n';
-import { Renderer } from '../core/renderer.js?v=equip-mini-btns-20260725n';
-import { showToast, updateUI } from '../ui/ui.js?v=equip-mini-btns-20260725n';
+import { GameData, saveData } from '../data/gameData.js?v=hero-sprite-fix-20260725o';
+import { Renderer } from '../core/renderer.js?v=hero-sprite-fix-20260725o';
+import { showToast, updateUI } from '../ui/ui.js?v=hero-sprite-fix-20260725o';
 
 const DAILY_TASKS = [
     { id: 'kill_boss', name: '击败Boss', desc: '击败1个Boss', target: 1, reward: { gold: 200, diamond: 2 } },

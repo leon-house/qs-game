@@ -1,9 +1,9 @@
 /**
  * 图鉴系统
  */
-import { GameData } from '../data/gameData.js?v=equip-mini-btns-20260725n';
-import { EQUIPMENT_TEMPLATES } from '../data/config.js?v=equip-mini-btns-20260725n';
-import { Renderer } from '../core/renderer.js?v=equip-mini-btns-20260725n';
+import { GameData } from '../data/gameData.js?v=hero-sprite-fix-20260725o';
+import { EQUIPMENT_TEMPLATES } from '../data/config.js?v=hero-sprite-fix-20260725o';
+import { Renderer } from '../core/renderer.js?v=hero-sprite-fix-20260725o';
 
 let currentCollectionType = 'equipment';
 

@@ -1,12 +1,12 @@
 /**
  * 副本系统（普通/精英副本 + 扫荡）
  */
-import { GameData, saveData } from '../data/gameData.js?v=equip-mini-btns-20260725n';
-import { Renderer } from '../core/renderer.js?v=equip-mini-btns-20260725n';
-import { MATERIALS } from '../data/config.js?v=equip-mini-btns-20260725n';
-import { calculateStats } from './equipment.js?v=equip-mini-btns-20260725n';
-import { showToast, updateUI } from '../ui/ui.js?v=equip-mini-btns-20260725n';
-import { triggerRandomEvent } from './events.js?v=equip-mini-btns-20260725n';
+import { GameData, saveData } from '../data/gameData.js?v=hero-sprite-fix-20260725o';
+import { Renderer } from '../core/renderer.js?v=hero-sprite-fix-20260725o';
+import { MATERIALS } from '../data/config.js?v=hero-sprite-fix-20260725o';
+import { calculateStats } from './equipment.js?v=hero-sprite-fix-20260725o';
+import { showToast, updateUI } from '../ui/ui.js?v=hero-sprite-fix-20260725o';
+import { triggerRandomEvent } from './events.js?v=hero-sprite-fix-20260725o';
 
 const DUNGEONS = [
     { id: 'normal_1', name: '废墟副本', chapter: 1, waves: 10, hpScale: 0.3, rewardScale: 1, type: 'normal' },

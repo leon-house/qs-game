@@ -1,10 +1,10 @@
 /**
  * 弹窗管理
  */
-import { GameData, saveData } from '../data/gameData.js?v=equip-mini-btns-20260725n';
-import { calculateStats, calculatePower, getEquipDesc, getEquipmentStats, updateEquipmentBar } from '../systems/equipment.js?v=equip-mini-btns-20260725n';
-import { Renderer } from '../core/renderer.js?v=equip-mini-btns-20260725n';
-import { formatNumber, showToast, updateUI } from './ui.js?v=equip-mini-btns-20260725n';
+import { GameData, saveData } from '../data/gameData.js?v=hero-sprite-fix-20260725o';
+import { calculateStats, calculatePower, getEquipDesc, getEquipmentStats, updateEquipmentBar } from '../systems/equipment.js?v=hero-sprite-fix-20260725o';
+import { Renderer } from '../core/renderer.js?v=hero-sprite-fix-20260725o';
+import { formatNumber, showToast, updateUI } from './ui.js?v=hero-sprite-fix-20260725o';
 
 /**
  * 属性弹窗

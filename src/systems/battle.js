@@ -2,15 +2,15 @@
  * 战斗系统
  * 手动攻击、自动战斗、伤害计算、掉落
  */
-import { GameData, saveData } from '../data/gameData.js?v=equip-mini-btns-20260725n';
-import { calculateStats } from './equipment.js?v=equip-mini-btns-20260725n';
-import { initStageEnemy, updateArenaHp } from './stage.js?v=equip-mini-btns-20260725n';
-import { Renderer } from '../core/renderer.js?v=equip-mini-btns-20260725n';
-import { Timers } from '../core/events.js?v=equip-mini-btns-20260725n';
-import { EQUIPMENT_TEMPLATES, MATERIALS } from '../data/config.js?v=equip-mini-btns-20260725n';
-import { updateChapter } from './chapter.js?v=equip-mini-btns-20260725n';
-import { showStory } from './story.js?v=equip-mini-btns-20260725n';
-import { showToast } from '../ui/ui.js?v=equip-mini-btns-20260725n';
+import { GameData, saveData } from '../data/gameData.js?v=hero-sprite-fix-20260725o';
+import { calculateStats } from './equipment.js?v=hero-sprite-fix-20260725o';
+import { initStageEnemy, updateArenaHp } from './stage.js?v=hero-sprite-fix-20260725o';
+import { Renderer } from '../core/renderer.js?v=hero-sprite-fix-20260725o';
+import { Timers } from '../core/events.js?v=hero-sprite-fix-20260725o';
+import { EQUIPMENT_TEMPLATES, MATERIALS } from '../data/config.js?v=hero-sprite-fix-20260725o';
+import { updateChapter } from './chapter.js?v=hero-sprite-fix-20260725o';
+import { showStory } from './story.js?v=hero-sprite-fix-20260725o';
+import { showToast } from '../ui/ui.js?v=hero-sprite-fix-20260725o';
 
 let isAutoBattle = false;
 let combatInterval = null;

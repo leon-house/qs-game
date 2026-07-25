@@ -266,35 +266,40 @@ body {
     image-rendering: pixelated;
 }
 
-/* === Sprite Sheet 动画系统 === */
 /* === 单帧角色 + 呼吸 / 攻击动画 === */
-/* 单帧站姿（hero.png / boss.png / 小怪）常态用：轻微缩放+上下浮动 */
+/* 单帧站姿（hero.png / boss.png）常态用：上下浮动 + 微微左右摆 + 缩放（模拟 2D 建模呼吸）*/
 .idle-breath {
+    transform-origin: center bottom;
     animation: idle-breath 1.8s ease-in-out infinite alternate;
 }
 @keyframes idle-breath {
-    0% { transform: scale(1) translateY(0); }
-    100% { transform: scale(1.03) translateY(-3px); }
+    0%   { transform: scale(1)    translateY(0)    rotate(0deg); }
+    50%  { transform: scale(1.025) translateY(-4px) rotate(0.6deg); }
+    100% { transform: scale(1.04) translateY(-2px) rotate(-0.4deg); }
 }
 
 /* 普通小怪：单帧 + idle 呼吸（更明显的浮动）*/
 .idle-anim {
+    transform-origin: center bottom;
     animation: idle-anim 1.6s ease-in-out infinite alternate;
 }
 @keyframes idle-anim {
-    0% { transform: scale(1) translateY(0); }
+    0%   { transform: scale(1)    translateY(0); }
     100% { transform: scale(1.05) translateY(-4px); }
 }
 
-/* 攻击 swing：临时覆盖 idle-breath，单次挥砍位移（500ms）*/
+/* 攻击 swing：临时覆盖 idle-breath，立体挥砍（500ms）*/
 .arena-player-img.attacking,
 .avatar-img.attacking {
     animation: player-swing 0.5s ease-out !important;
+    transform-origin: center bottom;
 }
 @keyframes player-swing {
-    0% { transform: translateX(0) scale(1); filter: brightness(1); }
-    30% { transform: translateX(28px) scale(1.1); filter: brightness(1.5); }
-    100% { transform: translateX(0) scale(1); filter: brightness(1); }
+    0%   { transform: translateX(0)    scale(1)    rotate(0deg)   brightness(1); }
+    20%  { transform: translateX(8px)  scale(1.06) rotate(-8deg)  brightness(1.2); }
+    45%  { transform: translateX(22px) scale(1.12) rotate(12deg)  brightness(1.6); }
+    70%  { transform: translateX(15px) scale(1.05) rotate(4deg)   brightness(1.2); }
+    100% { transform: translateX(0)    scale(1)    rotate(0deg)   brightness(1); }
 }
 
 /* 战斗场景 */
@@ -1947,7 +1952,7 @@ body {
 /* 角色区改成手游主城舞台，而非普通网页卡片 */
 .player-card.new-layout {
     position: relative;
-    height: 292px;
+    height: 220px;
     margin: 0 -10px 8px;
     padding: 18px 16px;
     border: 0;
@@ -1960,18 +1965,18 @@ body {
 .player-avatar {
     position: absolute;
     left: 50%;
-    top: 56px;
-    width: 150px;
-    height: 150px;
+    top: 62px;
+    width: 96px;
+    height: 96px;
     transform: translateX(-50%);
     border: 0;
-    border-radius: 0;
+    border-radius: 50%;
     background: transparent;
     box-shadow: none;
-    overflow: visible;
+    overflow: hidden;
 }
-.player-avatar:hover { transform: translateX(-50%) scale(1.03); }
-.avatar-img { object-fit: contain; border-radius: 0; filter: drop-shadow(0 14px 12px rgba(0,0,0,.72)); }
+.player-avatar:hover { transform: translateX(-50%) scale(1.05); }
+.avatar-img { object-fit: contain; border-radius: 0; filter: drop-shadow(0 6px 8px rgba(0,0,0,.55)); }
 .player-name {
     position: absolute;
     left: 16px;
@@ -2147,8 +2152,8 @@ body {
 }
 
 @media (max-height: 760px) {
-    .player-card.new-layout { height: 248px; }
-    .player-avatar { top: 42px; width: 126px; height: 126px; }
+    .player-card.new-layout { height: 200px; }
+    .player-avatar { top: 50px; width: 88px; height: 88px; }
     .battle-card { margin-top: -38px; }
     .action-btn:nth-child(6) { display: none; }
 }

@@ -1,9 +1,9 @@
 /**
  * 剧情展示系统
  */
-import { GameData, saveData } from '../data/gameData.js?v=equip-mini-btns-20260725n';
-import { Renderer } from '../core/renderer.js?v=equip-mini-btns-20260725n';
-import { CHAPTER_STORIES } from '../data/config.js?v=equip-mini-btns-20260725n';
+import { GameData, saveData } from '../data/gameData.js?v=hero-sprite-fix-20260725o';
+import { Renderer } from '../core/renderer.js?v=hero-sprite-fix-20260725o';
+import { CHAPTER_STORIES } from '../data/config.js?v=hero-sprite-fix-20260725o';
 
 export function showStory(chapterIndex) {
     const story = CHAPTER_STORIES[chapterIndex] || CHAPTER_STORIES[0];
