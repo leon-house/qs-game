@@ -92,7 +92,7 @@ body {
     width: 90px;
     height: 90px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--purple), var(--orange));
+    background: #1a1a1a;  /* 改为深色与 sprite #1a1a1a 背景融合（ImageGen transparent 不可靠，改用纯色融合）*/
     display: flex;
     align-items: center;
     justify-content: center;
@@ -414,6 +414,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    background: #1a1a1a;  /* 战斗小怪容器也用深色与 sprite 背景融合 */
+    border-radius: 50%;
     filter: drop-shadow(0 4px 8px rgba(255,0,0,0.5));
     transition: transform 0.2s ease;
     flex-shrink: 0;
@@ -2176,68 +2178,89 @@ body {
     .action-btn:nth-child(11) { left: 80%; }
 }
 
-/* 主界面左侧/右侧槽位隐藏，改由下方 .equipment-showcase 统一展示 */
+/* 主界面装备栏恢复显示：左右两侧各 4-5 槽围绕头像 */
 .player-card.new-layout > .equip-left,
 .player-card.new-layout > .equip-right {
-    display: none !important;
+    /* 装备栏回归头像两侧（恢复 visibility） */
 }
 
-/* === 首页装备展示区：玩家卡片下方一行 9 槽 === */
-.equipment-showcase {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 12px;
-    margin: 0 8px 8px 8px;
-    background: linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.28));
-    border-radius: 10px;
-    border: 1px solid rgba(168, 85, 247, 0.18);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 2px 6px rgba(0,0,0,0.3);
-    overflow-x: auto;
-    scrollbar-width: none;
+/* 玩家卡片内的装备槽位：紧凑和谐 */
+.player-card.new-layout .equip-slot {
+    width: 32px;
+    height: 32px;
+    border-radius: 7px;
+    font-size: 16px;
+    border-width: 1.5px;
 }
-.equipment-showcase::-webkit-scrollbar { display: none; }
-.equipment-showcase .equip-slot {
-    flex: 1 1 0;
-    min-width: 34px;
-    max-width: 42px;
-    aspect-ratio: 1 / 1;
-    border-radius: 8px;
-    background: rgba(0,0,0,0.55);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    border: 1.5px solid rgba(255,255,255,0.12);
-    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
-    position: relative;
+.player-card.new-layout .equip-slot-img {
+    width: 26px;
+    height: 26px;
 }
-.equipment-showcase .equip-slot:hover {
-    transform: translateY(-2px) scale(1.06);
-    border-color: #a855f7;
-    box-shadow: 0 0 0 1px rgba(168,85,247,0.4), 0 4px 12px rgba(168,85,247,0.25);
-    z-index: 2;
-}
-.equipment-showcase .equip-slot.equipped {
+.player-card.new-layout .equip-slot.equipped {
     border-color: #4ade80;
     background: linear-gradient(135deg, rgba(74,222,128,0.18), rgba(74,222,128,0.05));
-    box-shadow: 0 0 8px rgba(74,222,128,0.35);
+    box-shadow: 0 0 6px rgba(74,222,128,0.35);
 }
-.equipment-showcase .equip-slot .quality-dot {
+.player-card.new-layout .equip-slot .quality-dot {
     position: absolute;
-    top: 3px;
-    right: 3px;
-    width: 6px;
-    height: 6px;
+    top: 2px;
+    right: 2px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
 }
-.quality-dot.quality-white { background: #cccccc; }
-.quality-dot.quality-green { background: #4caf50; }
-.quality-dot.quality-blue { background: #2196f3; }
-.quality-dot.quality-purple { background: #9c27b0; }
-.quality-dot.quality-orange { background: #ff9800; }
-.quality-dot.quality-red { background: #f44336; }
+
+/* === 玩家卡片右上角：快捷功能按钮组 === */
+.player-card.new-layout {
+    position: relative;  /* 已是 position:relative 重复声明保险 */
+}
+.quick-actions {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    display: flex;
+    gap: 6px;
+    z-index: 5;
+}
+.quick-actions .quick-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.55);
+    border: 1px solid rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    color: #fff;
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+}
+.quick-actions .quick-btn:hover {
+    transform: translateY(-1px) scale(1.08);
+    border-color: #a855f7;
+    box-shadow: 0 0 0 1px rgba(168,85,247,0.4), 0 4px 10px rgba(168,85,247,0.25);
+}
+.quick-actions .quick-btn.has-badge::after {
+    content: attr(data-badge);
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    min-width: 14px;
+    height: 14px;
+    padding: 0 3px;
+    border-radius: 7px;
+    background: #f44336;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 14px;
+    text-align: center;
+    box-shadow: 0 0 4px rgba(244,67,54,0.6);
+}
 
 /* 聚合式固定底部导航：取消角色周围悬浮入口 */
 .action-buttons {

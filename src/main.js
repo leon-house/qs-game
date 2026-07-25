@@ -1,13 +1,13 @@
 /**
  * 主入口 - 游戏初始化（接管 HTML 入口）
  */
-import { GameData, loadData, saveData, initNewFields } from './data/gameData.js?v=equipment-showcase-20260725j';
-import { calculateStats, calculatePower } from './systems/equipment.js?v=equipment-showcase-20260725j';
-import { initStageEnemy } from './systems/stage.js?v=equipment-showcase-20260725j';
-import { manualAttack, toggleAutoBattle, healInBattle } from './systems/battle.js?v=equipment-showcase-20260725j';
-import { updateUI, showToast } from './ui/ui.js?v=equipment-showcase-20260725j';
-import { Renderer } from './core/renderer.js?v=equipment-showcase-20260725j';
-import { Timers } from './core/events.js?v=equipment-showcase-20260725j';
+import { GameData, loadData, saveData, initNewFields } from './data/gameData.js?v=quick-actions-20260725k';
+import { calculateStats, calculatePower } from './systems/equipment.js?v=quick-actions-20260725k';
+import { initStageEnemy } from './systems/stage.js?v=quick-actions-20260725k';
+import { manualAttack, toggleAutoBattle, healInBattle } from './systems/battle.js?v=quick-actions-20260725k';
+import { updateUI, showToast } from './ui/ui.js?v=quick-actions-20260725k';
+import { Renderer } from './core/renderer.js?v=quick-actions-20260725k';
+import { Timers } from './core/events.js?v=quick-actions-20260725k';
 
 import {
     openStatsModal, closeStatsModal,
@@ -15,21 +15,21 @@ import {
     showItemMenu, closeItemMenu,
     openEquipSelect, closeEquipSelect, equipFromSelect, unequipItem,
     showEquipDetail, closeEquipDetail, equipItem, sellItem, decomposeItem
-} from './ui/modals.js?v=equipment-showcase-20260725j';
+} from './ui/modals.js?v=quick-actions-20260725k';
 
-import { openShop, closeShop, refreshShop, buyItem } from './systems/shop.js?v=equipment-showcase-20260725j';
-import { openShelter, closeShelter, upgradeShelter } from './systems/shelter.js?v=equipment-showcase-20260725j';
-import { openCollection, closeCollection, switchCollectionTab } from './systems/collection.js?v=equipment-showcase-20260725j';
-import { resetBattle } from './systems/stage.js?v=equipment-showcase-20260725j';
-import { openCheckIn, closeCheckIn, doCheckIn } from './systems/checkin.js?v=equipment-showcase-20260725j';
-import { openTasks, closeTasks, claimTask } from './systems/tasks.js?v=equipment-showcase-20260725j';
-import { openAchievements, closeAchievements, checkAchievements } from './systems/achievements.js?v=equipment-showcase-20260725j';
-import { openChapter, closeChapter } from './systems/chapter.js?v=equipment-showcase-20260725j';
-import { openDungeons, closeDungeons, startDungeonAutoBattle, performDungeonAttack, closeDungeonBattle } from './systems/dungeons.js?v=equipment-showcase-20260725j';
-import { closeEvent, claimEventReward, triggerRandomEvent } from './systems/events.js?v=equipment-showcase-20260725j';
-import { closeStory, showCurrentChapterStory, showStory } from './systems/story.js?v=equipment-showcase-20260725j';
-import { confirmCharacter, selectCharacter, renderCharacterSelection } from './systems/character.js?v=equipment-showcase-20260725j';
-import { resetDailyTasks } from './systems/tasks.js?v=equipment-showcase-20260725j';
+import { openShop, closeShop, refreshShop, buyItem } from './systems/shop.js?v=quick-actions-20260725k';
+import { openShelter, closeShelter, upgradeShelter } from './systems/shelter.js?v=quick-actions-20260725k';
+import { openCollection, closeCollection, switchCollectionTab } from './systems/collection.js?v=quick-actions-20260725k';
+import { resetBattle } from './systems/stage.js?v=quick-actions-20260725k';
+import { openCheckIn, closeCheckIn, doCheckIn } from './systems/checkin.js?v=quick-actions-20260725k';
+import { openTasks, closeTasks, claimTask } from './systems/tasks.js?v=quick-actions-20260725k';
+import { openAchievements, closeAchievements, checkAchievements } from './systems/achievements.js?v=quick-actions-20260725k';
+import { openChapter, closeChapter } from './systems/chapter.js?v=quick-actions-20260725k';
+import { openDungeons, closeDungeons, startDungeonAutoBattle, performDungeonAttack, closeDungeonBattle } from './systems/dungeons.js?v=quick-actions-20260725k';
+import { closeEvent, claimEventReward, triggerRandomEvent } from './systems/events.js?v=quick-actions-20260725k';
+import { closeStory, showCurrentChapterStory, showStory } from './systems/story.js?v=quick-actions-20260725k';
+import { confirmCharacter, selectCharacter, renderCharacterSelection } from './systems/character.js?v=quick-actions-20260725k';
+import { resetDailyTasks } from './systems/tasks.js?v=quick-actions-20260725k';
 
 /**
  * 初始化游戏

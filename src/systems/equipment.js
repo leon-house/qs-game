@@ -2,10 +2,10 @@
  * 装备系统
  * 装备属性计算、穿戴/卸下、升级、分解
  */
-import { GameData } from '../data/gameData.js?v=equipment-showcase-20260725j';
-import { EQUIPMENT_TEMPLATES, SETS, GEMS, SURVIVOR_TYPES } from '../data/config.js?v=equipment-showcase-20260725j';
-import { Renderer } from '../core/renderer.js?v=equipment-showcase-20260725j';
-import { saveData } from '../data/gameData.js?v=equipment-showcase-20260725j';
+import { GameData } from '../data/gameData.js?v=quick-actions-20260725k';
+import { EQUIPMENT_TEMPLATES, SETS, GEMS, SURVIVOR_TYPES } from '../data/config.js?v=quick-actions-20260725k';
+import { Renderer } from '../core/renderer.js?v=quick-actions-20260725k';
+import { saveData } from '../data/gameData.js?v=quick-actions-20260725k';
 
 /**
  * 计算装备属性（含等级加成）

@@ -53,7 +53,7 @@ if (typeof window !== 'undefined') {
 /**
  * 新字段初始化（兼容旧存档）
  */
-export { saveData, loadData } from '../core/storage.js?v=equipment-showcase-20260725j';
+export { saveData, loadData } from '../core/storage.js?v=quick-actions-20260725k';
 
 export function initNewFields() {
     const p = GameData.player;

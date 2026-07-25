@@ -2,15 +2,15 @@
  * 战斗系统
  * 手动攻击、自动战斗、伤害计算、掉落
  */
-import { GameData, saveData } from '../data/gameData.js?v=equipment-showcase-20260725j';
-import { calculateStats } from './equipment.js?v=equipment-showcase-20260725j';
-import { initStageEnemy, updateArenaHp } from './stage.js?v=equipment-showcase-20260725j';
-import { Renderer } from '../core/renderer.js?v=equipment-showcase-20260725j';
-import { Timers } from '../core/events.js?v=equipment-showcase-20260725j';
-import { EQUIPMENT_TEMPLATES, MATERIALS } from '../data/config.js?v=equipment-showcase-20260725j';
-import { updateChapter } from './chapter.js?v=equipment-showcase-20260725j';
-import { showStory } from './story.js?v=equipment-showcase-20260725j';
-import { showToast } from '../ui/ui.js?v=equipment-showcase-20260725j';
+import { GameData, saveData } from '../data/gameData.js?v=quick-actions-20260725k';
+import { calculateStats } from './equipment.js?v=quick-actions-20260725k';
+import { initStageEnemy, updateArenaHp } from './stage.js?v=quick-actions-20260725k';
+import { Renderer } from '../core/renderer.js?v=quick-actions-20260725k';
+import { Timers } from '../core/events.js?v=quick-actions-20260725k';
+import { EQUIPMENT_TEMPLATES, MATERIALS } from '../data/config.js?v=quick-actions-20260725k';
+import { updateChapter } from './chapter.js?v=quick-actions-20260725k';
+import { showStory } from './story.js?v=quick-actions-20260725k';
+import { showToast } from '../ui/ui.js?v=quick-actions-20260725k';
 
 let isAutoBattle = false;
 let combatInterval = null;

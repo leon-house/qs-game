@@ -2,10 +2,10 @@
  * UI更新层
  * 所有界面刷新函数集中管理
  */
-import { GameData, saveData } from '../data/gameData.js?v=equipment-showcase-20260725j';
-import { calculateStats, calculatePower, updateEquipmentBar } from '../systems/equipment.js?v=equipment-showcase-20260725j';
-import { initStageEnemy, updateArenaHp } from '../systems/stage.js?v=equipment-showcase-20260725j';
-import { Renderer } from '../core/renderer.js?v=equipment-showcase-20260725j';
+import { GameData, saveData } from '../data/gameData.js?v=quick-actions-20260725k';
+import { calculateStats, calculatePower, updateEquipmentBar } from '../systems/equipment.js?v=quick-actions-20260725k';
+import { initStageEnemy, updateArenaHp } from '../systems/stage.js?v=quick-actions-20260725k';
+import { Renderer } from '../core/renderer.js?v=quick-actions-20260725k';
 
 /**
  * 格式化数字

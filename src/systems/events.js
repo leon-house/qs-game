@@ -2,10 +2,10 @@
  * 随机事件系统
  * 宝箱/商人/突袭等
  */
-import { GameData, saveData } from '../data/gameData.js?v=equipment-showcase-20260725j';
-import { Renderer } from '../core/renderer.js?v=equipment-showcase-20260725j';
-import { MATERIALS } from '../data/config.js?v=equipment-showcase-20260725j';
-import { showToast, updateUI } from '../ui/ui.js?v=equipment-showcase-20260725j';
+import { GameData, saveData } from '../data/gameData.js?v=quick-actions-20260725k';
+import { Renderer } from '../core/renderer.js?v=quick-actions-20260725k';
+import { MATERIALS } from '../data/config.js?v=quick-actions-20260725k';
+import { showToast, updateUI } from '../ui/ui.js?v=quick-actions-20260725k';
 
 const RANDOM_EVENTS = [
     { type: 'chest', name: '神秘宝箱', icon: '📦', weight: 30 },

@@ -1,9 +1,9 @@
 /**
  * 成就系统
  */
-import { GameData, saveData } from '../data/gameData.js?v=equipment-showcase-20260725j';
-import { Renderer } from '../core/renderer.js?v=equipment-showcase-20260725j';
-import { showToast } from '../ui/ui.js?v=equipment-showcase-20260725j';
+import { GameData, saveData } from '../data/gameData.js?v=quick-actions-20260725k';
+import { Renderer } from '../core/renderer.js?v=quick-actions-20260725k';
+import { showToast } from '../ui/ui.js?v=quick-actions-20260725k';
 
 const ACHIEVEMENTS = [
     { id: 'first_boss', name: '初战告捷', desc: '击败第一个Boss', icon: '🎯', reward: { gold: 100 } },

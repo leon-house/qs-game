@@ -1,10 +1,10 @@
 /**
  * 弹窗管理
  */
-import { GameData, saveData } from '../data/gameData.js?v=equipment-showcase-20260725j';
-import { calculateStats, calculatePower, getEquipDesc, getEquipmentStats, updateEquipmentBar } from '../systems/equipment.js?v=equipment-showcase-20260725j';
-import { Renderer } from '../core/renderer.js?v=equipment-showcase-20260725j';
-import { formatNumber, showToast, updateUI } from './ui.js?v=equipment-showcase-20260725j';
+import { GameData, saveData } from '../data/gameData.js?v=quick-actions-20260725k';
+import { calculateStats, calculatePower, getEquipDesc, getEquipmentStats, updateEquipmentBar } from '../systems/equipment.js?v=quick-actions-20260725k';
+import { Renderer } from '../core/renderer.js?v=quick-actions-20260725k';
+import { formatNumber, showToast, updateUI } from './ui.js?v=quick-actions-20260725k';
 
 /**
  * 属性弹窗
