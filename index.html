@@ -3,10 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>末世幸存者 - 挂机肉鸽</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=close-backdrop-20260725f">
 </head>
 <body>
+    <!-- 版本号横幅（确认是否加载最新代码）-->
+    <div id="version-banner" style="position:fixed;top:4px;right:4px;z-index:9999;background:#ff0066;color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;font-family:monospace;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.5);">v=sprite-anim-20260725e</div>
+    <script>console.log('%c[VERSION] sprite-anim-20260725e','background:#ff0066;color:#fff;padding:2px 6px;border-radius:3px;font-weight:bold;');</script>
     <div id="app">
         <div class="app-content">
             <!-- 顶部资源栏 -->
@@ -36,14 +42,10 @@
                     <!-- 中间头像和属性 -->
                     <div class="player-center">
                         <div class="player-avatar" id="player-avatar" onclick="openStatsModal()">
-                            <img class="avatar-img" id="avatar-img" src="assets/images/hero.png" alt="英雄">
+                            <div class="sprite-slot hero-sprite"><img class="hero-sprite-img" src="assets/images/sprites/hero-sheet.png" alt="英雄"></div>
                         </div>
                         <!-- 战力 -->
                         <div class="power-display">⚔️ 战力 <span id="power-display">0</span></div>
-                        <!-- 水晶 -->
-                        <div class="crystal-display" id="crystal-display" onclick="openCrystal()">
-                            💎 <span id="crystal-count">0</span>
-                        </div>
                         <div class="player-name">
                             <span id="player-name">幸存者</span>
                             <span id="player-type" style="font-size:12px;color:var(--text-secondary);margin-left:8px;"></span>
@@ -74,7 +76,7 @@
                     <div class="battle-arena">
                         <!-- 玩家 -->
                         <div class="arena-player" id="arena-player">
-                            <img src="assets/images/hero.png" alt="玩家" class="arena-player-img">
+                            <div class="sprite-slot hero-sprite"><img class="hero-sprite-img" src="assets/images/sprites/hero-sheet.png" alt="玩家"></div>
                             <div class="arena-hp-bar">
                                 <div class="arena-hp-fill player" id="arena-player-hp" style="width: 100%"></div>
                             </div>
@@ -84,7 +86,7 @@
                         <div class="arena-vs">⚔️</div>
                         <!-- Boss -->
                         <div class="arena-boss" id="arena-boss">
-                            <div class="arena-boss-icon" id="arena-boss-icon">👹</div>
+                            <div class="arena-boss-icon" id="arena-boss-icon"></div>
                             <div class="arena-boss-name" id="arena-boss-name">变异体</div>
                             <div class="arena-hp-bar">
                                 <div class="arena-hp-fill boss" id="arena-boss-hp" style="width: 100%"></div>
@@ -104,64 +106,58 @@
                     </div>
                 </div>
 
-                <!-- 功能按钮 -->
-                <div class="action-buttons">
-                    <div class="action-btn shop" onclick="openShop()">
-                        <div class="action-btn-icon">🛒</div>
-                        <div class="action-btn-text">商店</div>
-                        <div class="action-btn-desc">购买物资</div>
+                <!-- 固定底部聚合导航 -->
+                <nav class="action-buttons" id="game-nav">
+                    <div class="nav-group">
+                        <button class="action-btn" onclick="toggleNavGroup('survival-nav', this)">
+                            <span class="action-btn-icon">🏚️</span>
+                            <span class="action-btn-text">生存</span>
+                        </button>
+                        <div class="nav-submenu" id="survival-nav">
+                            <button onclick="openShelter(); closeNavGroups()"><span>🏠</span>庇护所</button>
+                        </div>
                     </div>
-                    <div class="action-btn shelter" onclick="openShelter()">
-                        <div class="action-btn-icon">🏠</div>
-                        <div class="action-btn-text">庇护所</div>
-                        <div class="action-btn-desc">升级加成</div>
+                    <div class="nav-group">
+                        <button class="action-btn" onclick="toggleNavGroup('growth-nav', this)">
+                            <span class="action-btn-icon">📋</span>
+                            <span class="action-btn-text">成长</span>
+                            <span class="nav-alert">!</span>
+                        </button>
+                        <div class="nav-submenu" id="growth-nav">
+                            <button onclick="openBag(); closeNavGroups()"><span>🛡️</span>装备</button>
+                            <button onclick="openCheckIn(); closeNavGroups()"><span>📅</span>签到</button>
+                            <button onclick="openTasks(); closeNavGroups()"><span>📋</span>任务</button>
+                            <button onclick="openAchievements(); closeNavGroups()"><span>🏆</span>成就</button>
+                        </div>
                     </div>
-                    <div class="action-btn bag" onclick="openBag()">
-                        <div class="action-btn-icon">🎒</div>
-                        <div class="action-btn-text">背包</div>
-                        <div class="action-btn-desc">装备管理</div>
+                    <div class="nav-group nav-group-primary">
+                        <button class="action-btn" onclick="openBattle()">
+                            <span class="action-btn-icon">⚔️</span>
+                            <span class="action-btn-text">战斗</span>
+                        </button>
                     </div>
-                    <div class="action-btn battle" onclick="openBattle()">
-                        <div class="action-btn-icon">🔄</div>
-                        <div class="action-btn-text">换Boss</div>
-                        <div class="action-btn-desc">重置战斗</div>
+                    <div class="nav-group">
+                        <button class="action-btn" onclick="toggleNavGroup('adventure-nav', this)">
+                            <span class="action-btn-icon">🗺️</span>
+                            <span class="action-btn-text">冒险</span>
+                        </button>
+                        <div class="nav-submenu" id="adventure-nav">
+                            <button onclick="openChapter(); closeNavGroups()"><span>🎯</span>章节</button>
+                            <button onclick="openDungeons(); closeNavGroups()"><span>🏰</span>副本</button>
+                            <button onclick="showCurrentChapterStory(); closeNavGroups()"><span>📜</span>剧情</button>
+                        </div>
                     </div>
-                    <div class="action-btn" onclick="openChapter()">
-                        <div class="action-btn-icon">🎯</div>
-                        <div class="action-btn-text">章节</div>
-                        <div class="action-btn-desc">进度</div>
+                    <div class="nav-group">
+                        <button class="action-btn" onclick="toggleNavGroup('archive-nav', this)">
+                            <span class="action-btn-icon">🧰</span>
+                            <span class="action-btn-text">物资</span>
+                        </button>
+                        <div class="nav-submenu" id="archive-nav">
+                            <button onclick="openShop(); closeNavGroups()"><span>🛒</span>商店</button>
+                            <button onclick="openCollection(); closeNavGroups()"><span>📖</span>图鉴</button>
+                        </div>
                     </div>
-                    <div class="action-btn" onclick="openCheckIn()">
-                        <div class="action-btn-icon">📅</div>
-                        <div class="action-btn-text">签到</div>
-                        <div class="action-btn-desc">每日奖励</div>
-                    </div>
-                    <div class="action-btn" onclick="openTasks()">
-                        <div class="action-btn-icon">📋</div>
-                        <div class="action-btn-text">任务</div>
-                        <div class="action-btn-desc">每日</div>
-                    </div>
-                    <div class="action-btn" onclick="openAchievements()">
-                        <div class="action-btn-icon">🏆</div>
-                        <div class="action-btn-text">成就</div>
-                        <div class="action-btn-desc">里程碑</div>
-                    </div>
-                    <div class="action-btn" onclick="openCollection()">
-                        <div class="action-btn-icon">📖</div>
-                        <div class="action-btn-text">图鉴</div>
-                        <div class="action-btn-desc">收藏</div>
-                    </div>
-                    <div class="action-btn" onclick="openDungeons()">
-                        <div class="action-btn-icon">🏰</div>
-                        <div class="action-btn-text">副本</div>
-                        <div class="action-btn-desc">刷怪</div>
-                    </div>
-                    <div class="action-btn" onclick="showCurrentChapterStory()">
-                        <div class="action-btn-icon">📜</div>
-                        <div class="action-btn-text">剧情</div>
-                        <div class="action-btn-desc">故事</div>
-                    </div>
-                </div>
+                </nav>
             </div>
 
             <!-- 底部挂机收益 -->
@@ -455,4 +451,4 @@
     <div class="toast-container" id="toast-container"></div>
 
     <!-- [主入口] 模块化游戏入口（main.js 自动 import 所有依赖） -->
-    <script type="module" src="src/main.js"></script>
+    <script type="module" src="src/main.js?v=close-backdrop-20260725f"></script>

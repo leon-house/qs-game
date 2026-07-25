@@ -17,7 +17,12 @@ export const Renderer = {
      */
     $(id) {
         if (elementCache.has(id)) {
-            return elementCache.get(id);
+            const cached = elementCache.get(id);
+            // ★ 缓存验证：如果节点已脱离 DOM（被 removeChild），重新查询
+            if (cached && cached.parentNode) {
+                return cached;
+            }
+            elementCache.delete(id);
         }
         const el = document.getElementById(id);
         if (el) elementCache.set(id, el);
