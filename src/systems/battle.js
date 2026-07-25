@@ -2,15 +2,15 @@
  * 战斗系统
  * 手动攻击、自动战斗、伤害计算、掉落
  */
-import { GameData, saveData } from '../data/gameData.js?v=quick-actions-20260725k';
-import { calculateStats } from './equipment.js?v=quick-actions-20260725k';
-import { initStageEnemy, updateArenaHp } from './stage.js?v=quick-actions-20260725k';
-import { Renderer } from '../core/renderer.js?v=quick-actions-20260725k';
-import { Timers } from '../core/events.js?v=quick-actions-20260725k';
-import { EQUIPMENT_TEMPLATES, MATERIALS } from '../data/config.js?v=quick-actions-20260725k';
-import { updateChapter } from './chapter.js?v=quick-actions-20260725k';
-import { showStory } from './story.js?v=quick-actions-20260725k';
-import { showToast } from '../ui/ui.js?v=quick-actions-20260725k';
+import { GameData, saveData } from '../data/gameData.js?v=equip-select-redesign-20260725m';
+import { calculateStats } from './equipment.js?v=equip-select-redesign-20260725m';
+import { initStageEnemy, updateArenaHp } from './stage.js?v=equip-select-redesign-20260725m';
+import { Renderer } from '../core/renderer.js?v=equip-select-redesign-20260725m';
+import { Timers } from '../core/events.js?v=equip-select-redesign-20260725m';
+import { EQUIPMENT_TEMPLATES, MATERIALS } from '../data/config.js?v=equip-select-redesign-20260725m';
+import { updateChapter } from './chapter.js?v=equip-select-redesign-20260725m';
+import { showStory } from './story.js?v=equip-select-redesign-20260725m';
+import { showToast } from '../ui/ui.js?v=equip-select-redesign-20260725m';
 
 let isAutoBattle = false;
 let combatInterval = null;

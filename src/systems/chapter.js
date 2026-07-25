@@ -1,9 +1,9 @@
 /**
  * 章节系统
  */
-import { GameData } from '../data/gameData.js?v=quick-actions-20260725k';
-import { Renderer } from '../core/renderer.js?v=quick-actions-20260725k';
-import { showToast } from '../ui/ui.js?v=quick-actions-20260725k';
+import { GameData } from '../data/gameData.js?v=equip-select-redesign-20260725m';
+import { Renderer } from '../core/renderer.js?v=equip-select-redesign-20260725m';
+import { showToast } from '../ui/ui.js?v=equip-select-redesign-20260725m';
 
 const CHAPTERS = [
     { chapter: 1, name: '废墟之城', bossStart: 1, bossEnd: 10 },

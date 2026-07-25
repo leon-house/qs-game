@@ -2,11 +2,11 @@
  * 关卡系统
  * 每关50个怪，第50只为Boss，击败Boss进入下一关
  */
-import { GameData } from '../data/gameData.js?v=quick-actions-20260725k';
-import { ENEMY_TYPES, BOSS_TEMPLATES } from '../data/config.js?v=quick-actions-20260725k';
-import { Renderer } from '../core/renderer.js?v=quick-actions-20260725k';
-import { calculateStats } from './equipment.js?v=quick-actions-20260725k';
-import { saveData } from '../data/gameData.js?v=quick-actions-20260725k';
+import { GameData } from '../data/gameData.js?v=equip-select-redesign-20260725m';
+import { ENEMY_TYPES, BOSS_TEMPLATES } from '../data/config.js?v=equip-select-redesign-20260725m';
+import { Renderer } from '../core/renderer.js?v=equip-select-redesign-20260725m';
+import { calculateStats } from './equipment.js?v=equip-select-redesign-20260725m';
+import { saveData } from '../data/gameData.js?v=equip-select-redesign-20260725m';
 
 /**
  * 生成普通关卡怪物

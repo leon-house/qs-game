@@ -1,9 +1,9 @@
 /**
  * 庇护所系统
  */
-import { GameData, saveData } from '../data/gameData.js?v=quick-actions-20260725k';
-import { SHELTER_UPGRADE_COST } from '../data/config.js?v=quick-actions-20260725k';
-import { Renderer } from '../core/renderer.js?v=quick-actions-20260725k';
+import { GameData, saveData } from '../data/gameData.js?v=equip-select-redesign-20260725m';
+import { SHELTER_UPGRADE_COST } from '../data/config.js?v=equip-select-redesign-20260725m';
+import { Renderer } from '../core/renderer.js?v=equip-select-redesign-20260725m';
 
 export function openShelter() {
     updateShelterUI();

@@ -1,10 +1,10 @@
 /**
  * 弹窗管理
  */
-import { GameData, saveData } from '../data/gameData.js?v=quick-actions-20260725k';
-import { calculateStats, calculatePower, getEquipDesc, getEquipmentStats, updateEquipmentBar } from '../systems/equipment.js?v=quick-actions-20260725k';
-import { Renderer } from '../core/renderer.js?v=quick-actions-20260725k';
-import { formatNumber, showToast, updateUI } from './ui.js?v=quick-actions-20260725k';
+import { GameData, saveData } from '../data/gameData.js?v=equip-select-redesign-20260725m';
+import { calculateStats, calculatePower, getEquipDesc, getEquipmentStats, updateEquipmentBar } from '../systems/equipment.js?v=equip-select-redesign-20260725m';
+import { Renderer } from '../core/renderer.js?v=equip-select-redesign-20260725m';
+import { formatNumber, showToast, updateUI } from './ui.js?v=equip-select-redesign-20260725m';
 
 /**
  * 属性弹窗
@@ -397,67 +397,116 @@ const equipIcons = {
 };
 
 export function openEquipSelect(type) {
-    const items = GameData.player.bag[type];
-    if (!items || items.length === 0) {
-        showToast(`背包中没有${equipTypeNames[type] || type}`, 'warning');
-        return;
-    }
+    const items = GameData.player.bag[type] || [];
 
+    // 移除旧面板
     const existing = Renderer.$('equip-select-panel');
     if (existing) existing.remove();
 
+    // 移除旧 backdrop
+    const oldBackdrop = document.getElementById('equip-select-backdrop');
+    if (oldBackdrop) oldBackdrop.remove();
+
+    // 背景遮罩
+    const backdrop = Renderer.create('div', {
+        id: 'equip-select-backdrop',
+        style: 'position:fixed;top:0;left:0;width:100%;height:100%;' +
+            'background:rgba(0,0,0,0.7);z-index:1999;'
+    });
+    backdrop.addEventListener('click', closeEquipSelect);
+    document.body.appendChild(backdrop);
+
     const panel = Renderer.create('div', {
         id: 'equip-select-panel',
+        className: 'equip-select-panel',
         style: 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);' +
-            'background:rgba(30,30,30,0.98);border:1px solid rgba(255,255,255,0.15);' +
-            'border-radius:16px;padding:20px;z-index:2000;width:90%;max-width:360px;' +
-            'max-height:70vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5);'
+            'background:#1a1a2e;border:1px solid rgba(255,255,255,0.15);' +
+            'border-radius:16px;padding:0;z-index:2000;width:90%;max-width:380px;' +
+            'max-height:75vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.7);'
     });
 
-    let html = `<div style="font-size:16px;font-weight:700;margin-bottom:12px;text-align:center;">${equipIcons[type]} 选择${equipTypeNames[type]}</div>`;
-
     const current = GameData.player.equipment[type];
+    let html = `
+        <div class="equip-select-header">
+            <div class="equip-select-title">${equipIcons[type]} 选择${equipTypeNames[type]}</div>
+            <div class="equip-select-close" onclick="closeEquipSelect()">×</div>
+        </div>
+        <div class="equip-select-body">
+    `;
+
+    // === A 区：当前已装备（如果有） ===
     if (current) {
-        html += `<div style="padding:10px;background:rgba(34,197,94,0.15);border-radius:8px;margin-bottom:12px;cursor:pointer;" onclick="unequipItem('${type}')">
-            <div style="font-size:12px;color:var(--green);">已装备</div>
-            <div style="font-size:14px;font-weight:600;">${current.name} Lv.${current.level}</div>
-        </div>`;
-    }
-
-    html += '<div style="display:flex;flex-direction:column;gap:8px;">';
-    items.forEach((item, index) => {
-        const isEquipped = current && current.id === item.id;
-        const stats = getEquipmentStats(item);
-        const statsText = [];
-        if (stats.attack) statsText.push(`攻+${stats.attack}`);
-        if (stats.defense) statsText.push(`防+${stats.defense}`);
-        if (stats.hp) statsText.push(`血+${stats.hp}`);
-        if (stats.critRate) statsText.push(`暴+${stats.critRate}%`);
-
+        const cStats = getEquipmentStats(current);
+        const cStatsText = [];
+        if (cStats.attack) cStatsText.push(`攻+${cStats.attack}`);
+        if (cStats.defense) cStatsText.push(`防+${cStats.defense}`);
+        if (cStats.hp) cStatsText.push(`血+${cStats.hp}`);
+        if (cStats.critRate) cStatsText.push(`暴+${cStats.critRate}%`);
         html += `
-            <div class="bag-item ${item.quality}" onclick="equipFromSelect('${type}', ${index})"
-                 style="padding:12px;border-radius:8px;cursor:pointer;${isEquipped ? 'background:rgba(34,197,94,0.2);border:2px solid var(--green);' : ''}">
-                <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <div>
-                        <div style="font-size:14px;font-weight:600;">${item.name} Lv.${item.level}</div>
-                        <div style="font-size:11px;color:var(--green);">${statsText.join(' · ')}</div>
+            <div class="equip-section equip-section-current">
+                <div class="equip-section-title">✅ 当前装备</div>
+                <div class="equip-option equipped" onclick="unequipItem('${type}')">
+                    <div class="equip-option-info">
+                        <div class="equip-option-name">${current.name} Lv.${current.level}</div>
+                        <div class="equip-option-stats">${cStatsText.join(' · ') || '无附加属性'}</div>
                     </div>
-                    ${isEquipped ? '<span style="color:var(--green);">✓</span>' : ''}
+                    <div class="equip-option-action">卸下</div>
                 </div>
             </div>
         `;
-    });
-    html += '</div>';
+    }
 
-    html += `<button onclick="closeEquipSelect()" style="margin-top:16px;width:100%;padding:12px;background:rgba(60,60,60,0.8);border:none;border-radius:8px;color:var(--text-primary);cursor:pointer;">关闭</button>`;
+    // === B 区：背包里可选装备 ===
+    html += `<div class="equip-section equip-section-bag">`;
+    html += `<div class="equip-section-title">📦 背包里可装备 (${items.length})</div>`;
 
+    if (items.length === 0) {
+        html += `
+            <div class="equip-empty-state">
+                <div class="equip-empty-icon">🎒</div>
+                <div class="equip-empty-text">背包里还没有${equipTypeNames[type] || type}</div>
+                <div class="equip-empty-hint">刷怪掉落获取更多装备</div>
+            </div>
+        `;
+    } else {
+        items.forEach((item, index) => {
+            const isEquipped = current && current.id === item.id;
+            const stats = getEquipmentStats(item);
+            const statsText = [];
+            if (stats.attack) statsText.push(`攻+${stats.attack}`);
+            if (stats.defense) statsText.push(`防+${stats.defense}`);
+            if (stats.hp) statsText.push(`血+${stats.hp}`);
+            if (stats.critRate) statsText.push(`暴+${stats.critRate}%`);
+            if (stats.critDamage) statsText.push(`爆+${stats.critDamage}%`);
+            if (stats.lifeSteal) statsText.push(`吸+${stats.lifeSteal}%`);
+            if (stats.combo) statsText.push(`连+${stats.combo}%`);
+
+            html += `
+                <div class="equip-option quality-${item.quality} ${isEquipped ? 'equipped' : ''}"
+                     onclick="${isEquipped ? '' : `equipFromSelect('${type}', ${index})`}">
+                    <div class="equip-option-info">
+                        <div class="equip-option-name">${item.name} Lv.${item.level}</div>
+                        <div class="equip-option-stats">${statsText.join(' · ') || '无附加属性'}</div>
+                    </div>
+                    <div class="equip-option-action">${isEquipped ? '✓ 已装备' : '装备'}</div>
+                </div>
+            `;
+        });
+    }
+    html += `</div>`;
+    html += `</div>`;
+
+    // 阻止内部点击冒泡
+    panel.addEventListener('click', (e) => e.stopPropagation());
     panel.innerHTML = html;
     document.body.appendChild(panel);
 }
 
 export function closeEquipSelect() {
     const panel = Renderer.$('equip-select-panel');
-    if (panel) panel.remove();
+    if (panel && panel.parentNode) panel.parentNode.removeChild(panel);
+    const backdrop = document.getElementById('equip-select-backdrop');
+    if (backdrop && backdrop.parentNode) backdrop.parentNode.removeChild(backdrop);
 }
 
 export function equipFromSelect(type, index) {
