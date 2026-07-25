@@ -2,10 +2,10 @@
  * UI更新层
  * 所有界面刷新函数集中管理
  */
-import { GameData, saveData } from '../data/gameData.js?v=equip-select-redesign-20260725m';
-import { calculateStats, calculatePower, updateEquipmentBar } from '../systems/equipment.js?v=equip-select-redesign-20260725m';
-import { initStageEnemy, updateArenaHp } from '../systems/stage.js?v=equip-select-redesign-20260725m';
-import { Renderer } from '../core/renderer.js?v=equip-select-redesign-20260725m';
+import { GameData, saveData } from '../data/gameData.js?v=equip-mini-btns-20260725n';
+import { calculateStats, calculatePower, updateEquipmentBar } from '../systems/equipment.js?v=equip-mini-btns-20260725n';
+import { initStageEnemy, updateArenaHp } from '../systems/stage.js?v=equip-mini-btns-20260725n';
+import { Renderer } from '../core/renderer.js?v=equip-mini-btns-20260725n';
 
 /**
  * 格式化数字

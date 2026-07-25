@@ -1,8 +1,8 @@
 /**
  * 商店系统
  */
-import { GameData, saveData } from '../data/gameData.js?v=equip-select-redesign-20260725m';
-import { Renderer } from '../core/renderer.js?v=equip-select-redesign-20260725m';
+import { GameData, saveData } from '../data/gameData.js?v=equip-mini-btns-20260725n';
+import { Renderer } from '../core/renderer.js?v=equip-mini-btns-20260725n';
 
 let shopItems = [];
 

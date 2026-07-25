@@ -1,9 +1,9 @@
 /**
  * 剧情展示系统
  */
-import { GameData, saveData } from '../data/gameData.js?v=equip-select-redesign-20260725m';
-import { Renderer } from '../core/renderer.js?v=equip-select-redesign-20260725m';
-import { CHAPTER_STORIES } from '../data/config.js?v=equip-select-redesign-20260725m';
+import { GameData, saveData } from '../data/gameData.js?v=equip-mini-btns-20260725n';
+import { Renderer } from '../core/renderer.js?v=equip-mini-btns-20260725n';
+import { CHAPTER_STORIES } from '../data/config.js?v=equip-mini-btns-20260725n';
 
 export function showStory(chapterIndex) {
     const story = CHAPTER_STORIES[chapterIndex] || CHAPTER_STORIES[0];

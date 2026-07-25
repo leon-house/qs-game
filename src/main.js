@@ -1,13 +1,13 @@
 /**
  * 主入口 - 游戏初始化（接管 HTML 入口）
  */
-import { GameData, loadData, saveData, initNewFields } from './data/gameData.js?v=equip-select-redesign-20260725m';
-import { calculateStats, calculatePower } from './systems/equipment.js?v=equip-select-redesign-20260725m';
-import { initStageEnemy } from './systems/stage.js?v=equip-select-redesign-20260725m';
-import { manualAttack, toggleAutoBattle, healInBattle } from './systems/battle.js?v=equip-select-redesign-20260725m';
-import { updateUI, showToast } from './ui/ui.js?v=equip-select-redesign-20260725m';
-import { Renderer } from './core/renderer.js?v=equip-select-redesign-20260725m';
-import { Timers } from './core/events.js?v=equip-select-redesign-20260725m';
+import { GameData, loadData, saveData, initNewFields } from './data/gameData.js?v=equip-mini-btns-20260725n';
+import { calculateStats, calculatePower } from './systems/equipment.js?v=equip-mini-btns-20260725n';
+import { initStageEnemy } from './systems/stage.js?v=equip-mini-btns-20260725n';
+import { manualAttack, toggleAutoBattle, healInBattle } from './systems/battle.js?v=equip-mini-btns-20260725n';
+import { updateUI, showToast } from './ui/ui.js?v=equip-mini-btns-20260725n';
+import { Renderer } from './core/renderer.js?v=equip-mini-btns-20260725n';
+import { Timers } from './core/events.js?v=equip-mini-btns-20260725n';
 
 import {
     openStatsModal, closeStatsModal,
@@ -15,21 +15,21 @@ import {
     showItemMenu, closeItemMenu,
     openEquipSelect, closeEquipSelect, equipFromSelect, unequipItem,
     showEquipDetail, closeEquipDetail, equipItem, sellItem, decomposeItem
-} from './ui/modals.js?v=equip-select-redesign-20260725m';
+} from './ui/modals.js?v=equip-mini-btns-20260725n';
 
-import { openShop, closeShop, refreshShop, buyItem } from './systems/shop.js?v=equip-select-redesign-20260725m';
-import { openShelter, closeShelter, upgradeShelter } from './systems/shelter.js?v=equip-select-redesign-20260725m';
-import { openCollection, closeCollection, switchCollectionTab } from './systems/collection.js?v=equip-select-redesign-20260725m';
-import { resetBattle } from './systems/stage.js?v=equip-select-redesign-20260725m';
-import { openCheckIn, closeCheckIn, doCheckIn } from './systems/checkin.js?v=equip-select-redesign-20260725m';
-import { openTasks, closeTasks, claimTask } from './systems/tasks.js?v=equip-select-redesign-20260725m';
-import { openAchievements, closeAchievements, checkAchievements } from './systems/achievements.js?v=equip-select-redesign-20260725m';
-import { openChapter, closeChapter } from './systems/chapter.js?v=equip-select-redesign-20260725m';
-import { openDungeons, closeDungeons, startDungeonAutoBattle, performDungeonAttack, closeDungeonBattle } from './systems/dungeons.js?v=equip-select-redesign-20260725m';
-import { closeEvent, claimEventReward, triggerRandomEvent } from './systems/events.js?v=equip-select-redesign-20260725m';
-import { closeStory, showCurrentChapterStory, showStory } from './systems/story.js?v=equip-select-redesign-20260725m';
-import { confirmCharacter, selectCharacter, renderCharacterSelection } from './systems/character.js?v=equip-select-redesign-20260725m';
-import { resetDailyTasks } from './systems/tasks.js?v=equip-select-redesign-20260725m';
+import { openShop, closeShop, refreshShop, buyItem } from './systems/shop.js?v=equip-mini-btns-20260725n';
+import { openShelter, closeShelter, upgradeShelter } from './systems/shelter.js?v=equip-mini-btns-20260725n';
+import { openCollection, closeCollection, switchCollectionTab } from './systems/collection.js?v=equip-mini-btns-20260725n';
+import { resetBattle } from './systems/stage.js?v=equip-mini-btns-20260725n';
+import { openCheckIn, closeCheckIn, doCheckIn } from './systems/checkin.js?v=equip-mini-btns-20260725n';
+import { openTasks, closeTasks, claimTask } from './systems/tasks.js?v=equip-mini-btns-20260725n';
+import { openAchievements, closeAchievements, checkAchievements } from './systems/achievements.js?v=equip-mini-btns-20260725n';
+import { openChapter, closeChapter } from './systems/chapter.js?v=equip-mini-btns-20260725n';
+import { openDungeons, closeDungeons, startDungeonAutoBattle, performDungeonAttack, closeDungeonBattle } from './systems/dungeons.js?v=equip-mini-btns-20260725n';
+import { closeEvent, claimEventReward, triggerRandomEvent } from './systems/events.js?v=equip-mini-btns-20260725n';
+import { closeStory, showCurrentChapterStory, showStory } from './systems/story.js?v=equip-mini-btns-20260725n';
+import { confirmCharacter, selectCharacter, renderCharacterSelection } from './systems/character.js?v=equip-mini-btns-20260725n';
+import { resetDailyTasks } from './systems/tasks.js?v=equip-mini-btns-20260725n';
 
 /**
  * 初始化游戏

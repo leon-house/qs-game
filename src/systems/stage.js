@@ -2,11 +2,11 @@
  * 关卡系统
  * 每关50个怪，第50只为Boss，击败Boss进入下一关
  */
-import { GameData } from '../data/gameData.js?v=equip-select-redesign-20260725m';
-import { ENEMY_TYPES, BOSS_TEMPLATES } from '../data/config.js?v=equip-select-redesign-20260725m';
-import { Renderer } from '../core/renderer.js?v=equip-select-redesign-20260725m';
-import { calculateStats } from './equipment.js?v=equip-select-redesign-20260725m';
-import { saveData } from '../data/gameData.js?v=equip-select-redesign-20260725m';
+import { GameData } from '../data/gameData.js?v=equip-mini-btns-20260725n';
+import { ENEMY_TYPES, BOSS_TEMPLATES } from '../data/config.js?v=equip-mini-btns-20260725n';
+import { Renderer } from '../core/renderer.js?v=equip-mini-btns-20260725n';
+import { calculateStats } from './equipment.js?v=equip-mini-btns-20260725n';
+import { saveData } from '../data/gameData.js?v=equip-mini-btns-20260725n';
 
 /**
  * 生成普通关卡怪物
@@ -66,12 +66,10 @@ export function initStageEnemy() {
     // 渲染敌人：优先用像素图，缺失时回退 emoji
     const enemy = GameData.currentEnemy;
     if (enemy.image) {
-        // Boss 用 4 帧 sprite sheet（boss-sheet.png），普通小怪用单帧
-        if (enemy.isBoss) {
-            Renderer.setHTML('arena-boss-icon', `<div class="sprite-slot boss-sprite"><img class="boss-sprite-img" src="assets/images/sprites/boss-sheet.png" alt="${enemy.name}"></div>`);
-        } else {
-            Renderer.setHTML('arena-boss-icon', `<img src="${enemy.image}" class="arena-boss-img idle-anim" alt="${enemy.name}">`);
-        }
+        // Boss 用单帧 boss.png + idle-breath 动画；普通小怪用各自的 image
+        const src = enemy.isBoss ? 'assets/images/boss.png' : enemy.image;
+        const animClass = enemy.isBoss ? 'idle-breath' : 'idle-anim';
+        Renderer.setHTML('arena-boss-icon', `<img src="${src}" class="arena-boss-img ${animClass}" alt="${enemy.name}">`);
     } else {
         Renderer.setText('arena-boss-icon', enemy.icon);
     }

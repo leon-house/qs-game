@@ -1,10 +1,10 @@
 /**
  * 弹窗管理
  */
-import { GameData, saveData } from '../data/gameData.js?v=equip-select-redesign-20260725m';
-import { calculateStats, calculatePower, getEquipDesc, getEquipmentStats, updateEquipmentBar } from '../systems/equipment.js?v=equip-select-redesign-20260725m';
-import { Renderer } from '../core/renderer.js?v=equip-select-redesign-20260725m';
-import { formatNumber, showToast, updateUI } from './ui.js?v=equip-select-redesign-20260725m';
+import { GameData, saveData } from '../data/gameData.js?v=equip-mini-btns-20260725n';
+import { calculateStats, calculatePower, getEquipDesc, getEquipmentStats, updateEquipmentBar } from '../systems/equipment.js?v=equip-mini-btns-20260725n';
+import { Renderer } from '../core/renderer.js?v=equip-mini-btns-20260725n';
+import { formatNumber, showToast, updateUI } from './ui.js?v=equip-mini-btns-20260725n';
 
 /**
  * 属性弹窗
@@ -471,6 +471,9 @@ export function openEquipSelect(type) {
     } else {
         items.forEach((item, index) => {
             const isEquipped = current && current.id === item.id;
+            // ★ 只显示未装备的，已装备的那件单独显示在 A 区，避免"同名都被装"的误解
+            if (isEquipped) return;
+
             const stats = getEquipmentStats(item);
             const statsText = [];
             if (stats.attack) statsText.push(`攻+${stats.attack}`);
@@ -481,17 +484,35 @@ export function openEquipSelect(type) {
             if (stats.lifeSteal) statsText.push(`吸+${stats.lifeSteal}%`);
             if (stats.combo) statsText.push(`连+${stats.combo}%`);
 
+            // 计算预览价格（用于按钮标签）
+            const sellPrice = Math.floor((item.price || 100) * 0.5 * (1 + (item.level - 1) * 0.2));
+            const stones = Math.max(1, Math.floor((item.level || 1) * 0.5));
+
             html += `
-                <div class="equip-option quality-${item.quality} ${isEquipped ? 'equipped' : ''}"
-                     onclick="${isEquipped ? '' : `equipFromSelect('${type}', ${index})`}">
-                    <div class="equip-option-info">
+                <div class="equip-option quality-${item.quality}">
+                    <div class="equip-option-info" onclick="equipFromSelect('${type}', ${index})">
                         <div class="equip-option-name">${item.name} Lv.${item.level}</div>
                         <div class="equip-option-stats">${statsText.join(' · ') || '无附加属性'}</div>
                     </div>
-                    <div class="equip-option-action">${isEquipped ? '✓ 已装备' : '装备'}</div>
+                    <div class="equip-option-actions">
+                        <button class="equip-mini-btn equip-mini-btn-equip" onclick="equipFromSelect('${type}', ${index})" title="装备这件">装备</button>
+                        <button class="equip-mini-btn equip-mini-btn-sell" onclick="sellItem('${type}', ${index})" title="出售 +${sellPrice}金币">💰${sellPrice}</button>
+                        <button class="equip-mini-btn equip-mini-btn-decompose" onclick="decomposeItem('${type}', ${index})" title="分解 +${stones}强化石">🔮${stones}</button>
+                    </div>
                 </div>
             `;
         });
+        // 如果过滤后列表为空（B 区显示提示）
+        const visibleCount = items.filter(i => !(current && current.id === i.id)).length;
+        if (visibleCount === 0) {
+            html = `
+                <div class="equip-empty-state">
+                    <div class="equip-empty-icon">🎒</div>
+                    <div class="equip-empty-text">背包里没有其他可装备的${equipTypeNames[type] || type}</div>
+                    <div class="equip-empty-hint">A 区当前装备已是背包里唯一的一件</div>
+                </div>
+            `;
+        }
     }
     html += `</div>`;
     html += `</div>`;

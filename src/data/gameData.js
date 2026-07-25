@@ -53,7 +53,7 @@ if (typeof window !== 'undefined') {
 /**
  * 新字段初始化（兼容旧存档）
  */
-export { saveData, loadData } from '../core/storage.js?v=equip-select-redesign-20260725m';
+export { saveData, loadData } from '../core/storage.js?v=equip-mini-btns-20260725n';
 
 export function initNewFields() {
     const p = GameData.player;

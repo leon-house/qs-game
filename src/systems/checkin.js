@@ -1,9 +1,9 @@
 /**
  * 每日签到系统
  */
-import { GameData, saveData } from '../data/gameData.js?v=equip-select-redesign-20260725m';
-import { Renderer } from '../core/renderer.js?v=equip-select-redesign-20260725m';
-import { showToast, updateUI } from '../ui/ui.js?v=equip-select-redesign-20260725m';
+import { GameData, saveData } from '../data/gameData.js?v=equip-mini-btns-20260725n';
+import { Renderer } from '../core/renderer.js?v=equip-mini-btns-20260725n';
+import { showToast, updateUI } from '../ui/ui.js?v=equip-mini-btns-20260725n';
 
 const CHECKIN_REWARDS = [
     { day: 1, gold: 100, diamond: 0 },

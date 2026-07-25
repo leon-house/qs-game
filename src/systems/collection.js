@@ -1,9 +1,9 @@
 /**
  * 图鉴系统
  */
-import { GameData } from '../data/gameData.js?v=equip-select-redesign-20260725m';
-import { EQUIPMENT_TEMPLATES } from '../data/config.js?v=equip-select-redesign-20260725m';
-import { Renderer } from '../core/renderer.js?v=equip-select-redesign-20260725m';
+import { GameData } from '../data/gameData.js?v=equip-mini-btns-20260725n';
+import { EQUIPMENT_TEMPLATES } from '../data/config.js?v=equip-mini-btns-20260725n';
+import { Renderer } from '../core/renderer.js?v=equip-mini-btns-20260725n';
 
 let currentCollectionType = 'equipment';
 

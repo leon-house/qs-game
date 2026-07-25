@@ -123,6 +123,7 @@ body {
     height: 100%;
     object-fit: cover;
     border-radius: 50%;
+    display: block;
 }
 
 .avatar-icon {
@@ -266,52 +267,34 @@ body {
 }
 
 /* === Sprite Sheet 动画系统 === */
-.sprite-slot {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-/* 战斗区的 sprite-slot：用 mask 切掉右下角水印（4 帧 sprite sheet 右下角都是空地）*/
-.battle-arena .sprite-slot {
-    -webkit-mask-image: radial-gradient(circle at 95% 95%, transparent 32px, #000 48px);
-    mask-image: radial-gradient(circle at 95% 95%, transparent 32px, #000 48px);
-}
-.hero-sprite-img {
-    display: block;  /* 必须 block 才能让 width: 400% 生效（inline img 会用 auto = 原始宽度）*/
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 400%;  /* 4 帧横排 */
-    height: 100%;
-    image-rendering: pixelated;
-    animation: hero-frame 1.2s steps(4) infinite;
-}
-@keyframes hero-frame {
-    to { transform: translateX(-75%); }  /* 100% - 25% = 75%（移动 3 帧）*/
-}
-.boss-sprite-img {
-    display: block;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 400%;
-    height: 100%;
-    image-rendering: pixelated;
-    animation: boss-frame 1.4s steps(4) infinite;
-}
-@keyframes boss-frame {
-    to { transform: translateX(-75%); }
-}
-
-/* 普通小怪：单帧 + idle 呼吸动画 */
-.idle-anim {
-    display: block;
-    animation: idle-breath 1.6s ease-in-out infinite alternate;
+/* === 单帧角色 + 呼吸 / 攻击动画 === */
+/* 单帧站姿（hero.png / boss.png / 小怪）常态用：轻微缩放+上下浮动 */
+.idle-breath {
+    animation: idle-breath 1.8s ease-in-out infinite alternate;
 }
 @keyframes idle-breath {
     0% { transform: scale(1) translateY(0); }
+    100% { transform: scale(1.03) translateY(-3px); }
+}
+
+/* 普通小怪：单帧 + idle 呼吸（更明显的浮动）*/
+.idle-anim {
+    animation: idle-anim 1.6s ease-in-out infinite alternate;
+}
+@keyframes idle-anim {
+    0% { transform: scale(1) translateY(0); }
     100% { transform: scale(1.05) translateY(-4px); }
+}
+
+/* 攻击 swing：临时覆盖 idle-breath，单次挥砍位移（500ms）*/
+.arena-player-img.attacking,
+.avatar-img.attacking {
+    animation: player-swing 0.5s ease-out !important;
+}
+@keyframes player-swing {
+    0% { transform: translateX(0) scale(1); filter: brightness(1); }
+    30% { transform: translateX(28px) scale(1.1); filter: brightness(1.5); }
+    100% { transform: translateX(0) scale(1); filter: brightness(1); }
 }
 
 /* 战斗场景 */
@@ -370,6 +353,7 @@ body {
     box-shadow: 0 0 12px rgba(74, 222, 128, 0.5);
     object-fit: cover;
     transition: transform 0.2s ease;
+    display: block;  /* 让 transform animation 生效 */
 }
 
 /* 玩家 hero sprite 容器（战斗区） */
@@ -2492,6 +2476,44 @@ body {
 .equip-option:not(.equipped):hover .equip-option-action {
     background: rgba(168,85,247,0.2);
     color: #c084fc;
+}
+
+/* === 装备选择弹窗：每行右侧三按钮 === */
+.equip-option-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+.equip-mini-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform .12s ease, filter .12s ease;
+    min-width: 38px;
+    text-align: center;
+}
+.equip-mini-btn:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.15);
+}
+.equip-mini-btn:active {
+    transform: scale(0.96);
+}
+.equip-mini-btn-equip {
+    background: linear-gradient(135deg, #4ade80, #16a34a);
+    color: #fff;
+}
+.equip-mini-btn-sell {
+    background: linear-gradient(135deg, #ffc107, #ff9800);
+    color: #1a1a2e;
+}
+.equip-mini-btn-decompose {
+    background: linear-gradient(135deg, #a855f7, #6b21a8);
+    color: #fff;
 }
 .equip-empty-state {
     text-align: center;
