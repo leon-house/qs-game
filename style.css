@@ -1134,23 +1134,14 @@ body {
 }
 
 /* === V2 Canvas 自动战斗场景 === */
-.battle-canvas-wrap {
-  position: relative;
-  width: 100%;
-  margin: 2px auto 0;
-  aspect-ratio: 480/220; /* 加高（用户反馈 Boss 顶部被切）— 与 ARENA_HEIGHT 一致 */
-  background: #0a0612;
-  border: 1px solid rgba(235, 222, 164, 0.3);
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 4px 0 #0a100d, inset 0 0 30px rgba(0, 0, 0, 0.5);
-}
-
+/* 2026-10-28：删除 .battle-canvas-wrap —— HTML 里早已换成 .stage-canvas，属于死 CSS。
+   #battle-canvas 去掉 width/height:100%!important：旧规则用 !important 覆盖了 JS 的画布尺寸，
+   实测 480x240 被拉成 382x295（横向压扁 20%、纵向拉长 23%），角色和文字全是变形的。
+   画布 backing store 现在由 battle-canvas.js 的 fitCanvas() 按实际显示尺寸同步。 */
 #battle-canvas {
   display: block;
-  width: 100% !important;
-  height: 100% !important;
-  image-rendering: pixelated;
+  width: 100%;
+  height: 100%;
 }
 
 /* === 奖励池浮窗（canvas 下方水平条，不再遮挡怪物） === */
@@ -1254,12 +1245,6 @@ body {
 }
 .collect-btn.pulse {
   animation: collect-pulse 0.5s ease-out;
-}
-
-/* 旧的 battle-arena-1v1 不再使用（V2 已迁移到 Canvas），保留作 fallback 隐藏 */
-.battle-canvas-wrap ~ .battle-arena-1v1,
-.battle-arena-1v1:has(+ .battle-actions) {
-  /* 没有 + 时不隐藏，只是说明以后会清理 */
 }
 
 .team-row {
@@ -2427,8 +2412,11 @@ body {
 }
 
 .refresh-btn.ad {
-  background: var(--purple);
-  color: white;
+  /* 2026-10-28：原本是亮紫色（--purple #a855f7），在暖色面板里非常跳。
+     改成暗青铜色，和金币刷新按钮区分但不抢戏。 */
+  background: linear-gradient(180deg, #6b5230, #4a3720);
+  color: #e8d3a4;
+  border: 1px solid #8a7048;
 }
 
 /* 图鉴 */
@@ -2643,11 +2631,14 @@ body {
 
 /* Toast 通知 */
 .toast-container {
-  position: fixed;
-  top: 20px;
+  position: absolute;
+  /* 2026-10-28：原 position:fixed; top:20px 直接压在 HUD 顶栏上，开局 toast 会把
+     金币数值盖住。现在容器挂在 .stage-wrap 里（position:relative），浮在舞台天空区域，
+     既不挡任何数值，也永远在视野内。 */
+  top: 26px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 3000;
+  z-index: 30;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -2656,12 +2647,12 @@ body {
 
 .toast {
   padding: 10px 20px;
-  background: rgba(30, 30, 30, 0.95);
+  background: rgba(26, 21, 14, 0.96);
   border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(216, 178, 101, 0.35);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.55);
   animation: toastIn 0.3s ease;
 }
 
@@ -2683,7 +2674,7 @@ body {
 @keyframes toastIn {
   from {
     opacity: 0;
-    transform: translateY(-20px);
+    transform: translateY(-10px);
   }
   to {
     opacity: 1;
@@ -3433,26 +3424,28 @@ body {
 
 /* ============ 2026-07-25 末世手游化 UI 重构 ============ */
 :root {
-  --waste-ink: #121813;
-  --waste-deep: #19251f;
-  --waste-panel: #26372e;
-  --waste-panel-2: #30483b;
-  --waste-line: #758b65;
+  /* 2026-10-28：整套弹窗主题从「橄榄绿军事终端」改成「暖深褐玻璃拟态」，
+     和主页面的棕金电影感统一。改这一组变量即可带动商店/背包/装备/技能书/挑战所有弹窗。 */
+  --waste-ink: #14100c;
+  --waste-deep: #1e1811;
+  --waste-panel: #2c231a;
+  --waste-panel-2: #3a2e21;
+  --waste-line: #8a7048;
   --waste-paper: #d7d0aa;
-  --waste-acid: #c8e34a;
+  --waste-acid: #e0b455;
   --waste-orange: #f19a38;
   --waste-rust: #b94e32;
-  --waste-cyan: #65c9bc;
+  --waste-cyan: #c2a06a;
 }
 
 html, body {
   min-height: 100%;
-  background: #0b100d;
+  background: #0c0906;
 }
 
 body {
   font-family: "Arial Narrow", "Microsoft YaHei", sans-serif;
-  background: radial-gradient(circle at 50% 10%, rgba(104, 133, 92, 0.22), transparent 32%), repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.018) 0 2px, transparent 2px 8px), #0c120f;
+  background: radial-gradient(circle at 50% 10%, rgba(150, 112, 62, 0.18), transparent 32%), repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.018) 0 2px, transparent 2px 8px), #0c0906;
 }
 
 #app {
@@ -3944,59 +3937,61 @@ body {
 .modal {
   max-width: 420px;
   max-height: 82dvh;
-  border: 2px solid #748269;
+  /* 2026-10-28：弹窗面板从「橄榄绿军事终端」改成「暖深褐玻璃拟态」，
+     和主页面的棕金电影感统一（原来是同一个 App 里两套配色）。 */
+  border: 2px solid #8a7048;
   border-radius: 3px;
   color: #ebe8d4;
-  background: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.015) 0 3px, transparent 3px 8px), linear-gradient(180deg, #30453a, #18271f);
-  box-shadow: 0 0 0 4px #111914, 0 18px 50px #000;
+  background: repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.015) 0 3px, transparent 3px 8px), linear-gradient(180deg, #3a2e21, #1e1811);
+  box-shadow: 0 0 0 4px #140f09, 0 18px 50px #000;
 }
 
 .modal-header {
   min-height: 58px;
   padding: 14px 16px;
-  border-bottom: 2px solid #9aad55;
-  background: linear-gradient(180deg, #526449, #324538);
+  border-bottom: 2px solid #d8b265;
+  background: linear-gradient(180deg, #4a3a26, #2c231a);
 }
 
 .modal-title {
   color: #fff0b8;
   font-size: 18px;
-  text-shadow: 0 2px #172018;
+  text-shadow: 0 2px #1a1208;
 }
 
 .modal-close {
   width: 34px;
   height: 34px;
   color: #fff5c4;
-  border: 2px solid #a3b476;
-  background: #b64834;
-  box-shadow: 0 3px #1a211b;
+  border: 2px solid #d8b265;
+  background: #8c3a28;
+  box-shadow: 0 3px #1a1208;
 }
 
 .modal-body {
-  background: rgba(10, 18, 13, 0.2);
+  background: rgba(20, 16, 10, 0.25);
 }
 
 .bag-tabs, .collection-tabs {
   gap: 4px;
   padding-bottom: 8px;
-  border-bottom: 1px solid #60705f;
+  border-bottom: 1px solid #6b5636;
   flex-wrap: nowrap;
 }
 
 .bag-tab, .collection-tab {
   flex: 1;
   padding: 9px 4px;
-  border: 1px solid #667566;
+  border: 1px solid #6b5636;
   border-radius: 2px;
-  background: #1b2b23;
-  color: #aebaa8;
+  background: #241c14;
+  color: #c2b393;
 }
 
 .bag-tab.active, .collection-tab.active {
-  background: #647635;
+  background: #8a6b32;
   color: #fff3bf;
-  border-color: #c2d45f;
+  border-color: #e0b455;
 }
 
 .bag-grid {
@@ -4035,9 +4030,9 @@ body {
 }
 
 .shop-item, .task-item, .achievement-item, .dungeon-card, .stats-detail .stat-row, .chapter-item, .checkin-day {
-  border: 1px solid #697767;
+  border: 1px solid #6b5636;
   border-radius: 2px;
-  background: linear-gradient(135deg, #344a3e, #213329);
+  background: linear-gradient(135deg, #3a2e21, #241c14);
   box-shadow: 0 3px 0 rgba(5, 9, 6, 0.5);
 }
 
@@ -4972,7 +4967,7 @@ body {
  * ============================================================ */
 #app {
   max-width: 520px;
-  background-image: radial-gradient(140% 80% at 50% 0%, rgba(255, 174, 80, 0.08), transparent 55%), linear-gradient(180deg, rgba(4, 7, 8, 0.58), rgba(3, 5, 6, 0.84)), url("assets/images/bg.png");
+  background-image: radial-gradient(140% 80% at 50% 0%, rgba(255, 174, 80, 0.08), transparent 55%), linear-gradient(180deg, rgba(4, 7, 8, 0.58), rgba(3, 5, 6, 0.84)), url("assets/images/bg.webp");
   background-position: center top;
   background-size: cover;
   background-attachment: fixed;
@@ -5231,8 +5226,10 @@ body {
   min-height: 36px;
   margin: 6px 12px 0;
   padding: 6px 28px;
-  color: #fff5cf;
-  background: linear-gradient(180deg, #a02828 0%, #6e1a1a 50%, #4a0c0c 100%);
+  color: #f0e0bc;
+  /* 2026-10-28：原 #a02828→#4a0c0c 的大红条饱和度比战斗舞台还高，整屏最抢眼。
+     降成深赭血（暗红棕），保留"末日"叙事感但不再抢主视觉。 */
+  background: linear-gradient(180deg, #4a1f18 0%, #2e120e 50%, #1a0a08 100%);
   border-top: 1px solid #d8b265;
   border-bottom: 1px solid #d8b265;
   font-size: 13px;
@@ -5249,9 +5246,9 @@ body {
   place-items: center;
   width: 24px;
   height: 24px;
-  color: #fff;
-  background: #2a4d8f;
-  border: 1px solid #fff;
+  color: #e8c88a;
+  background: #3a2a16;
+  border: 1px solid #8a6a3a;
   border-radius: 50%;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6);
 }
@@ -5263,11 +5260,11 @@ body {
 }
 
 .hud-ribbon-sub {
-  color: #d8a8a8;
+  color: #b09a8a;
   font-size: 10px;
   font-weight: 400;
   letter-spacing: 0.5px;
-  opacity: 0.85;
+  opacity: 0.9;
 }
 
 /* 章节信息卡：暗色背景 + 红色矩形标签 + 灰色进度条 */
@@ -5288,16 +5285,17 @@ body {
 
 .hud-chapter-tag {
   padding: 2px 6px;
-  color: #fff;
-  background: #c43333;
-  border: 1px solid #5a0e0e;
+  color: #e8c88a;
+  /* 2026-10-28：原 #c43333 饱和度 .74，是全屏第二扎眼的元素 → 改暗铜底金字 */
+  background: #4a2a1c;
+  border: 1px solid #7a4a2a;
   border-radius: 2px;
   font: 700 9px var(--font-mono);
   letter-spacing: 0.3px;
 }
 
 .hud-chapter-threat {
-  color: #ff5a5a;
+  color: #c98a6a;
   font-weight: 700;
   font-size: 9px;
 }
@@ -5335,17 +5333,28 @@ body {
 .stage-wrap {
   position: relative;
   z-index: 8;
-  display: grid;
-  grid-template-columns: 56px minmax(0, 1fr) 56px;
-  gap: 6px;
+  /* 2026-10-28：两侧功能入口改为浮在舞台上，不再各占 56px 栅格列。
+     舞台宽度从 292px 变成满宽 414px（+42%），角色画布也同步放大。 */
+  display: block;
   margin: 8px 6px 0;
   padding-bottom: 4px;
 }
 
 .side-rail {
+  position: absolute;
+  top: 0;
+  z-index: 9;
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.side-rail.side-left {
+  left: 0;
+}
+
+.side-rail.side-right {
+  right: 0;
 }
 
 /* 两侧按钮：暗色背景 + 红色图标（参考图是暗色调，没有金色） */
@@ -5373,9 +5382,20 @@ body {
 }
 
 .side-btn-icon {
+  /* 2026-10-28：侧栏图标从 emoji（🎁👹📋🏆）统一换成 Lucide 线性图标。
+     emoji 各平台渲染不一致、饱和度不可控（红骷髅👹尤其扎眼），这里统一走暖金单色。 */
   font-size: 22px;
   line-height: 1;
-  filter: drop-shadow(0 0 4px rgba(255, 60, 60, 0.5));
+  display: grid;
+  place-items: center;
+  color: #d8b265;
+  filter: drop-shadow(0 0 4px rgba(216, 178, 101, 0.25));
+}
+
+.side-btn-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2;
 }
 
 .side-btn-label {
@@ -5387,12 +5407,13 @@ body {
   position: absolute;
   top: 4px;
   right: 4px;
-  width: 10px;
-  height: 10px;
-  background: #ff2a2a;
-  border: 1px solid #5a0808;
+  width: 8px;
+  height: 8px;
+  /* 2026-10-28：原 #ff2a2a 饱和度 .84（全屏最高）→ 降饱和暗锈色，缩小 2px */
+  background: #c0563a;
+  border: 1px solid #3a1a10;
   border-radius: 50%;
-  box-shadow: 0 0 4px rgba(255, 40, 40, 0.8);
+  box-shadow: 0 0 3px rgba(192, 86, 58, 0.55);
 }
 
 /* 已签到/已完成按钮：隐藏红点 */
@@ -5445,7 +5466,9 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 4px 10px;
+  /* 2026-10-28：两侧功能入口改为浮在舞台上，右边「任务」按钮会压住回合数，
+     这里给右侧留出按钮宽度。 */
+  padding: 4px 62px 4px 10px;
   background: rgba(0, 0, 0, 0.5);
   color: #c0c0c0;
   font-size: 10px;
@@ -5455,7 +5478,7 @@ body {
 }
 
 .stage-canvas {
-  height: clamp(280px, 38vh, 360px);
+  height: clamp(240px, 33vh, 300px);
   position: relative;
   overflow: hidden;
   isolation: isolate;
@@ -5466,7 +5489,7 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: url("../assets/images/bg.png");
+  background-image: url("assets/images/bg.webp");
   background-size: cover;
   background-position: center bottom;
   background-repeat: no-repeat;
@@ -6130,7 +6153,7 @@ body {
 }
 @media (max-height: 700px) {
   .stage-canvas {
-    height: 240px;
+    aspect-ratio: 480/205;
   }
   .side-btn {
     min-height: 56px;
@@ -6659,33 +6682,6 @@ body {
   cursor: not-allowed;
 }
 
-.battle-canvas-wrap {
-  aspect-ratio: auto;
-  min-height: 280px;
-  height: clamp(280px, 38vh, 360px);
-  background: radial-gradient(circle at 75% 35%, rgba(255, 130, 60, 0.35), transparent 45%), radial-gradient(circle at 22% 70%, rgba(120, 50, 20, 0.4), transparent 50%), radial-gradient(circle at 50% 100%, rgba(0, 0, 0, 0.7), transparent 70%), linear-gradient(180deg, #1a1410 0%, #0a0806 100%);
-  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.8);
-  position: relative;
-}
-
-/* 战斗舞台地面：渐变阴影 + 地砖纹理 */
-.battle-canvas-wrap::before {
-  content: "";
-  position: absolute;
-  left: 5%;
-  right: 5%;
-  bottom: 8%;
-  height: 18%;
-  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.7), transparent 70%);
-  pointer-events: none;
-  z-index: 1;
-}
-
-.battle-canvas-wrap canvas {
-  position: relative;
-  z-index: 2;
-}
-
 .reward-pool {
   margin: 0;
   padding: 9px 12px;
@@ -6962,12 +6958,6 @@ body {
   margin: 0 0 10px;
 }
 
-.battle-canvas-wrap {
-  min-height: 250px;
-  height: clamp(250px, 42vh, 390px);
-  aspect-ratio: auto;
-}
-
 .hud-grid {
   order: 3;
   grid-template-columns: repeat(4, 1fr);
@@ -7018,10 +7008,6 @@ body {
 }
 
 @media (max-height: 700px) {
-  .battle-canvas-wrap {
-    height: 230px;
-    min-height: 230px;
-  }
   .hud-grid {
     padding-top: 5px;
     padding-bottom: 5px;

@@ -21,6 +21,9 @@ function collect(dir, base, out = []) {
 const files = collect(path.join(ROOT, 'src'), path.join(ROOT, 'src'))
     .filter(f => !f.startsWith('wx-canvas2d/'))
     .map(f => 'src/' + f)
+    // 2026-10-28：把 assets/ 也纳入同步范围。之前只传 src/**，素材改动（比如
+    // bg.png → bg.webp）必须手动传，很容易出现线上还在用旧素材的情况。
+    .concat(collect(path.join(ROOT, 'assets'), path.join(ROOT, 'assets')).map(f => 'assets/' + f))
     .concat(['index.html', 'style.css']);
 
 console.log(`准备上传 ${files.length} 个文件`);

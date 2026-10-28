@@ -16,7 +16,6 @@
 
 import { calculateStats } from './equipment.js';
 import { GameData } from '../data/gameData.js';
-import { PORTRAITS } from '../data/config.js';
 // 2026-08-04 火柴人改革：替换 sprite 渲染
 import { StickFigure } from './stick-figure.js';
 import { renderMonster, renderBoss } from './monster-figures.js';
@@ -24,7 +23,7 @@ import { FX } from './combat-fx.js';
 
 // ============ 常量 ============
 const ARENA_WIDTH = 480;
-const ARENA_HEIGHT = 240;            // 加高（用户反馈 Boss 顶部被切）— 与 .battle-canvas-wrap 480/240 一致
+const ARENA_HEIGHT = 240;            // 加高（用户反馈 Boss 顶部被切）— 逻辑坐标系固定 480x240，舞台按同比例铺开
 const GROUND_Y = 200;                // 角色脚的 Y 坐标
 const PLAYER_X_BASE = 80;            // 角色起始 X
 const ENEMY_X_BASE = 340;            // 怪物起始 X（角色右方；往左挪 20 让 Boss 横向不溢出）
@@ -44,9 +43,14 @@ const ATTACK_ANIM_TOTAL = ATTACK_ANIM_FRAMES.reduce((a, b) => a + b, 0);
 
 // ============ 状态机 ============
 let canvas, ctx;
+
+// 视图映射：逻辑坐标 480x240 → 画布实际像素（等比 contain，见 fitCanvas）
+let viewScale = 1;
+let viewOffX = 0;
+let viewOffY = 0;
+let canvasResizeObserver = null;
 let animFrameId;
 let lastTick = 0;
-let spriteImgs = {};                 // 已加载 sprite 图片缓存
 let loopStarted = false;
 let loggedRenderError = false;
 
@@ -86,21 +90,24 @@ export function initBattleCanvas(canvasEl, rewardPoolUpdate) {
     canvas = canvasEl;
     const dpr = Math.max(1, window.devicePixelRatio || 1);
     console.log('[BattleCanvas] init, dpr=', dpr, 'canvasEl=', canvasEl);
-    canvas.width = Math.round(ARENA_WIDTH * dpr);
-    canvas.height = Math.round(ARENA_HEIGHT * dpr);
-    canvas.style.width = ARENA_WIDTH + 'px';
-    canvas.style.height = ARENA_HEIGHT + 'px';
     ctx = canvas.getContext('2d');
     if (!ctx) {
         console.error('[BattleCanvas] 2D context unavailable');
         return state;
     }
-    // setTransform 比 scale 更稳：重复初始化不会累乘 DPR。
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // 画布 backing store 跟随实际显示尺寸；逻辑坐标系固定 480x240，等比映射（contain）。
+    // 旧版 CSS 用 width/height:100%!important 强行拉伸画布，实测 480x240 被拉成 382x295，
+    // 角色横向压扁 20%、纵向拉长 23%，贴图和文字全是变形的 —— 这里改成等比缩放。
+    fitCanvas();
 
     refreshFlyTarget();
-    window.addEventListener('resize', refreshFlyTarget, { passive: true });
+    window.addEventListener('resize', onResize, { passive: true });
     setTimeout(refreshFlyTarget, 500);
+    // 舞台尺寸不只随窗口变（滚动条出现、布局重排都会改），用 ResizeObserver 兜住
+    if (typeof ResizeObserver !== 'undefined' && !canvasResizeObserver) {
+        canvasResizeObserver = new ResizeObserver(() => { fitCanvas(); });
+        canvasResizeObserver.observe(canvas);
+    }
     state.rewardPoolUpdate = rewardPoolUpdate;
 
     const startLoop = () => {
@@ -113,54 +120,39 @@ export function initBattleCanvas(canvasEl, rewardPoolUpdate) {
     //       然后后台异步预加载图片，加载完会自动替换 spriteImgs
     //       之前是等 preloadSprites 完成才启动 → 图片加载慢时 canvas 一直空白（"战斗区渲染慢"）
     startLoop();
-    preloadSprites().catch(err => {
-        console.warn('[BattleCanvas] preloadSprites:', err);
-    });
-
     return state;
-}
-
-function preloadSprites() {
-    // 预加载立绘（手绘钢笔淡彩 2026-07-30）：主角 + 10 章节怪 + 4 章节 Boss
-    // 缺失图保留 fallback 程序化绘制（ctx.fillRect）
-    spriteImgs = {
-        hero: null,
-        monster: {},
-        boss: {},
-    };
-    const tasks = [];
-    // 主角
-    tasks.push(loadImg(PORTRAITS.hero).then(img => { spriteImgs.hero = img; }).catch(() => { spriteImgs.hero = null; }));
-    // 章节怪 1..10
-    for (let ch = 1; ch <= 10; ch++) {
-        const url = PORTRAITS.monsterByChapter[ch];
-        if (!url) continue;
-        tasks.push(loadImg(url).then(img => { spriteImgs.monster[ch] = img; }).catch(() => { spriteImgs.monster[ch] = null; }));
-    }
-    // Boss：章节 3/5/7/10
-    for (const ch of [3, 5, 7, 10]) {
-        const url = PORTRAITS.bossByChapter[ch];
-        if (!url) continue;
-        tasks.push(loadImg(url).then(img => { spriteImgs.boss[ch] = img; }).catch(() => { spriteImgs.boss[ch] = null; }));
-    }
-    // 注：2026-07-30 的「简易骨骼系统」（assets/bones/*.png）已废弃 —— 主角改由
-    // stick-figure.js 程序化绘制。assets/bones/ 目录从未存在，留着只会让每次
-    // 页面加载多出 5 个 404。相关 BoneNode / playerBones 死代码已一并移除。
-    return Promise.allSettled(tasks);
-}
-
-function loadImg(url) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = () => reject(new Error('load fail: ' + url));
-        img.src = url;
-    });
 }
 
 // ============ 飞向"提取"按钮的目标点 ============
 let flyTargetX = ARENA_WIDTH - 60;   // 默认画布右上角
 let flyTargetY = 30;
+
+// 画布自适应：backing store = 实际显示尺寸 × dpr（原生分辨率，文字/贴图不再被重采样），
+// 逻辑坐标系 480x240 等比映射到画布（contain，居中留边），保证角色永远不变形。
+function fitCanvas() {
+    if (!canvas || !ctx) return;
+    const rect = canvas.getBoundingClientRect();
+    const cssW = Math.max(1, Math.round(rect.width));
+    const cssH = Math.max(1, Math.round(rect.height));
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const bw = Math.round(cssW * dpr);
+    const bh = Math.round(cssH * dpr);
+    // 赋值 canvas.width/height 会清空画布并重置 transform，必须放在设置 transform 之前
+    if (canvas.width !== bw) canvas.width = bw;
+    if (canvas.height !== bh) canvas.height = bh;
+    viewScale = Math.min(cssW / ARENA_WIDTH, cssH / ARENA_HEIGHT);
+    viewOffX = (cssW - ARENA_WIDTH * viewScale) / 2;
+    // 垂直方向贴底：舞台比 2:1 高时多出来的部分留在上方当天空，
+    // 角色的脚始终踩在地面上，不会悬在画面中间。
+    viewOffY = cssH - ARENA_HEIGHT * viewScale;
+    ctx.setTransform(dpr * viewScale, 0, 0, dpr * viewScale, viewOffX * dpr, viewOffY * dpr);
+}
+
+function onResize() {
+    fitCanvas();
+    refreshFlyTarget();
+}
+
 function refreshFlyTarget() {
     if (!canvas) return;
     const btn = document.querySelector('.collect-btn');
@@ -170,11 +162,9 @@ function refreshFlyTarget() {
     // 提取按钮中心点 → 转成 canvas 内部坐标
     const targetAbsX = (bRect.left + bRect.width / 2) - cRect.left;
     const targetAbsY = (bRect.top + bRect.height / 2) - cRect.top;
-    // 按 canvas 实际显示宽/高（可能因 CSS 缩放与 ARENA_WIDTH 不一致）做等比
-    const scaleX = ARENA_WIDTH / cRect.width;
-    const scaleY = ARENA_HEIGHT / cRect.height;
-    flyTargetX = targetAbsX * scaleX;
-    flyTargetY = targetAbsY * scaleY;
+    // 用 fitCanvas 的同一套映射（等比 + 居中偏移）换算回逻辑坐标
+    flyTargetX = (targetAbsX - viewOffX) / viewScale;
+    flyTargetY = (targetAbsY - viewOffY) / viewScale;
     // 钳制到画布内（按钮可能在画布下方 → y 超界 → 钳到画布底）
     flyTargetX = Math.max(0, Math.min(ARENA_WIDTH, flyTargetX));
     flyTargetY = Math.max(0, Math.min(ARENA_HEIGHT, flyTargetY));
@@ -1375,7 +1365,9 @@ function spawnDamageNumber(damage, isCrit = false, isPlayerHit = false) {
         type: 'damage-text',
         text: isPlayerHit ? `-${damage}` : (isCrit ? `暴击! ${damage}` : `${damage}`),
         x: isPlayerHit ? state.player.x : state.enemy.x,
-        y: isPlayerHit ? GROUND_Y - 60 : state.enemy.y - 90,
+        // 2026-10-28：怪物伤害数字从更低的位置起跳。原来从 enemy.y-90（=名牌高度）冒出来，
+        // 会和头顶名牌 / 血条叠在一起糊成一团，现在从名牌下方起跳。
+        y: isPlayerHit ? GROUND_Y - 55 : state.enemy.y - 52,
         vy: -1.2,
         life: 1000,
         born: performance.now(),
@@ -1557,7 +1549,11 @@ function update(dt, now) {
 // ============ 渲染 ============
 function render(now) {
     if (!ctx) return;
-    ctx.clearRect(0, 0, ARENA_WIDTH, ARENA_HEIGHT);
+    // 整个设备画布清空（含等比映射留出的边条），否则残影会挂在黑边上
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
 
     // ===== 全局镜头缩放（dolly-in 推进） =====
     // base 1.0 + 受击后缩 0.92 缓动回 1.0；轻微持续呼吸 ±1%
@@ -1591,7 +1587,7 @@ function render(now) {
 // v24：背景透明（让 .stage-canvas 的背景图透出来）
 // 砍掉：所有程序化背景绘制（天空渐变 / 废墟剪影 / 红光晕 / 地面线 / 脚底光圈）
 function drawBackground() {
-    // 故意空：让 DOM 背景图（bg.png）透出
+    // 故意空：让 DOM 背景图（bg.webp）透出
 }
 
 function drawGroundAndSkyline() {
@@ -1824,9 +1820,9 @@ function drawEnemyFallback(x, enemy) {
 function drawHealthBar() {
     if (!state.enemy) return;
     const e = state.enemy;
-    // 精致版：宽 120（小怪）/ 160（Boss），高 14 / 18，圆角 + 渐变 + 边框 + 数字
+    // 精致版：宽 120（小怪）/ 160（Boss），高 16 / 20，圆角 + 渐变 + 边框 + 数字
     const w = e.boss ? 160 : 120;
-    const h = e.boss ? 18 : 14;
+    const h = e.boss ? 20 : 16;
     const x = e.x - w / 2;
     // 血条位置：Boss 顶部（画布上方），小怪头顶上方
     const y = e.boss ? 4 : GROUND_Y - 100;
@@ -1887,7 +1883,7 @@ function drawHealthBar() {
 
     // 8. 数值（血量数字）
     ctx.fillStyle = '#fff';
-    ctx.font = 'bold 9px sans-serif';
+    ctx.font = 'bold 11px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     const hpText = `${Math.max(0, Math.ceil(e.hp))} / ${e.maxHp}`;
@@ -1900,8 +1896,8 @@ function drawHealthBar() {
 
     // 9. 名字 + Lv（血条上方）
     if (e.name) {
-        const tagH = 14;
-        const tagW = e.name.length * 7 + 30;
+        const tagH = 17;
+        const tagW = e.name.length * 8 + 34;
         const tagX = e.x - tagW / 2;
         const tagY = y - tagH - 2;
         // 名字底色（半透明暗色）
@@ -1910,7 +1906,7 @@ function drawHealthBar() {
         ctx.fill();
         // 名字文字
         ctx.fillStyle = e.boss ? '#ff8585' : '#f5e1a4';
-        ctx.font = 'bold 9px sans-serif';
+        ctx.font = 'bold 11px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         const tagText = `${e.name} Lv.${e.level || 1}`;
@@ -1940,13 +1936,13 @@ function roundRect(ctx, x, y, w, h, r) {
 
 function drawUnitLabel(x, y, text, color) {
     ctx.save();
-    ctx.font = '11px sans-serif';
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    const w = ctx.measureText(text).width + 12;
-    ctx.fillRect(x - w / 2, y, w, 16);
+    ctx.font = '13px sans-serif';
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    const w = ctx.measureText(text).width + 14;
+    ctx.fillRect(x - w / 2, y, w, 19);
     ctx.fillStyle = color;
     ctx.textAlign = 'center';
-    ctx.fillText(text, x, y + 11);
+    ctx.fillText(text, x, y + 13.5);
     ctx.restore();
 }
 
@@ -1967,10 +1963,10 @@ function drawParticles(now) {
             const t = age / p.life;
             ctx.save();
             ctx.globalAlpha = 1 - t;
-            ctx.font = p.crit ? 'bold 16px sans-serif' : '14px sans-serif';
+            ctx.font = p.crit ? 'bold 18px sans-serif' : '15px sans-serif';
             ctx.fillStyle = p.isPlayerHit ? '#f44336' : (p.crit ? '#ffc107' : '#fff');
             ctx.strokeStyle = '#000';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 3;
             ctx.textAlign = 'center';
             ctx.strokeText(p.text, p.x, p.y);
             ctx.fillText(p.text, p.x, p.y);

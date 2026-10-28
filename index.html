@@ -7,14 +7,14 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>末世幸存者 - 挂机肉鸽</title>
-    <link rel="stylesheet" href="style.css?v=modal-mutex-20261028a">
+    <link rel="stylesheet" href="style.css?v=ui-p0-20261028a">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
     <!-- 版本号横幅（暂时禁用以排查截图工具 viewport 渲染问题） -->
-    <!-- <div id="version-banner" style="position:fixed;bottom:4px;left:50%;transform:translateX(-50%);z-index:9999;background:#ff0066;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;font-family:monospace;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.5);opacity:0.85;">v=modal-mutex-20261028a</div> -->
-    <script>console.log('%c[VERSION] modal-mutex-20261028a','background:#ff0066;color:#fff;padding:2px 6px;border-radius:3px;font-weight:bold;');</script>
-    <script type="module" src="src/main.js?v=modal-mutex-20261028a"></script>
+    <!-- <div id="version-banner" style="position:fixed;bottom:4px;left:50%;transform:translateX(-50%);z-index:9999;background:#ff0066;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;font-family:monospace;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.5);opacity:0.85;">v=ui-p0-20261028a</div> -->
+    <script>console.log('%c[VERSION] ui-p0-20261028a','background:#ff0066;color:#fff;padding:2px 6px;border-radius:3px;font-weight:bold;');</script>
+    <script type="module" src="src/main.js?v=ui-p0-20261028a"></script>
     <div id="app">
         <div class="app-content">
             <!-- 顶部资源栏已删除（2026-07-28：resources 数据层无 UI 入口，所有引用都是死代码） -->
@@ -85,12 +85,12 @@
                 <!-- 左侧圆形入口 -->
                 <div class="side-rail side-left">
                     <button class="side-btn" onclick="openCheckIn()" title="七日签到">
-                        <span class="side-btn-icon">🎁</span>
+                        <span class="side-btn-icon"><i data-lucide="gift"></i></span>
                         <span class="side-btn-label">七日签到</span>
                         <span class="side-dot"></span>
                     </button>
                     <button class="side-btn" onclick="openChallenge(); markSideRead('challenge')" title="世界BOSS">
-                        <span class="side-btn-icon">👹</span>
+                        <span class="side-btn-icon"><i data-lucide="skull"></i></span>
                         <span class="side-btn-label">世界BOSS</span>
                         <span class="side-dot"></span>
                     </button>
@@ -141,12 +141,12 @@
                 <!-- 右侧圆形入口 -->
                 <div class="side-rail side-right">
                     <button class="side-btn" onclick="openTasks(); markSideRead('tasks')" title="每日任务">
-                        <span class="side-btn-icon">📋</span>
+                        <span class="side-btn-icon"><i data-lucide="clipboard-list"></i></span>
                         <span class="side-btn-label">任务</span>
                         <span class="side-dot"></span>
                     </button>
                     <button class="side-btn side-btn-achievements is-locked" id="side-btn-achievements" onclick="openAchievements(); markSideRead('achievements')" title="成就（未解锁）">
-                        <span class="side-btn-icon">🏆</span>
+                        <span class="side-btn-icon"><i data-lucide="trophy"></i></span>
                         <span class="side-btn-label">成就</span>
                         <span class="side-dot"></span>
                     </button>
@@ -156,6 +156,11 @@
                         <span class="side-badge" id="collect-pending-badge" hidden>0</span>
                     </button>
                 </div>
+
+                <!-- 2026-10-28：Toast 容器挪进舞台，浮在舞台天空区域。
+                     原来它在 body 末尾用 position:fixed;top:20px，开局 toast 直接压住
+                     HUD 顶栏，把金币数值盖掉。放在舞台里既不会挡数值，也永远在视野内。 -->
+                <div class="toast-container" id="toast-container"></div>
             </div>
 
             <!-- 底部状态卡：任务 + BOSS -->
@@ -699,7 +704,5 @@
 
     <!-- [主入口] 已在 <head> line 17 加载，底部旧版已删除 -->
 
-    <!-- Toast 通知容器（showToast 必需，缺失会导致所有反馈静默失败） -->
-    <div class="toast-container" id="toast-container"></div>
 </body>
 </html>

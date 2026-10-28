@@ -92,6 +92,7 @@ dist-v2/
 /ssh-diff2.mjs
 /ssh-ls2.mjs
 /ssh-ls3.mjs
+/ssh-run.mjs
 
 # ── 一次性测试页 / 临时脚本 ─────────────────────────────
 /preview-*.html
