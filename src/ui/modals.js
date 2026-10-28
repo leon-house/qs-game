@@ -1,27 +1,43 @@
 /**
  * 弹窗管理
  */
-import { GameData, saveData } from '../data/gameData.js?v=hero-sprite-fix-20260725o';
-import { calculateStats, calculatePower, getEquipDesc, getEquipmentStats, updateEquipmentBar } from '../systems/equipment.js?v=hero-sprite-fix-20260725o';
-import { Renderer } from '../core/renderer.js?v=hero-sprite-fix-20260725o';
-import { formatNumber, showToast, updateUI } from './ui.js?v=hero-sprite-fix-20260725o';
+import { GameData, saveData } from '../data/gameData.js';
+import { calculateStats, calculatePower, getEquipDesc, getEquipmentStats, calculateSellPrice, updateEquipmentBar } from '../systems/equipment.js';
+import { Renderer } from '../core/renderer.js';
+import { formatNumber, showToast, updateUI } from './ui.js';
+
+// ============================================================
+//  装备查找辅助函数（按 id 索引，不再依赖 (type, index)）
+// ============================================================
+/**
+ * 在 bag.equipment 中查找唯一 id 的装备
+ * @param {string} itemId 装备唯一 id（item.id）
+ * @returns {object|null} 装备对象 + 扁平 index { item, index }
+ */
+function findBagEquip(itemId) {
+    const items = GameData.player.bag.equipment || [];
+    const index = items.findIndex(it => it.id === itemId);
+    if (index < 0) return null;
+    return { item: items[index], index };
+}
 
 /**
- * 属性弹窗
+ * 属性弹窗（2026-08-03 精简：只显示 5 字段）
+ *   攻击 / 暴击 / 爆伤 / 攻速 / 连击
+ *   删：防御 / 生命 / 吸血（角色不受伤害，DPS 模型不需要这 3 项）
  */
 export function openStatsModal() {
     const stats = calculateStats();
     const power = calculatePower();
+    const atkSpd = (stats.attackSpeed || 1.0).toFixed(2);
     const html = `
         <div class="stat-row" style="justify-content:center;font-size:18px;color:var(--orange);font-weight:900;">
             ⚔️ 战力 ${formatNumber(power)}
         </div>
         <div class="stat-row"><span class="stat-label">⚔️ 攻击</span><span class="stat-value attack">${stats.attack}</span></div>
-        <div class="stat-row"><span class="stat-label">🛡️ 防御</span><span class="stat-value defense">${stats.defense}</span></div>
-        <div class="stat-row"><span class="stat-label">❤️ 生命</span><span class="stat-value hp">${stats.hp}</span></div>
         <div class="stat-row"><span class="stat-label">⚡ 暴击</span><span class="stat-value crit">${stats.critRate}%</span></div>
-        <div class="stat-row"><span class="stat-label">💥 爆伤</span><span class="stat-value" style="color:var(--orange);">${stats.critDamage || 50}%</span></div>
-        <div class="stat-row"><span class="stat-label">🩸 吸血</span><span class="stat-value" style="color:var(--red);">${stats.lifeSteal || 0}%</span></div>
+        <div class="stat-row"><span class="stat-label">💥 爆伤</span><span class="stat-value" style="color:var(--orange);">${stats.critDamage || 1.5}×</span></div>
+        <div class="stat-row"><span class="stat-label">⚡ 攻速</span><span class="stat-value" style="color:var(--cyan);">${atkSpd}/s</span></div>
         <div class="stat-row"><span class="stat-label">🔗 连击</span><span class="stat-value" style="color:var(--purple);">${stats.combo || 0}%</span></div>
     `;
     Renderer.setHTML('stats-detail', html);
@@ -61,11 +77,11 @@ function renderBag() {
     let items = [];
 
     if (currentBagType === 'all' || currentBagType === 'equipment') {
-        const equipTypes = ['weapon', 'armor', 'head', 'clothes', 'cloak', 'boots', 'ring', 'amulet', 'accessory'];
-        equipTypes.forEach(t => {
-            (bag[t] || []).forEach((item, idx) => {
-                items.push({ ...item, _type: t, _index: idx });
-            });
+        // 所有装备都堆在 bag.equipment 里（不再按 part 分子数组）
+        // _type 用 item.part 仅用于查找图标，_index 用扁平行索引
+        const equipList = bag.equipment || [];
+        equipList.forEach((item, idx) => {
+            items.push({ ...item, _type: item.part, _index: idx });
         });
     } else if (currentBagType === 'material') {
         (bag.material || []).forEach((item, idx) => {
@@ -89,27 +105,24 @@ function renderBag() {
         if (type === 'material') {
             statsText = 'x' + item.count;
         } else {
-            const levelMultiplier = 1 + (item.level - 1) * 0.15;
+            // v equip-refactor-20261008a：直接读 item.stats（新格式）
+            const st = item.stats || {};
             const stats = [];
-            const atk = Math.floor((item.baseAttack || 0) * levelMultiplier);
-            const def = Math.floor((item.baseDefense || 0) * levelMultiplier);
-            const hp = Math.floor((item.baseHp || 0) * levelMultiplier);
-            const crit = Math.floor((item.baseCritRate || 0) * levelMultiplier);
-            const critDmg = Math.floor((item.baseCritDamage || 0) * levelMultiplier);
-            const lifeSteal = Math.floor((item.baseLifeSteal || 0) * levelMultiplier);
-            const combo = Math.floor((item.baseCombo || 0) * levelMultiplier);
+            const atk = st.attack || 0;
+            const atkSpd = st.attackSpeed || 0;
+            const crit = st.critRate || 0;
+            const critDmg = st.critDamage || 0;
+            const combo = st.combo || 0;
             if (atk) stats.push('攻+' + atk);
-            if (def) stats.push('防+' + def);
-            if (hp) stats.push('血+' + hp);
+            if (atkSpd) stats.push('速+' + Number(atkSpd).toFixed(2));
             if (crit) stats.push('暴+' + crit + '%');
-            if (critDmg) stats.push('爆伤+' + critDmg + '%');
-            if (lifeSteal) stats.push('吸血+' + lifeSteal + '%');
-            if (combo) stats.push('连击+' + combo + '%');
+            if (critDmg && critDmg !== 1.5) stats.push('爆伤×' + Number(critDmg).toFixed(2));
+            if (combo) stats.push('连击+' + Number(combo).toFixed(1) + '%');
             statsText = stats.join(' ');
-            levelText = 'Lv.' + item.level;
+            levelText = 'Lv.' + (item.level || 1);
         }
 
-        return '<div class="bag-item ' + equipped + ' ' + item.quality + '" onclick="handleBagItemClick(\'' + type + '\',' + index + ')" oncontextmenu="showItemMenu(event,\'' + type + '\',' + index + ')">' +
+        return '<div class="bag-item ' + equipped + ' ' + item.quality + '" onclick="handleBagItemClick(\'' + item.id + '\')" oncontextmenu="showItemMenu(event,\'' + item.id + '\')">' +
             '<div class="bag-item-icon">' + (typeIcons[type] || '📦') + '</div>' +
             '<div class="bag-item-name">' + item.name + '</div>' +
             (levelText ? '<div class="bag-item-level">' + levelText + '</div>' : '') +
@@ -121,12 +134,11 @@ function renderBag() {
 /**
  * 物品菜单（右键）
  */
-export function showItemMenu(event, type, index) {
+export function showItemMenu(event, itemId) {
     event.preventDefault();
-    if (type === 'material') return;
-
-    const item = GameData.player.bag[type][index];
-    if (!item) return;
+    const found = findBagEquip(itemId);
+    if (!found) return;
+    const item = found.item;
 
     const desc = getEquipDesc(item);
     const existingMenu = Renderer.$('item-menu');
@@ -138,12 +150,13 @@ export function showItemMenu(event, type, index) {
         style: 'position:fixed;left:' + event.clientX + 'px;top:' + event.clientY + 'px;'
     });
 
-    const upgradeCost = Math.floor((item.price || 100) * Math.pow(1.5, item.level));
-    const sellPrice = Math.floor((item.price || 100) * 0.5);
+    // v equip-refactor-20261008b：统一用 calculateSellPrice（之前硬编码 item.price * 0.5，与详情弹窗数值不一致）
+    const sellPrice = calculateSellPrice(item);
 
+    // v equip-refactor-20261008b：删掉"升级"按钮（upgradeItem 函数不存在 → ReferenceError）
+    //   升级系统作为新功能做时再加回
     menu.innerHTML = (desc ? '<div style="padding:8px 12px;font-size:11px;color:var(--text-secondary);font-style:italic;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:4px;line-height:1.4;">"' + desc + '"</div>' : '') +
-        '<div class="menu-item" onclick="upgradeItem(\'' + type + '\',' + index + ')"><div class="menu-item-title">⬆️ 升级</div><div class="menu-item-cost">💰 ' + upgradeCost + '</div></div>' +
-        '<div class="menu-item" onclick="sellItem(\'' + type + '\',' + index + ')"><div class="menu-item-title">💰 出售</div><div class="menu-item-cost" style="color:var(--gold);">+' + sellPrice + '</div></div>' +
+        '<div class="menu-item" onclick="sellItem(\'' + itemId + '\')"><div class="menu-item-title">💰 出售</div><div class="menu-item-cost" style="color:var(--gold);">+' + sellPrice + '</div></div>' +
         '<div class="menu-item" onclick="closeItemMenu()"><div class="menu-item-title">❌ 取消</div></div>';
 
     document.body.appendChild(menu);
@@ -162,25 +175,27 @@ window.closeBag = closeBag;
 window.switchBagTab = switchBagTab;
 window.showItemMenu = showItemMenu;
 window.closeItemMenu = closeItemMenu;
-window.handleBagItemClick = function(type, index) {
-    if (type === 'material') return;
-    const item = GameData.player.bag[type][index];
-    if (!item) return;
+window.handleBagItemClick = function(itemId) {
+    const found = findBagEquip(itemId);
+    if (!found) return;
     // ★ 点装备图标 → 弹二级详情弹窗（信息+属性+装备/出售/分解三按钮）
-    showEquipDetail(type, index);
+    showEquipDetail(itemId);
 };
 
 /**
  * 装备详情二级弹窗
  */
-export function showEquipDetail(type, index) {
-    const item = GameData.player.bag[type][index];
-    if (!item) return;
+export function showEquipDetail(itemId) {
+    const found = findBagEquip(itemId);
+    if (!found) return;
+    const item = found.item;
+    // 注意：type 在此处是 part 名（如 'head'/'armor'），用于卸载和图标
+    const part = item.part;
 
     const existing = Renderer.$('equip-detail-panel');
     if (existing) existing.remove();
 
-    const current = GameData.player.equipment[type];
+    const current = GameData.player.equipment[part];
     const isEquipped = current && current.id === item.id;
     const stats = getEquipmentStats(item);
 
@@ -193,62 +208,63 @@ export function showEquipDetail(type, index) {
         cloak: '🦺', boots: '👢', ring: '💍', amulet: '🧿', accessory: '🎀'
     };
 
-    const qualityColors = {
-        white: '#cccccc', green: '#4caf50', blue: '#2196f3',
-        purple: '#9c27b0', orange: '#ff9800', red: '#f44336'
+    // v26：品质名映射（用于右上角徽章 + 名称颜色）
+    // v equip-refactor-20261008a：BUG fix —— 把 'orange' 改回 'gold'（SKILL_QUALITY 真实定义）
+    const qualityLabels = {
+        white: '劣质', green: '普通', blue: '优秀', purple: '稀有', gold: '史诗', red: '传说'
+    };
+    const qualityNameColors = {
+        white: '#b8b8b8', green: '#6dd47e', blue: '#5db4ff',
+        purple: '#c97aff', gold: '#ffb84d', red: '#ff6b6b'
     };
 
-    // 属性行
+    // 属性行（2026-08-03 精简：5 字段；v26：连击/攻速等浮点值用 toFixed 避免 12.2999...% 这种精度尾巴）
     const statRows = [];
     if (stats.attack) statRows.push({ icon: '⚔️', label: '攻击', value: stats.attack, color: 'var(--orange)' });
-    if (stats.defense) statRows.push({ icon: '🛡️', label: '防御', value: stats.defense, color: 'var(--blue)' });
-    if (stats.hp) statRows.push({ icon: '❤️', label: '生命', value: stats.hp, color: 'var(--red)' });
     if (stats.critRate) statRows.push({ icon: '⚡', label: '暴击', value: stats.critRate + '%', color: 'var(--gold)' });
-    if (stats.critDamage) statRows.push({ icon: '💥', label: '爆伤', value: stats.critDamage + '%', color: 'var(--orange)' });
-    if (stats.lifeSteal) statRows.push({ icon: '🩸', label: '吸血', value: stats.lifeSteal + '%', color: 'var(--red)' });
-    if (stats.combo) statRows.push({ icon: '🔗', label: '连击', value: stats.combo + '%', color: 'var(--purple)' });
+    if (stats.critDamage) statRows.push({ icon: '💥', label: '爆伤', value: (stats.critDamage || 1.5).toFixed(2) + '×', color: 'var(--orange)' });
+    if (stats.attackSpeed) statRows.push({ icon: '⚡', label: '攻速', value: (stats.attackSpeed || 1.0).toFixed(2) + '/s', color: 'var(--cyan)' });
+    if (stats.combo) statRows.push({ icon: '🔗', label: '连击', value: parseFloat(stats.combo.toFixed(2)) + '%', color: 'var(--purple)' });
 
-    const sellPrice = Math.floor((item.price || 100) * 0.5 * (1 + (item.level - 1) * 0.2));
+    const sellPrice = calculateSellPrice(item);
     const stones = Math.max(1, Math.floor((item.level || 1) * 0.5));
 
+    // v26：重做 HTML —— 全部用 CSS 类，去掉 inline style
     const html = `
-        <div class="equip-detail">
-            <div class="equip-detail-header ${item.quality}" style="display:flex;align-items:center;gap:12px;padding:16px;border-bottom:1px solid rgba(255,255,255,0.1);">
-                <div class="equip-detail-icon" style="font-size:48px;flex-shrink:0;">${typeIcons[type] || '📦'}</div>
-                <div class="equip-detail-title" style="flex:1;">
-                    <div class="equip-detail-name" style="color:${qualityColors[item.quality] || '#fff'};font-size:18px;font-weight:700;">${item.name}</div>
-                    <div style="font-size:12px;color:var(--text-secondary);margin-top:4px;">
-                        ${typeNames[type] || type} · Lv.${item.level} · ${item.quality === 'red' ? '传说' : item.quality === 'orange' ? '史诗' : item.quality === 'purple' ? '稀有' : item.quality === 'blue' ? '优秀' : item.quality === 'green' ? '普通' : '劣质'}
+        <div class="equip-detail equip-detail-${item.quality}">
+            <div class="equip-detail-info">
+                <div class="equip-detail-icon">${typeIcons[part] || '📦'}</div>
+                <div class="equip-detail-title-block">
+                    <div class="equip-detail-name" style="color:${qualityNameColors[item.quality] || '#fff'};">${item.name}</div>
+                    <div class="equip-detail-meta">
+                        <span>${typeNames[part] || part}</span>
+                        <span>·</span>
+                        <span>Lv.${item.level}</span>
+                        ${isEquipped ? '<span class="equipped-tag">✓ 已装备</span>' : ''}
                     </div>
-                    ${isEquipped ? '<div style="font-size:11px;color:var(--success);margin-top:4px;">✓ 已装备</div>' : ''}
                 </div>
-                <div class="equip-detail-close" onclick="closeEquipDetail()" style="cursor:pointer;font-size:24px;color:var(--text-secondary);line-height:1;flex-shrink:0;">×</div>
+                <div class="equip-quality-badge ${item.quality}">${qualityLabels[item.quality] || ''}</div>
             </div>
-            ${item.desc ? `<div class="equip-detail-desc" style="font-size:12px;color:var(--text-secondary);font-style:italic;padding:8px 12px;background:rgba(0,0,0,0.3);border-left:3px solid var(--gold);margin:12px;line-height:1.5;border-radius:4px;">${item.desc}</div>` : ''}
-            <div class="equip-detail-stats" style="display:flex;flex-direction:column;gap:6px;padding:0 12px;">
+            ${item.desc ? `<div class="equip-detail-desc">${item.desc}</div>` : ''}
+            <div class="equip-detail-stats">
                 ${statRows.length > 0 ? statRows.map(r => `
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:rgba(0,0,0,0.25);border-radius:6px;">
-                        <span style="font-size:13px;">${r.icon} ${r.label}</span>
-                        <span style="font-size:14px;font-weight:700;color:${r.color};">+${r.value}</span>
+                    <div class="equip-stat-row">
+                        <span class="stat-label">${r.icon} ${r.label}</span>
+                        <span class="stat-value" style="color:${r.color};">+${r.value}</span>
                     </div>
                 `).join('') : '<div style="text-align:center;color:var(--text-secondary);padding:8px;">无附加属性</div>'}
             </div>
-            <div class="equip-detail-actions" style="display:flex;flex-direction:column;gap:8px;padding:12px;">
-                <button onclick="${isEquipped ? 'unequipItem(\'' + type + '\')' : 'equipItem(\'' + type + '\',' + index + ')'}"
-                    style="padding:12px;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;
-                           background:${isEquipped ? 'linear-gradient(135deg, #ff6b6b, #c0392b)' : 'linear-gradient(135deg, var(--success), #2e7d32)'};color:#fff;">
-                    ${isEquipped ? '📤 卸下' : '⚔️ 装备'}
+            <div class="equip-detail-actions">
+                <button class="${isEquipped ? 'equip-btn-unequip' : 'equip-btn-primary'}"
+                    onclick="${isEquipped ? 'unequipItem(\'' + part + '\')' : 'equipItem(\'' + itemId + '\')'}">
+                    ${isEquipped ? '📤 卸下装备' : '⚔️ 装备此件'}
                 </button>
-                <div style="display:flex;gap:8px;">
-                    <button onclick="sellItem('${type}', ${index})"
-                        style="flex:1;padding:10px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;
-                               background:linear-gradient(135deg, #ffc107, #ff9800);color:#1a1a2e;">
-                        💰 出售<br><span style="font-size:11px;opacity:0.9;">+${sellPrice}金币</span>
+                <div class="equip-btn-secondary-row">
+                    <button class="equip-btn-secondary" onclick="sellItem('${itemId}')">
+                        💰 出售<span class="sub-hint">+${sellPrice} 金币</span>
                     </button>
-                    <button onclick="decomposeItem('${type}', ${index})"
-                        style="flex:1;padding:10px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;
-                               background:linear-gradient(135deg, #9c27b0, #6a1b9a);color:#fff;">
-                        🔮 分解<br><span style="font-size:11px;opacity:0.9;">+${stones}强化石</span>
+                    <button class="equip-btn-secondary" onclick="decomposeItem('${itemId}')">
+                        🔮 分解<span class="sub-hint">+${stones} 强化石</span>
                     </button>
                 </div>
             </div>
@@ -273,9 +289,11 @@ export function showEquipDetail(type, index) {
         id: 'equip-detail-panel',
         className: 'equip-detail-panel',
         style: 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);' +
-            'background:rgba(30,30,30,0.98);border:1px solid rgba(255,255,255,0.15);' +
-            'border-radius:16px;padding:0;z-index:2000;width:90%;max-width:380px;' +
-            'max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.7);'
+            'background:linear-gradient(180deg, #1f1610 0%, #0d0805 100%);' +
+            'border:1px solid rgba(212,185,122,0.45);' +
+            'border-radius:12px;padding:0;z-index:2000;width:90%;max-width:380px;' +
+            'max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.7),' +
+            '0 0 0 1px rgba(212,185,122,0.15) inset;'
     });
     panel.innerHTML = html;
     // ★ 阻止面板内部点击冒泡到 backdrop（避免点内部也关闭）
@@ -293,20 +311,22 @@ export function closeEquipDetail() {
 }
 
 /**
- * 从详情弹窗装备（单件，按 index 精确装备）
+ * 从详情弹窗装备（单件，按 id 精确装备）
  */
-export function equipItem(type, index) {
-    const item = GameData.player.bag[type][index];
-    if (!item) {
+export function equipItem(itemId) {
+    const found = findBagEquip(itemId);
+    if (!found) {
         showToast('装备不存在', 'warning');
         return;
     }
-    const current = GameData.player.equipment[type];
+    const item = found.item;
+    const part = item.part;
+    const current = GameData.player.equipment[part];
     if (current && current.id === item.id) {
         showToast('这件已经装备了', 'warning');
         return;
     }
-    GameData.player.equipment[type] = item;  // ★ 按 index 精确装备单件
+    GameData.player.equipment[part] = item;  // ★ 按 id 精确装备单件（这里 part 是 part 名）
     showToast(`已装备 ${item.name}`, 'success');
     closeEquipDetail();
     saveData();
@@ -316,19 +336,23 @@ export function equipItem(type, index) {
 }
 
 /**
- * 出售装备（从详情弹窗调用）
+ * 出售装备（按 itemId 查找并从 bag.equipment 删除）
+ *   v equip-refactor-20261008a：使用 calculateSellPrice 统一公式
+ *   之前硬编码 (item.price * 0.5 * (1 + (level-1) * 0.2))，但 item.price 不可靠
  */
-export function sellItem(type, index) {
-    const item = GameData.player.bag[type][index];
-    if (!item) return;
-    const sellPrice = Math.floor((item.price || 100) * 0.5 * (1 + (item.level - 1) * 0.2));
+export function sellItem(itemId) {
+    const found = findBagEquip(itemId);
+    if (!found) return;
+    const { item, index } = found;
+    const part = item.part;
+    const sellPrice = calculateSellPrice(item);
 
     // 如果已装备，卸下
-    if (GameData.player.equipment[type]?.id === item.id) {
-        GameData.player.equipment[type] = null;
+    if (GameData.player.equipment[part]?.id === item.id) {
+        GameData.player.equipment[part] = null;
     }
 
-    GameData.player.bag[type].splice(index, 1);
+    GameData.player.bag.equipment.splice(index, 1);
     GameData.player.gold += sellPrice;
     showToast(`出售 ${item.name} +${sellPrice} 金币`, 'success');
     closeEquipDetail();
@@ -340,14 +364,16 @@ export function sellItem(type, index) {
 }
 
 /**
- * 分解装备（从详情弹窗调用）— 获得强化石 + 材料
+ * 分解装备（按 itemId 查找并从 bag.equipment 删除）— 获得强化石 + 材料
  */
-export function decomposeItem(type, index) {
-    const item = GameData.player.bag[type][index];
-    if (!item) return;
+export function decomposeItem(itemId) {
+    const found = findBagEquip(itemId);
+    if (!found) return;
+    const { item, index } = found;
+    const part = item.part;
 
-    if (GameData.player.equipment[type]?.id === item.id) {
-        GameData.player.equipment[type] = null;
+    if (GameData.player.equipment[part]?.id === item.id) {
+        GameData.player.equipment[part] = null;
     }
 
     const stones = Math.max(1, Math.floor((item.level || 1) * 0.5));
@@ -366,9 +392,11 @@ export function decomposeItem(type, index) {
     if (enhance) enhance.count += stones;
     else GameData.player.bag.material.push({ id: 'enhance_stone', name: '强化石', icon: '🪨', count: stones });
 
-    GameData.player.bag[type].splice(index, 1);
+    GameData.player.bag.equipment.splice(index, 1);
 
     showToast(`分解 ${item.name}：+${stones}强化石 +1${matName}`, 'success');
+    // v equip-refactor-20261008b：任务钩子在 main.js:window.decomposeItem wrap 层完成
+    //   之前在这里调 window.bumpTaskProgress，但 window 上没暴露该函数（导致任务永远不计数）
     closeEquipDetail();
     closeItemMenu();
     saveData();
@@ -397,7 +425,9 @@ const equipIcons = {
 };
 
 export function openEquipSelect(type) {
-    const items = GameData.player.bag[type] || [];
+    // 装备统一存在 bag.equipment 里 —— 按 part 过滤出当前槽位的可选装备
+    const allEquip = GameData.player.bag.equipment || [];
+    const items = allEquip.filter(it => it.part === type);
 
     // 移除旧面板
     const existing = Renderer.$('equip-select-panel');
@@ -477,27 +507,25 @@ export function openEquipSelect(type) {
             const stats = getEquipmentStats(item);
             const statsText = [];
             if (stats.attack) statsText.push(`攻+${stats.attack}`);
-            if (stats.defense) statsText.push(`防+${stats.defense}`);
-            if (stats.hp) statsText.push(`血+${stats.hp}`);
+            if (stats.attackSpeed) statsText.push(`速+${stats.attackSpeed.toFixed(2)}`);
             if (stats.critRate) statsText.push(`暴+${stats.critRate}%`);
-            if (stats.critDamage) statsText.push(`爆+${stats.critDamage}%`);
-            if (stats.lifeSteal) statsText.push(`吸+${stats.lifeSteal}%`);
-            if (stats.combo) statsText.push(`连+${stats.combo}%`);
+            if (stats.critDamage) statsText.push(`爆+${stats.critDamage.toFixed(2)}×`);
+            if (stats.combo) statsText.push(`连+${stats.combo.toFixed(1)}%`);
 
-            // 计算预览价格（用于按钮标签）
-            const sellPrice = Math.floor((item.price || 100) * 0.5 * (1 + (item.level - 1) * 0.2));
+            // v equip-refactor-20261008a：预览售价走统一公式 calculateSellPrice
+            const sellPrice = calculateSellPrice(item);
             const stones = Math.max(1, Math.floor((item.level || 1) * 0.5));
 
             html += `
                 <div class="equip-option quality-${item.quality}">
-                    <div class="equip-option-info" onclick="equipFromSelect('${type}', ${index})">
+                    <div class="equip-option-info" onclick="equipFromSelect('${item.id}')">
                         <div class="equip-option-name">${item.name} Lv.${item.level}</div>
                         <div class="equip-option-stats">${statsText.join(' · ') || '无附加属性'}</div>
                     </div>
                     <div class="equip-option-actions">
-                        <button class="equip-mini-btn equip-mini-btn-equip" onclick="equipFromSelect('${type}', ${index})" title="装备这件">装备</button>
-                        <button class="equip-mini-btn equip-mini-btn-sell" onclick="sellItem('${type}', ${index})" title="出售 +${sellPrice}金币">💰${sellPrice}</button>
-                        <button class="equip-mini-btn equip-mini-btn-decompose" onclick="decomposeItem('${type}', ${index})" title="分解 +${stones}强化石">🔮${stones}</button>
+                        <button class="equip-mini-btn equip-mini-btn-equip" onclick="equipFromSelect('${item.id}')" title="装备这件">装备</button>
+                        <button class="equip-mini-btn equip-mini-btn-sell" onclick="sellItem('${item.id}')" title="出售 +${sellPrice}金币">💰${sellPrice}</button>
+                        <button class="equip-mini-btn equip-mini-btn-decompose" onclick="decomposeItem('${item.id}')" title="分解 +${stones}强化石">🔮${stones}</button>
                     </div>
                 </div>
             `;
@@ -530,10 +558,12 @@ export function closeEquipSelect() {
     if (backdrop && backdrop.parentNode) backdrop.parentNode.removeChild(backdrop);
 }
 
-export function equipFromSelect(type, index) {
-    const item = GameData.player.bag[type][index];
-    if (!item) return;
-    GameData.player.equipment[type] = item;
+export function equipFromSelect(itemId) {
+    const found = findBagEquip(itemId);
+    if (!found) return;
+    const item = found.item;
+    const part = item.part;
+    GameData.player.equipment[part] = item;
     showToast(`已装备 ${item.name}`, 'success');
     closeEquipSelect();
     saveData();

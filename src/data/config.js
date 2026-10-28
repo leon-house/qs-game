@@ -1,217 +1,362 @@
 // ============================================================
 //  src/data/config.js
-//  从 game.js 拆出的静态配置常量（纯数据，无逻辑依赖）
-//  拆分原则：A1 区块内全部 const 定义，不依赖 GameData/任何函数
-//  链入方式：index.html 用 <script type="module" src="src/data/config.js"></script>
+//  静态配置常量（纯数据，无逻辑依赖）
+//  链入方式：<script type="module" src="src/data/config.js"></script>
 // ============================================================
 
-        export const SURVIVOR_TYPES = {
-            'warrior': {
-                name: '战士',
-                icon: '⚔️',
-                desc: '擅长近战，攻击加成+15%',
-                bonus: { attack: 0.15 }
-            },
-            'guardian': {
-                name: '守卫',
-                icon: '🛡️',
-                desc: '防御专精，生命+20%',
-                bonus: { hp: 0.20 }
-            },
-            'scavenger': {
-                name: '拾荒者',
-                icon: '🎒',
-                desc: '资源富集，金币掉落+20%',
-                bonus: { goldBonus: 0.20 }
-            },
-            'medic': {
-                name: '医护',
-                icon: '💉',
-                desc: '生存专家，暴击率+10%',
-                bonus: { critRate: 10 }
-            }
-        };
+// ============================================================
+// 一、资源系统
+//   6 种永久资源 + 1 种本局临时资源（金币）
+// ============================================================
+export const PERMANENT_RESOURCES = ['food', 'water', 'scrap', 'parts', 'radPotion', 'intel', 'blueprint'];
 
-        // 剧情文本
-        export const STORY_INTRO = `2077年，核战争爆发...
-的世界陷入火海文明崩塌
-幸存者们躲进地下庇护所
-等待着重见天日的那一天
-如今，辐射减弱你需要武装自己
-探索废墟，寻找资源
-在这个残酷的末世中生存下去！`;
+export const RESOURCE_META = {
+    food:      { name: '食物', icon: 'wheat',     desc: '基础生存资源' },
+    water:     { name: '净水', icon: 'droplet',   desc: '核心基础资源' },
+    scrap:     { name: '废铁', icon: 'wrench',    desc: '锻造、工坊材料' },
+    parts:     { name: '零件', icon: 'cog',       desc: '高级建筑/科技材料' },
+    radPotion: { name: '辐射药剂', icon: 'flask-conical', desc: '提升小队抗性' },
+    intel:     { name: '情报', icon: 'scroll',    desc: '历史货币（保留）' },
+    blueprint: { name: '蓝图', icon: 'blueprint', desc: '解锁高阶内容' },
+    gold:      { name: '金币', icon: 'coins',     desc: '通用货币，商店/挑战/技能书强化通用' },
+};
 
-        export const CHAPTER_STORIES = [
-            { chapter: 1, title: '第一章：废墟之城', story: '离开庇护所，你踏入这片辐射遍布的废墟。曾经繁华的城市如今只剩断壁残垣。空气中弥漫着腐烂的气息...小心，变异生物正在暗中窥视。' },
-            { chapter: 2, title: '第二章：变异森林', story: '穿越城市废墟，你来到了这片被辐射污染的森林。树木扭曲变形，动物们发生了恐怖的变化。这里隐藏着更强大的变异体...' },
-            { chapter: 3, title: '第三章：辐射沙漠', story: '一片荒芜的沙漠出现在面前。黄沙漫天，水源稀少。在这里你会遇到沙漠盗匪，他们可不会跟你讲道理...' },
-            { chapter: 4, title: '第四章：沦陷基地', story: '一个废弃的军事基地。门上的血迹暗示着这里发生过惨剧。深入地下，你发现这里已经被某种恐怖生物占据...' },
-            { chapter: 5, title: '第五章：感染者巢穴', story: '最黑暗的区域。感染者的巢穴充满了腐臭和尖叫。这里是地狱，也是你必须跨越的坎...' },
-            { chapter: 6, title: '第六章：地下研究所', story: '在巢穴深处你发现了一个隐秘的入口——某个失踪的病毒研究所。实验记录暗示着这场末世的真正起源就在这里...' },
-            { chapter: 7, title: '第七章：变异海滩', story: '海洋被辐射污染后诞生了新的生态。沿海城市的废墟下，变异鲨鱼和触手怪盘踞着海岸线。你必须穿过这里才能继续前进...' },
-            { chapter: 8, title: '第八章：钢铁工厂', story: '一个仍在运作的自动化工厂，机器在无人状态下循环运作了数十年。但现在的工人们不再是人类——而是半机械的改造体...' },
-            { chapter: 9, title: '第九章：最终防线', story: '军方在末日前修建的最后一道防线。这里曾经是秩序的象征，如今却成了末世之主的宫殿。每一个角落都潜伏着致命的威胁...' },
-            { chapter: 10, title: '第十章：新世界', story: '打败末世之主后，你站在了曾经是城市最高点的废墟上。太阳从辐射云层中穿透出来——你意识到，活下来本身就是一种胜利。新的旅程即将开始...' }
-        ];
+// 离线产出公式（保留兼容）
+export const IDLE_FORMULA = {
+    foodPerSec: 0.5,
+    waterPerSec: 0.3,
+    scrapPerSec: 0.2,
+    partsPerSec: 0.1,
+    habitatBonusPerLevel: 0.02,
+    offlineCapSeconds: 8 * 3600,
+};
 
-        // 装备品质颜色
-        export const QUALITY_COLORS = {
-            white: 'white', green: 'green', blue: 'blue',
-            purple: 'purple', orange: 'orange', red: 'red'
-        };
+// ============================================================
+// 二、玩家角色（2026-07-30 重构：单角色，无 HP/Defense 维度）
+//   普通战斗：角色只对怪物造成伤害，不再受击、不掉血
+//   挑战 Boss：30 秒倒计时，按 attack × attackSpeed × 时间 累积伤害
+//   attackSpeed = 每秒攻击次数（1.0 = 1 秒 1 次，2.0 = 500ms 1 次）
+// ============================================================
+export const BASE_HERO_STATS = {
+    attack: 10,         // 基础攻击力
+    attackSpeed: 1.0,   // 基础攻速（每秒攻击次数）
+    critRate: 5,        // 暴击率（%）
+    critDamage: 1.5,    // 暴击伤害倍率
+};
 
-        // 套装系统
-        export const SETS = {
-            'warrior': { name: '战士套装', icon: '⚔️', bonus: { 2: { attack: 15 }, 3: { attack: 30, critRate: 5 } } },
-            'guardian': { name: '守护套装', icon: '🛡️', bonus: { 2: { defense: 15 }, 3: { defense: 30, hp: 100 } } },
-            'hunter': { name: '猎人套装', icon: '🎯', bonus: { 2: { critRate: 8 }, 3: { critRate: 15, attack: 20 } } }
-        };
+// ============================================================
+// 三、技能书系统（替代旧天赋树）
+//   6 种品质（白/绿/蓝/紫/金/红）
+//   获取来源：商店购买碎片 → 5 碎片合成 1 本 → 金币强化
+// ============================================================
+export const SKILL_QUALITY = {
+    white:  { id: 'white',  name: '普通', color: '#d4d4d4', statMul: 1.0, dropWeight: 60 },
+    green:  { id: 'green',  name: '优秀', color: '#4ade80', statMul: 1.5, dropWeight: 25 },
+    blue:   { id: 'blue',   name: '稀有', color: '#3b82f6', statMul: 2.2, dropWeight: 10 },
+    purple: { id: 'purple', name: '史诗', color: '#a855f7', statMul: 3.5, dropWeight: 4  },
+    gold:   { id: 'gold',   name: '传说', color: '#ffd700', statMul: 5.0, dropWeight: 1  },
+    red:    { id: 'red',    name: '神话', color: '#ff4444', statMul: 8.0, dropWeight: 0  }, // 极稀有，仅推送
+};
 
-        // 宝石系统
-        export const GEMS = {
-            'ruby': { id: 'ruby', name: '红宝石', icon: '🔴', attack: 5, price: 100 },
-            'sapphire': { id: 'sapphire', name: '蓝宝石', icon: '🔵', defense: 5, price: 100 },
-            'emerald': { id: 'emerald', name: '绿宝石', icon: '🟢', hp: 30, price: 80 },
-            'topaz': { id: 'topaz', name: '黄宝石', icon: '🟡', critRate: 2, price: 150 }
-        };
+export const SKILL_QUALITY_ORDER = ['white', 'green', 'blue', 'purple', 'gold', 'red'];
 
-        export const EQUIPMENT_TEMPLATES = {
-            weapon: [
-                { id: 'w1', name: '棒球棍', icon: '🏏', baseAttack: 5, quality: 'white', setId: null, levelReq: 1, desc: '一根从废墟中捡来的棒球棍，满是干涸的血迹。虽不起眼，但在末世中它救过不少人的命。' },
-                { id: 'w2', name: '消防斧', icon: '🪓', baseAttack: 10, quality: 'green', setId: 'warrior', levelReq: 3, desc: '消防员遗留下的战斧，斧刃依然锋利。据说它的主人曾凭它从火海中救出十七个幸存者。' },
-                { id: 'w3', name: '霰弹枪', icon: '🔫', baseAttack: 20, quality: 'blue', setId: 'hunter', levelReq: 8, desc: '一把经过改装的霰弹枪，弹仓加大了三倍。枪托上刻着一行小字：「直到弹尽粮绝」' },
-                { id: 'w4', name: '激光剑', icon: '⚔️', baseAttack: 35, quality: 'purple', setId: 'warrior', levelReq: 15, desc: '从军事基地废墟中发掘的高科技武器，等离子刀刃能切割一切已知金属。启动时发出低沉的嗡鸣。' },
-                { id: 'w5', name: '等离子炮', icon: '🔮', baseAttack: 60, quality: 'orange', setId: 'hunter', levelReq: 25, desc: '外星科技与人类工艺的结晶，每一发都蕴含着恒星级能量。使用者必须穿戴全套防护装备，否则会被自己的武器灼伤。' },
-                { id: 'w6', name: '反物质枪', icon: '🔱', baseAttack: 100, quality: 'red', setId: 'warrior', levelReq: 40, desc: '传说中的终极武器，能湮灭一切物质。它的每一次射击都在扭曲现实法则，有传闻说它的弹药来自另一个维度的深渊。' }
-            ],
-            armor: [
-                { id: 'a1', name: '皮甲', icon: '🦺', baseDefense: 3, baseHp: 20, quality: 'white', setId: null, levelReq: 1, desc: '用变异兽皮革缝制的简易护甲，散发着淡淡的腥味。虽然粗糙，但总比裸奔强。' },
-                { id: 'a2', name: '防弹衣', icon: '🛡️', baseDefense: 8, baseHp: 50, quality: 'green', setId: 'guardian', levelReq: 5, desc: '警察的旧防弹衣，凯夫拉纤维已经老化，但依然能挡住变异犬的撕咬。内衬缝着一个名字标签。' },
-                { id: 'a3', name: '外骨骼', icon: '🦾', baseDefense: 15, baseHp: 100, quality: 'blue', setId: 'guardian', levelReq: 12, desc: '军方研发的动力外骨骼，能放大穿戴者三倍的力量。电池只能维持两小时，但那两小时里你就是不可阻挡的。' },
-                { id: 'a4', name: '能量护甲', icon: '⚡', baseDefense: 25, baseHp: 180, quality: 'purple', setId: 'guardian', levelReq: 20, desc: '覆盖全身的能量护盾发生器，能在毫秒间生成偏导力场。据说是从一个坠毁的不明飞行物中逆向工程而来。' },
-                { id: 'a5', name: '纳米战甲', icon: '🧬', baseDefense: 40, baseHp: 300, quality: 'orange', setId: 'warrior', levelReq: 30, desc: '由万亿个纳米机器人组成，能根据威胁自动调整密度和形态。穿戴者形容它像是「第二层皮肤在呼吸」。' },
-                { id: 'a6', name: 'T-1000战甲', icon: '🤖', baseDefense: 70, baseHp: 500, quality: 'red', setId: 'guardian', levelReq: 45, desc: '液态金属智能装甲，能在任何形态间自由切换。它的AI核心据说保留了原主人的部分记忆，偶尔会在梦中低语。' }
-            ],
-            accessory: [
-                { id: 'c1', name: '幸运符', icon: '🍀', baseCritRate: 2, quality: 'white', setId: null, levelReq: 1, desc: '一个被摩挲得发亮的四叶草挂件，主人已不知去向。也许它真的能带来好运——在末世中，信念也是一种武器。' },
-                { id: 'c2', name: '瞄准镜', icon: '🎯', baseCritRate: 5, quality: 'green', setId: 'hunter', levelReq: 5, desc: '狙击手的瞄准镜，镜片依然通透。透过它看到的不是目标，而是活下来的希望。' },
-                { id: 'c3', name: '暴击戒指', icon: '💍', baseCritRate: 10, quality: 'blue', setId: 'hunter', levelReq: 12, desc: '镶嵌着变异晶石的戒指，能引导使用者的杀意集中在一点。据说戒指内的晶石是用变异体的核心打磨的。' },
-                { id: 'c4', name: '电能核心', icon: '🔋', baseCritRate: 15, baseAttack: 10, baseCritDamage: 20, quality: 'purple', levelReq: 20, desc: '微型聚变核心，为武器系统提供持续能量。蓝色的光芒在黑暗中闪烁，像是一颗不灭的星。' },
-                { id: 'c5', name: '暗能量水晶', icon: '🔮', baseCritRate: 20, baseAttack: 25, baseCritDamage: 40, baseLifeSteal: 5, quality: 'orange', levelReq: 30, desc: '从虚空裂缝中析出的暗能量结晶，持有者能感受到来自深渊的脉动。它在汲取光线的同时，也在汲取灵魂。' },
-                { id: 'c6', name: '时间碎片', icon: '⏳', baseCritRate: 30, baseAttack: 50, baseCritDamage: 60, baseLifeSteal: 10, baseCombo: 5, quality: 'red', levelReq: 45, desc: '被击碎的时间之沙的碎片，持有者偶尔能看到未来的片段。但代价是——每一秒都在加速老去。' }
-            ],
-            head: [
-                { id: 'h1', name: '布帽', icon: '🧢', baseDefense: 2, baseHp: 10, quality: 'white', setId: null, levelReq: 1, desc: '一顶褪色的棒球帽，帽檐上有个弹孔。前主人大概是个乐观的人——他在帽子内侧写著「明天见」。' },
-                { id: 'h2', name: '摩托车头盔', icon: '⛑️', baseDefense: 5, baseHp: 25, quality: 'green', setId: 'guardian', levelReq: 5, desc: '全盔式摩托车头盔，面罩有划痕但完好。在末世里，一个好头盔就是一条命。' },
-                { id: 'h3', name: '防毒面具', icon: '😷', baseDefense: 10, baseHp: 50, quality: 'blue', setId: 'guardian', levelReq: 12, desc: '军方制式防毒面具，能过滤绝大多数已知毒素。滤芯已经泛黄，但在这片被辐射笼罩的大地上，它是你最好的朋友。' },
-                { id: 'h4', name: '夜视仪头盔', icon: '👓', baseDefense: 18, baseHp: 90, quality: 'purple', setId: 'hunter', levelReq: 20, desc: '集成夜视仪的战术头盔，让黑暗不再是庇护所。当你在夜里看到绿色的眼睛时——先开枪。' },
-                { id: 'h5', name: '能量头盔', icon: '👺', baseDefense: 30, baseHp: 150, quality: 'orange', setId: 'guardian', levelReq: 30, desc: '内置能量力场的头盔，在遭遇攻击时自动激活护盾。面罩上的HUD能实时显示威胁等级和弹药余量。' },
-                { id: 'h6', name: 'T-800头盔', icon: '🤖', baseDefense: 50, baseHp: 250, quality: 'red', setId: 'guardian', levelReq: 45, desc: '来自未来的液态合金头盔，HUD中显示的数据不属于这个时代。它的AI会低声提示威胁方位——像是亡灵在耳边低语。' }
-            ],
-            cloak: [
-                { id: 'cl1', name: '破布', icon: '🧣', baseHp: 15, quality: 'white', setId: null, levelReq: 1, desc: '一块从窗帘上扯下来的布，勉强能披在肩上。总比什么都没有强。' },
-                { id: 'cl2', name: '迷彩披风', icon: '🎽', baseHp: 35, baseDefense: 3, quality: 'green', setId: 'warrior', levelReq: 5, desc: '军用迷彩披风，经过特殊处理能在夜间降低红外特征。披上它，你就是夜的一部分。' },
-                { id: 'cl3', name: '防弹披风', icon: '🛡️', baseHp: 70, baseDefense: 8, quality: 'blue', setId: 'guardian', levelReq: 12, desc: '内衬陶瓷片的战术披风，能抵挡流弹。它很重，但在这片大地上，重量等于安全感。' },
-                { id: 'cl4', name: '隐形披风', icon: '👻', baseHp: 120, baseCritRate: 5, quality: 'purple', setId: 'hunter', levelReq: 20, desc: '利用光折射原理的隐形装置，能在静止时达到90%隐形效果。但别忘了——变异犬靠嗅觉，不靠视觉。' },
-                { id: 'cl5', name: '能量披风', icon: '⚡', baseHp: 200, baseDefense: 15, baseCritDamage: 15, quality: 'orange', setId: 'warrior', levelReq: 30, desc: '流淌着能量的丝质披风，像一匹流动的极光。它不仅能抵御攻击，还能为使用者的武器充能。' },
-                { id: 'cl6', name: '神器披风', icon: '🔥', baseHp: 350, baseDefense: 25, baseCritDamage: 30, baseLifeSteal: 5, quality: 'red', setId: 'warrior', levelReq: 45, desc: '由神殿遗物编织的披风，据说每一根丝线都曾浸泡在英雄的血中。穿戴者会感到一股古老的怒意在血管中奔涌。' }
-            ],
-            ring: [
-                { id: 'r1', name: '铁戒指', icon: '💍', baseCritRate: 1, quality: 'white', setId: null, levelReq: 1, desc: '一枚粗糙的铁戒指，内侧刻着两个名字。也许这是末世前某段爱情的见证。' },
-                { id: 'r2', name: '银戒指', icon: '🥈', baseCritRate: 3, baseAttack: 3, quality: 'green', setId: 'hunter', levelReq: 5, desc: '银质戒指，镶嵌着一颗小小的蓝宝石。据说银能辟邪——在变异体横行的世界里，这值得一试。' },
-                { id: 'r3', name: '金戒指', icon: '🥇', baseCritRate: 6, baseAttack: 8, quality: 'blue', setId: 'hunter', levelReq: 12, desc: '金戒指上刻着家族纹章。在旧时代它是地位的象征，现在它只是你能换到一餐饭的金属。但留着它——或许旧世界会回来。' },
-                { id: 'r4', name: '钻石戒指', icon: '💎', baseCritRate: 10, baseAttack: 15, baseCritDamage: 10, quality: 'purple', setId: 'warrior', levelReq: 20, desc: '钻戒在光线下折射出虹彩。钻石是世界上最硬的物质——正如持有者的决心。' },
-                { id: 'r5', name: '神器戒指', icon: '👑', baseCritRate: 15, baseAttack: 25, baseCritDamage: 25, baseLifeSteal: 3, quality: 'orange', setId: 'warrior', levelReq: 30, desc: '蕴含远古力量的戒指，传说它曾属于一位陨落的王。戴上它时，能感受到千军万马在血液中奔腾。' },
-                { id: 'r6', name: '传奇戒指', icon: '🏆', baseCritRate: 25, baseAttack: 40, baseCritDamage: 40, baseLifeSteal: 8, baseCombo: 3, quality: 'red', setId: 'warrior', levelReq: 45, desc: '诞生于世界末日的传奇之戒，据说每一位佩戴过它的战士都改写了历史。现在轮到你了。' }
-            ],
-            amulet: [
-                { id: 'am1', name: '绳子', icon: '🪢', baseHp: 10, quality: 'white', setId: null, levelReq: 1, desc: '一根系在脖子上的粗绳，上面挂着家人的照片。在末世里，记忆就是你的铠甲。' },
-                { id: 'am2', name: '护身符', icon: '📿', baseHp: 30, baseDefense: 2, quality: 'green', setId: 'guardian', levelReq: 5, desc: '一位老人临终前塞给你的佛珠。他说这串珠子跟了他六十年——穿过战争、瘟疫和末日。也许真的有神灵在守护。' },
-                { id: 'am3', name: '魔法护符', icon: '🧿', baseHp: 60, baseDefense: 5, quality: 'blue', setId: 'guardian', levelReq: 12, desc: '镶嵌着变异晶石的护符，能感应到附近的危险时微微发热。它像第三只眼，在你看不到的地方替你守望。' },
-                { id: 'am4', name: '暗影护符', icon: '🌑', baseHp: 100, baseCritRate: 3, baseCritDamage: 10, quality: 'purple', setId: 'hunter', levelReq: 20, desc: '来自暗影维度的护符，佩戴者会发现自己的影子开始有了自己的意志。它在保护你——以它自己的方式。' },
-                { id: 'am5', name: '神圣护符', icon: '☀️', baseHp: 180, baseDefense: 12, baseLifeSteal: 3, quality: 'orange', setId: 'guardian', levelReq: 30, desc: '在废墟的神殿中找到的护符，散发着温暖的光芒。佩戴它时，变异体的气息似乎会避开你。光明，终究没有死。' },
-                { id: 'am6', name: '神器护符', icon: '⭐', baseHp: 300, baseDefense: 20, baseLifeSteal: 8, baseCritDamage: 20, quality: 'red', setId: 'guardian', levelReq: 45, desc: '蕴含创世之力的护符，据说是人类文明最后的火种被封印于此。佩戴它时，你能听到大地深处传来古老的脉搏。' }
-            ],
-            boots: [
-                { id: 'b1', name: '草鞋', icon: '👡', baseDefense: 1, baseHp: 8, quality: 'white', setId: null, levelReq: 1, desc: '用变异草编织的草鞋，轻便但不耐磨。每走一步都能感受到大地的温度——这也许是你与旧世界最后的联系。' },
-                { id: 'b2', name: '运动鞋', icon: '👟', baseDefense: 3, baseHp: 20, quality: 'green', setId: 'warrior', levelReq: 5, desc: '一双跑鞋，鞋底还有弹性。在末世中跑得快意味着活得更久——这双鞋的主人大概跑了很远。' },
-                { id: 'b3', name: '军靴', icon: '👢', baseDefense: 7, baseHp: 45, quality: 'blue', setId: 'guardian', levelReq: 12, desc: '军靴，钢头，防穿刺。它陪伴一位士兵走过了最后的日子。靴筒里塞着一张皱巴巴的全家福。' },
-                { id: 'b4', name: '战靴', icon: '🥾', baseDefense: 12, baseHp: 80, baseCritRate: 2, quality: 'purple', setId: 'guardian', levelReq: 20, desc: '特种部队的战术靴，内置减震和防滑系统。穿着它能在废墟上如履平地。每一道磨损都是一段活下来的故事。' },
-                { id: 'b5', name: '疾风靴', icon: '💨', baseDefense: 20, baseHp: 130, baseCombo: 3, quality: 'orange', setId: 'warrior', levelReq: 30, desc: '注入了风之力的战靴，穿戴者移动如风。据说第一位穿戴者跑出了音障——然后再也没有人见过他。' },
-                { id: 'b6', name: '神器靴', icon: '⚡', baseDefense: 35, baseHp: 220, baseCombo: 5, baseLifeSteal: 3, quality: 'red', setId: 'warrior', levelReq: 45, desc: '融合了雷神之力的战靴，每一步都带着雷霆。穿戴者能在水面和墙壁上行走——重力已不再束缚你。' }
-            ],
-            clothes: [
-                { id: 'cs1', name: 'T恤', icon: '👕', baseDefense: 2, baseHp: 15, quality: 'white', setId: null, levelReq: 1, desc: '一件印着「I Love NY」的旧T恤。纽约早已不在，但这件衣服还在。也许这就够了。' },
-                { id: 'cs2', name: '夹克', icon: '🧥', baseDefense: 5, baseHp: 35, quality: 'green', setId: 'guardian', levelReq: 5, desc: '一件皮夹克，肘部打着补丁。口袋里还有半包已经不能抽的烟和一个打火机——你留着它们，当个念想。' },
-                { id: 'cs3', name: '军装', icon: '🎖️', baseDefense: 12, baseHp: 75, quality: 'blue', setId: 'guardian', levelReq: 12, desc: '制式军装，耐磨耐穿。肩章还在，但军队早已不存在。你穿着它，也许是在延续某种使命。' },
-                { id: 'cs4', name: '作战服', icon: '👔', baseDefense: 20, baseHp: 130, baseCritRate: 3, quality: 'purple', setId: 'warrior', levelReq: 20, desc: '特种作战服，内置陶瓷装甲板和急救包。衣服内侧缝着一个口袋——里面放着前主人最后的遗书。' },
-                { id: 'cs5', name: '纳米作战服', icon: '🧪', baseDefense: 35, baseHp: 220, baseCritDamage: 15, quality: 'orange', setId: 'warrior', levelReq: 30, desc: '由纳米纤维编织的作战服，能自动修复损伤。它在黑暗中泛着微微的荧光——像是千万只萤火虫在守护你。' },
-                { id: 'cs6', name: '神器战甲', icon: '🦸', baseDefense: 60, baseHp: 380, baseCritDamage: 25, baseLifeSteal: 5, baseCombo: 3, quality: 'red', setId: 'guardian', levelReq: 45, desc: '传说中英雄的战甲，内衬编织着符文。穿戴者会感到无畏的勇气涌入胸腔——这就是英雄的感觉。' }
-            ]
-        };
+// 技能书目录（2026-07-30 重构：6 种能力，移除 hp_boost / armor）
+//   维度：attack / critRate / goldFind / idleSpeed / bossDmg / attackSpeed
+export const SKILL_BOOK_CATALOG = [
+    { id: 'atk_power',    name: '猛力',   icon: 'sword',     statKey: 'attack',      baseVal: 5   },
+    { id: 'crit_chance',  name: '洞察',   icon: 'crosshair', statKey: 'critRate',    baseVal: 2   },
+    { id: 'gold_find',    name: '掘金',   icon: 'coins',     statKey: 'goldFind',    baseVal: 0.10 },
+    { id: 'idle_speed',   name: '潜行',   icon: 'zap',       statKey: 'idleSpeed',   baseVal: 0.05 },
+    { id: 'boss_dmg',     name: '破甲',   icon: 'skull',     statKey: 'bossDmg',     baseVal: 0.03 },
+    { id: 'skill_haste',  name: '迅捷',   icon: 'wind',      statKey: 'attackSpeed', baseVal: 0.10 },
+];
 
-        // 材料
-        export const MATERIALS = [
-            { id: 'm1', name: '废铁', icon: '🔩', dropRate: 30 },
-            { id: 'm2', name: '零件', icon: '⚙️', dropRate: 25 },
-            { id: 'm3', name: '能源', icon: '🔋', dropRate: 20 },
-            { id: 'm4', name: '晶体', icon: '💎', dropRate: 15 },
-            { id: 'm5', name: '核心', icon: '🌀', dropRate: 8 },
-            { id: 'm6', name: '神性', icon: '✨', dropRate: 2 },
-            { id: 'enhance_stone', name: '强化石', icon: '🪨', dropRate: 40 }
-        ];
+// 合成 / 强化配置
+export const SKILL_BOOK_CONFIG = {
+    shardsToBook: 5,                           // 5 碎片合成 1 本
+    maxBookLevel: 10,                          // 单本最高 10 级
+    upgradeCostBase: 50,                       // 升级基础花费（金币）
+    upgradeCostMul: 1.5,                       // 每级费用倍率
+};
 
-        // 普通怪物模板（每2关升一档）
-        export const ENEMY_TYPES = [
-            { name: '辐射鼠', icon: '🐀', image: 'assets/images/monster/rat.png', baseHp: 15, baseAttack: 2, baseDefense: 0 },
-            { name: '变异狗', icon: '🐕', image: 'assets/images/monster/dog.png', baseHp: 25, baseAttack: 4, baseDefense: 1 },
-            { name: '感染者', icon: '🧟', image: 'assets/images/monster/zombie.png', baseHp: 40, baseAttack: 6, baseDefense: 2 },
-            { name: '变异蜘蛛', icon: '🕷️', image: 'assets/images/monster/spider.png', baseHp: 55, baseAttack: 8, baseDefense: 3 },
-            { name: '腐尸', icon: '💀', image: 'assets/images/monster/skeleton.png', baseHp: 70, baseAttack: 10, baseDefense: 4 },
-            { name: '变异蜥蜴', icon: '🦎', image: 'assets/images/monster/lizard.png', baseHp: 90, baseAttack: 12, baseDefense: 5 },
-            { name: '狂暴兽', icon: '🐗', image: 'assets/images/monster/boar.png', baseHp: 110, baseAttack: 15, baseDefense: 6 },
-            { name: '暗影行者', icon: '👤', image: 'assets/images/monster/shadow.png', baseHp: 130, baseAttack: 18, baseDefense: 7 },
-            { name: '辐射巨蟒', icon: '🐍', image: 'assets/images/monster/snake.png', baseHp: 160, baseAttack: 22, baseDefense: 8 },
-            { name: '机械犬', icon: '🐕‍🦺', image: 'assets/images/monster/cyberdog.png', baseHp: 200, baseAttack: 28, baseDefense: 10 }
-        ];
+// ============================================================
+// 四、商店系统（金币刷新，无金币袋 / 无强化石 / 无跳关券）
+// ============================================================
+export const SHOP_CONFIG = {
+    refreshCostFixed: 10,        // 测试版固定 10 金币/次
+    maxCharges: 10,              // 最多累积 10 次刷新
+    refreshRegenSeconds: 30,     // 30 秒 +1
+    adRewardCharges: 10,         // 看广告 +10
 
-        // BOSS模板（10个Boss共用一张boss图，留接口便于后续分种类）
-        export const BOSS_TEMPLATES = [
-            { name: '变异体', icon: '👹', image: 'assets/images/boss.png' },
-            { name: '感染者', icon: '🧟', image: 'assets/images/boss.png' },
-            { name: '巨型蜘蛛', icon: '🕷️', image: 'assets/images/boss.png' },
-            { name: '变异犬', icon: '🐕', image: 'assets/images/boss.png' },
-            { name: '机甲战士', icon: '🤖', image: 'assets/images/boss.png' },
-            { name: '辐射巨兽', icon: '🦖', image: 'assets/images/boss.png' },
-            { name: '暗影杀手', icon: '👤', image: 'assets/images/boss.png' },
-            { name: '堕落博士', icon: '👨‍🔬', image: 'assets/images/boss.png' },
-            { name: '终极形态', icon: '👺', image: 'assets/images/boss.png' },
-            { name: '末世之主', icon: '😈', image: 'assets/images/boss.png' }
-        ];
+    slots: 6,                    // 每次刷 6 件商品
+    weights: {
+        shard: 60,               // 碎片（白/绿/蓝/紫/金/红 按品质权重抽）
+        equipment: 40,           // 装备（按当前章节数概率调整品质）
+    },
+};
 
-        // 庇护所升级
-        export const SHELTER_UPGRADE_COST = {
-            1: { materials: [{ id: 'm1', count: 10 }], incomeBonus: 10, dropBonus: 0 },
-            2: { materials: [{ id: 'm1', count: 20 }, { id: 'm2', count: 5 }], incomeBonus: 25, dropBonus: 5 },
-            3: { materials: [{ id: 'm2', count: 15 }, { id: 'm3', count: 5 }], incomeBonus: 45, dropBonus: 10 },
-            4: { materials: [{ id: 'm3', count: 10 }, { id: 'm4', count: 3 }], incomeBonus: 70, dropBonus: 18 },
-            5: { materials: [{ id: 'm4', count: 8 }, { id: 'm5', count: 2 }], incomeBonus: 100, dropBonus: 28 },
-            6: { materials: [{ id: 'm5', count: 5 }, { id: 'm6', count: 1 }], incomeBonus: 140, dropBonus: 40 },
-            7: { materials: [{ id: 'm6', count: 3 }], incomeBonus: 200, dropBonus: 55 },
-            8: { materials: [{ id: 'm6', count: 5 }], incomeBonus: 300, dropBonus: 75 },
-            9: { materials: [{ id: 'm6', count: 10 }], incomeBonus: 450, dropBonus: 100 },
-            10: { materials: [{ id: 'm6', count: 20 }], incomeBonus: 666, dropBonus: 150 }
-        };
+// ============================================================
+// 五、装备模板（2026-08-03 精简：5 字段 attack/critRate/critDamage/attackSpeed/combo）
+//   防御类装备改为攻击装；部位保留（头/衣/护甲/武器/靴/饰）
+//   不再提供：defense / hp / lifeSteal
+// ============================================================
+export const SET_EQUIP_TEMPLATES = [
+    // wasteland 套（章节 1 解锁）
+    { id: 'wasteland_boots',     name: '废土行者·靴',    part: 'boots',     setId: 'wasteland', baseStats: { attack: 6,  combo: 1 } },
+    { id: 'wasteland_vest',      name: '废土行者·背心',  part: 'armor',     setId: 'wasteland', baseStats: { attack: 12 } },
+    { id: 'wasteland_mask',      name: '废土行者·面罩',  part: 'head',      setId: 'wasteland', baseStats: { attack: 4,  critRate: 1 } },
+    { id: 'wasteland_gloves',    name: '废土行者·手套',  part: 'clothes',   setId: 'wasteland', baseStats: { attack: 3 } },
+    // beast 套（章节 3 解锁）
+    { id: 'beast_claw',          name: '野兽之爪',         part: 'weapon',    setId: 'beast',     baseStats: { attack: 16, critRate: 3, combo: 2 } },
+    { id: 'beast_hide',          name: '兽皮战甲',         part: 'armor',     setId: 'beast',     baseStats: { attack: 10, attackSpeed: 0.05 } },
+    { id: 'beast_fang',          name: '兽牙吊坠',         part: 'amulet',    setId: 'beast',     baseStats: { attack: 8,  critRate: 2 } },
+    // mech 套（章节 5 解锁）
+    { id: 'mech_core',           name: '机械核心',         part: 'weapon',    setId: 'mech',      baseStats: { attack: 24, attackSpeed: 0.05, critDamage: 0.1 } },
+    { id: 'mech_plate',          name: '钛合金护板',       part: 'armor',     setId: 'mech',      baseStats: { attack: 18 } },
+    { id: 'mech_visor',          name: '瞄准镜',           part: 'head',      setId: 'mech',      baseStats: { attack: 12, critRate: 4 } },
+    // cursed 套（章节 7 解锁）
+    { id: 'cursed_blade',        name: '诅咒之刃',         part: 'weapon',    setId: 'cursed',    baseStats: { attack: 35, attackSpeed: 0.10, combo: 3 } },
+    { id: 'cursed_robe',         name: '诅咒战袍',         part: 'clothes',   setId: 'cursed',    baseStats: { attack: 14, critRate: 5 } },
+    { id: 'cursed_eye',          name: '诅咒之眼',         part: 'accessory', setId: 'cursed',    baseStats: { attack: 18, critDamage: 0.15 } },
+    // toxic 套（章节 10 解锁）
+    { id: 'toxic_spear',         name: '毒矛',             part: 'weapon',    setId: 'toxic',     baseStats: { attack: 50, critRate: 8, combo: 4 } },
+    { id: 'toxic_exo',           name: '辐射外骨骼',       part: 'armor',     setId: 'toxic',     baseStats: { attack: 40, attackSpeed: 0.10 } },
+    { id: 'toxic_mask',          name: '生化面罩',         part: 'head',      setId: 'toxic',     baseStats: { attack: 22, attackSpeed: 0.05, critDamage: 0.2 } },
+];
 
-// 桥接：把模块内 export 暴露到 window 全局，让 game.js(传统脚本)可直接引用
-window.SURVIVOR_TYPES = SURVIVOR_TYPES;
-window.STORY_INTRO = STORY_INTRO;
-window.CHAPTER_STORIES = CHAPTER_STORIES;
-window.QUALITY_COLORS = QUALITY_COLORS;
-window.SETS = SETS;
-window.GEMS = GEMS;
+// ============================================================
+// 六、挑战强敌系统（2026-07-30 重构：30 秒倒计时 + DPS 累积伤害）
+//   不再有 baseAtk / defense（角色不挨打，Boss 不反击）
+//   玩家总伤害 = attack × attackSpeed × 时间（30 秒）× 暴击浮动
+// ============================================================
+export const CHALLENGE_CONFIG = {
+    dailyFree: 3,            // 默认每日 3 次
+    dailyMax: 10,            // 含广告最多 10 次
+    adRewardCharges: 10,     // 看广告 +10
+
+    // 战斗配置：30 秒倒计时，按 DPS 累积伤害
+    timeLimitSec: 30,        // 倒计时总时长
+    tickMs: 100,             // 每 100ms 累积一次伤害（高精度）
+};
+
+export const CHALLENGE_TIERS = [
+    // 章节 1 开放（玩家 attack ~10, attackSpeed ~1.0 → 30秒 ~300 伤害）
+    { id: 'giant_zombie', name: '巨尸',      unlockChapter: 1, setId: 'wasteland', baseHp: 250,
+      goldReward: 80,  expReward: 30  },
+    // 章节 3 开放
+    { id: 'mutant_bear',  name: '变异巨熊',   unlockChapter: 3, setId: 'beast',     baseHp: 800,
+      goldReward: 180, expReward: 80  },
+    // 章节 5 开放
+    { id: 'mech_golem',   name: '机械傀儡',   unlockChapter: 5, setId: 'mech',      baseHp: 2000,
+      goldReward: 350, expReward: 160 },
+    // 章节 7 开放
+    { id: 'cursed_knight',name: '诅咒骑士',   unlockChapter: 7, setId: 'cursed',    baseHp: 4500,
+      goldReward: 600, expReward: 260 },
+    // 章节 10 开放
+    { id: 'toxic_lord',   name: '辐射领主',   unlockChapter: 10,setId: 'toxic',     baseHp: 10000,
+      goldReward: 1200,expReward: 500 },
+];
+
+// ============================================================
+// 六、立绘端口（新版手绘钢笔淡彩，2026-07-30）
+//   主角 + 10 章节怪 + 4 章节 Boss
+//   用于 battle-canvas.js 替换原 ctx.fillRect 程序化绘制
+//   缺失图保留 fallback 程序化绘制
+// ============================================================
+export const PORTRAITS = {
+    hero: 'assets/portraits/hero.png',
+    monsterByChapter: {
+        1:  'assets/portraits/monster_ch01.png',
+        2:  'assets/portraits/monster_ch02.png',
+        3:  'assets/portraits/monster_ch03.png',
+        4:  'assets/portraits/monster_ch04.png',
+        5:  'assets/portraits/monster_ch05.png',
+        6:  'assets/portraits/monster_ch06.png',
+        7:  'assets/portraits/monster_ch07.png',
+        8:  'assets/portraits/monster_ch08.png',
+        9:  'assets/portraits/monster_ch09.png',
+        // ch10 暂未生成（2026-08-03：图缺，fallback 程序化绘制）
+    },
+    bossByChapter: {
+        3:  'assets/portraits/boss_ch03.png',
+        5:  'assets/portraits/boss_ch05.png',
+        7:  'assets/portraits/boss_ch07.png',
+        10: 'assets/portraits/boss_ch10.png',
+    },
+};
+window.PORTRAITS = PORTRAITS;
+
+// ============================================================
+// 七、桥接到 window（兼容旧代码）
+// ============================================================
+window.RESOURCE_META = RESOURCE_META;
+window.BASE_HERO_STATS = BASE_HERO_STATS;
+window.SKILL_QUALITY = SKILL_QUALITY;
+window.SKILL_BOOK_CATALOG = SKILL_BOOK_CATALOG;
+window.SKILL_BOOK_CONFIG = SKILL_BOOK_CONFIG;
+window.SHOP_CONFIG = SHOP_CONFIG;
+window.SET_EQUIP_TEMPLATES = SET_EQUIP_TEMPLATES;
+window.CHALLENGE_CONFIG = CHALLENGE_CONFIG;
+window.CHALLENGE_TIERS = CHALLENGE_TIERS;
+window.IDLE_FORMULA = IDLE_FORMULA;
+
+// ============================================================
+// 九、进化所升级表（2026-08-04 PRD v3）
+//   10 个基因层级，每层需要的材料和金币 + 解锁的属性
+// ============================================================
+export const EVOLUTION_LAB_CONFIG = {
+    // 基因层级 → 升级条件 + 属性奖励
+    levels: [
+        { level: 1,  capsules: 1,  materials: { food: 0, parts: 0, radPotion: 0, blueprint: 0, advancedEnergy: 0 }, gold: 500,    bonus: { attack: 5 } },
+        { level: 2,  capsules: 3,  materials: { food: 20, parts: 10, radPotion: 0, blueprint: 0, advancedEnergy: 0 }, gold: 1000,   bonus: { critRate: 2 } },
+        { level: 3,  capsules: 5,  materials: { food: 0, parts: 0, radPotion: 3, blueprint: 1, advancedEnergy: 0 }, gold: 2000,   bonus: { attack: 15, critDamage: 0.10 } },
+        { level: 4,  capsules: 8,  materials: { food: 0, parts: 0, radPotion: 0, blueprint: 3, advancedEnergy: 5 }, gold: 5000,  bonus: { critRate: 3, attackSpeed: 0.05 } },
+        { level: 5,  capsules: 10, materials: { food: 0, parts: 0, radPotion: 0, blueprint: 5, advancedEnergy: 10 }, gold: 10000, bonus: { attack: 30 } },
+        { level: 6,  capsules: 15, materials: { food: 0, parts: 0, radPotion: 0, blueprint: 8, advancedEnergy: 15 }, gold: 20000, bonus: { critRate: 5, critDamage: 0.15 } },
+        { level: 7,  capsules: 20, materials: { food: 0, parts: 0, radPotion: 0, blueprint: 12, advancedEnergy: 25 }, gold: 40000, bonus: { attack: 50, attackSpeed: 0.10 } },
+        { level: 8,  capsules: 30, materials: { food: 0, parts: 0, radPotion: 0, blueprint: 20, advancedEnergy: 40 }, gold: 80000, bonus: { critRate: 8, critDamage: 0.25 } },
+        { level: 9,  capsules: 50, materials: { food: 0, parts: 0, radPotion: 0, blueprint: 30, advancedEnergy: 60 }, gold: 150000, bonus: { attack: 100, critRate: 10 } },
+        { level: 10, capsules: 80, materials: { food: 0, parts: 0, radPotion: 0, blueprint: 50, advancedEnergy: 100 }, gold: 300000, bonus: { attack: 200, critRate: 15, critDamage: 0.50, attackSpeed: 0.30 } },
+    ],
+    // 基因 10 满级总加成
+    totalBonus: { attack: 410, critRate: 43, critDamage: 1.00, attackSpeed: 0.45 },
+};
+
+// 进化胶囊获取途径配置（用于 UI 提示）
+export const EVOLUTION_CAPSULE_SOURCES = [
+    { source: '商店购买',     rate: '60 金币/颗' },
+    { source: '章节 Boss 战', rate: '每章节必掉 1 颗' },
+    { source: '挂机产出',     rate: '30 分钟/颗' },
+];
+
+window.EVOLUTION_LAB_CONFIG = EVOLUTION_LAB_CONFIG;
+window.EVOLUTION_CAPSULE_SOURCES = EVOLUTION_CAPSULE_SOURCES;
+
+// ============================================================
+// 十、发电站升级表（PRD v3 · 2026-08-04）
+//   10 级，每级提升离线时间上限 + 离线产出倍率
+// ============================================================
+export const POWER_PLANT_CONFIG = {
+    levels: [
+        { level: 1,  scrap: 0,    advancedEnergy: 0,   gold: 0,       offlineCapHours: 8,  multiplier: 1.0 },
+        { level: 2,  scrap: 100,  advancedEnergy: 50,  gold: 200,     offlineCapHours: 12, multiplier: 1.1 },
+        { level: 3,  scrap: 200,  advancedEnergy: 100, gold: 500,     offlineCapHours: 16, multiplier: 1.2 },
+        { level: 4,  scrap: 400,  advancedEnergy: 200, gold: 1000,    offlineCapHours: 20, multiplier: 1.3 },
+        { level: 5,  scrap: 800,  advancedEnergy: 400, gold: 2500,    offlineCapHours: 24, multiplier: 1.4 },
+        { level: 6,  scrap: 1500, advancedEnergy: 800, gold: 5000,    offlineCapHours: 28, multiplier: 1.5 },
+        { level: 7,  scrap: 3000, advancedEnergy: 1500, gold: 10000,  offlineCapHours: 32, multiplier: 1.6 },
+        { level: 8,  scrap: 6000, advancedEnergy: 3000, gold: 25000,  offlineCapHours: 36, multiplier: 1.7 },
+        { level: 9,  scrap: 12000, advancedEnergy: 6000, gold: 50000, offlineCapHours: 42, multiplier: 1.8 },
+        { level: 10, scrap: 25000, advancedEnergy: 12000, gold: 100000, offlineCapHours: 48, multiplier: 2.0 },
+    ],
+};
+
+window.POWER_PLANT_CONFIG = POWER_PLANT_CONFIG;
+
+// ============================================================
+// 十一、训练场升级表（PRD v3 · 2026-08-04）
+//   3 方向 × Lv.0~30（用户明确：不可取消）
+//   每级消耗：对应手册 ×1 + 金币 200*1.4^(lv-1)
+//   训练时长：30 + 5*(lv-1) 分钟
+// ============================================================
+export const TRAINING_GROUND_CONFIG = {
+    maxLevel: 30,
+    directions: [
+        { id: 'power',      name: '力量', icon: 'dumbbell',  perLevel: { attack: 5 },     manualId: 'powerManual'      },
+        { id: 'technique',  name: '技巧', icon: 'crosshair', perLevel: { critRate: 0.5 }, manualId: 'techniqueManual'  },
+        { id: 'experience', name: '经验', icon: 'book-open', perLevel: { expMul: 0.02 },   manualId: 'experienceManual' },
+    ],
+    baseGoldCost: 200,
+    goldCostMul: 1.4,
+    baseDurationMin: 30,
+    durationStepMin: 5,
+    getDurationMin(level) {
+        return this.baseDurationMin + (level - 1) * this.durationStepMin;
+    },
+    getGoldCost(level) {
+        return Math.floor(this.baseGoldCost * Math.pow(this.goldCostMul, level - 1));
+    },
+};
+
+window.TRAINING_GROUND_CONFIG = TRAINING_GROUND_CONFIG;
+
+// ============================================================
+// 十二、商店等级升级表（PRD v3 · 2026-08-04）
+//   Lv.1~10，手动触发升级（玩家点按钮）
+//   金币消耗递增 + 后期要零件/蓝图/高级能源
+//   效果：紫/金装备概率 ×shopLevel.multiplier
+// ============================================================
+export const SHOP_LEVEL_CONFIG = {
+    levels: [
+        { level: 1,  gold: 0,       parts: 0,  blueprint: 0,   advancedEnergy: 0,   multiplier: 1.00 },
+        { level: 2,  gold: 5000,    parts: 0,  blueprint: 0,   advancedEnergy: 0,   multiplier: 1.05 },
+        { level: 3,  gold: 15000,   parts: 0,  blueprint: 0,   advancedEnergy: 0,   multiplier: 1.10 },
+        { level: 4,  gold: 50000,   parts: 5,  blueprint: 0,   advancedEnergy: 0,   multiplier: 1.15 },
+        { level: 5,  gold: 100000,  parts: 0,  blueprint: 3,   advancedEnergy: 0,   multiplier: 1.20 },
+        { level: 6,  gold: 200000,  parts: 0,  blueprint: 5,   advancedEnergy: 10,  multiplier: 1.30 },
+        { level: 7,  gold: 400000,  parts: 0,  blueprint: 10,  advancedEnergy: 25,  multiplier: 1.40 },
+        { level: 8,  gold: 800000,  parts: 0,  blueprint: 20,  advancedEnergy: 50,  multiplier: 1.50 },
+        { level: 9,  gold: 1500000, parts: 0,  blueprint: 50,  advancedEnergy: 100, multiplier: 1.65 },
+        { level: 10, gold: 3000000, parts: 0,  blueprint: 100, advancedEnergy: 200, multiplier: 1.80 },
+    ],
+};
+
+window.SHOP_LEVEL_CONFIG = SHOP_LEVEL_CONFIG;
+
+// ============================================================
+// 十三、旧系统兼容导出（被 buildings / collection / dungeons /
+//   equipment / events / shelter / story 等残留模块引用，
+//   提供空壳占位让模块能加载通过）
+// ============================================================
+export const BUILDINGS = {
+    habitat:    { name: '居住区',   icon: 'home',     maxLevel: 999, desc: '提升幸存者人数，全局+2%全资源产出' },
+    waterPlant: { name: '净水厂',   icon: 'droplet',  maxLevel: 999, desc: '提升净水产出' },
+    farm:       { name: '末世农田', icon: 'wheat',    maxLevel: 999, desc: '提升食物产出' },
+    workshop:   { name: '机械工坊', icon: 'wrench',   maxLevel: 999, desc: '提升废铁、零件产出' },
+    medStation: { name: '医疗总站', icon: 'heart-pulse', maxLevel: 999, desc: '每级+1.5%全队最大生命' },
+    radar:      { name: '雷达观测站', icon: 'radar',   maxLevel: 999, desc: '解锁新内容' },
+};
+export const BUILDING_UPGRADE_COST = (level) => ({
+    food: 50 * Math.pow(1.5, level),
+    water: 30 * Math.pow(1.5, level),
+    scrap: 20 * Math.pow(1.4, level),
+    parts: Math.floor(5 * Math.pow(1.4, level)),
+});
+
+export const EQUIPMENT_TEMPLATES = {
+    weapon: [], armor: [], head: [], clothes: [], boots: [],
+    cloak: [], ring: [], amulet: [], accessory: [],
+};
+export const MATERIALS = [
+    { id: 'm1', name: '废铁' }, { id: 'm2', name: '零件' }, { id: 'm3', name: '能源' },
+    { id: 'm4', name: '晶体' }, { id: 'm5', name: '核心' }, { id: 'm6', name: '神性' },
+];
+export const CHAPTER_STORIES = [
+    { chapter: 1, title: '避难所的黎明',     text: '辐射云散去后，你从地窖里爬出来。外面的世界满目疮痍——锈蚀的汽车、倾倒的电线杆，以及远处传来的低吼声。避难所外，一只受伤的丧尸正朝你走来。你握紧手里的剑，踏出了第一步。' },
+    { chapter: 2, title: '踏上锈蚀高速路', text: '你沿着高速路往前走。头顶是崩塌的高架桥，脚下是被腐蚀的柏油路面。每走一段，都能看见被遗弃的补给车。你打开一辆车的后备箱——里面还残留着罐头和水。' },
+    { chapter: 3, title: '深入辐射森林',   text: '高速路的尽头是一片诡异的森林。树木叶子都泛着荧光，空气中弥漫着臭氧的味道。你看见了更大的变异体——它们的眼睛泛着蓝光，朝你扑来。' },
+    { chapter: 4, title: '废弃都市的钟声', text: '穿过森林是废弃都市。曾经的摩天大楼只剩下钢筋骨架，钟楼传出沉闷的钟声——这是求救，还是警告？你握紧武器，深入这座死城。' },
+    { chapter: 5, title: '地下研究所',     text: '都市的地基下是一座被遗忘的研究所。锈蚀的铁门半开，里面传出机械运转的嗡鸣。这里藏着末日真相的最后一片拼图——也可能是更强的怪物。' },
+    { chapter: 6, title: '辐射沼泽',       text: '研究所的后门通向一片沼泽。污水没过膝盖，蓝绿色的藻类在水面上发光。变异鳄鱼潜伏在水下，准备扑向任何移动的目标。' },
+    { chapter: 7, title: '机械坟场',       text: '沼泽的尽头是一片机械坟场。战争机器的残骸堆积如山，有些仍在缓慢地扭动——它们被某种程序驱动着，要摧毁任何活物。' },
+    { chapter: 8, title: '冰封实验室',     text: '机械坟场的最深处是一座完好无损的实验室。墙壁洁白，灯光柔和，似乎独立于外面的世界运转。但里面传出的是——培养皿的破裂声。' },
+    { chapter: 9, title: '感染者母巢',     text: '实验室下方直通感染者母巢。无数感染者在这里被孵化，它们的神经信号被一台巨型服务器控制着。要终结这一切——你必须摧毁那台机器。' },
+    { chapter: 10, title: '新世界',        text: '母巢崩塌。你从废墟中爬出，看见远处的地平线露出第一缕阳光。也许这就是新世界的开始。' },
+];
+export const SHELTER_UPGRADE_COST = {
+    1: { food: 50,  water: 30,  scrap: 20  },
+    2: { food: 100, water: 60,  scrap: 40  },
+    3: { food: 200, water: 120, scrap: 80  },
+};
+
+window.BUILDINGS = BUILDINGS;
+window.BUILDING_UPGRADE_COST = BUILDING_UPGRADE_COST;
 window.EQUIPMENT_TEMPLATES = EQUIPMENT_TEMPLATES;
 window.MATERIALS = MATERIALS;
-window.BOSS_TEMPLATES = BOSS_TEMPLATES;
+window.CHAPTER_STORIES = CHAPTER_STORIES;
 window.SHELTER_UPGRADE_COST = SHELTER_UPGRADE_COST;
-window.ENEMY_TYPES = ENEMY_TYPES;
+
+window.SET_EQUIP_TEMPLATES = SET_EQUIP_TEMPLATES;
+window.CHALLENGE_CONFIG = CHALLENGE_CONFIG;
+window.CHALLENGE_TIERS = CHALLENGE_TIERS;
+window.IDLE_FORMULA = IDLE_FORMULA;

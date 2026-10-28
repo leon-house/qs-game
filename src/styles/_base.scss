@@ -1,0 +1,160 @@
+/* ============================================================
+ * 末世幸存者 - 全局样式
+ * ------------------------------------------------------------
+ * 目录:
+ *   1. 设计 tokens (:root CSS variables)
+ *   2. 基础 reset
+ *   3. Utility classes (.flex / .gap-* / .text-* / .mt-*)
+ *   4. 布局 (top-bar / player-card / battle-card / equip)
+ *   5. 组件 (button / modal / card / badge / resource / progress)
+ *   6. 角色与动画 (player / boss / sprite / @keyframes)
+ *   7. 响应式 (@media)
+ * ============================================================ */
+
+/* 1. 设计 tokens ============================================== */
+:root {
+    /* 背景色 */
+    --bg-dark: #0d0d0d;
+    --bg-panel: rgba(30, 30, 30, 0.95);
+    --bg-card: rgba(50, 50, 50, 0.9);
+    --bg-overlay: rgba(0, 0, 0, 0.6);
+    --bg-overlay-light: rgba(0, 0, 0, 0.3);
+
+    /* 文字色 */
+    --text-primary: #e8e8e8;
+    --text-secondary: #888888;
+    --text-muted: #555555;
+
+    /* 强调色 */
+    --gold: #ffd700;
+    --diamond: #00bfff;
+    --red: #ff4444;
+    --green: #4ade80;
+    --purple: #a855f7;
+    --orange: #fb923c;
+    --blue: #00bfff;
+
+    /* 角色状态色（战斗/护盾/治疗/Buff）*/
+    --player-hp: #4ade80;
+    --player-hp-glow: rgba(74, 222, 128, 0.5);
+    --boss-hp: #ff4757;
+    --boss-hp-glow: rgba(255, 71, 87, 0.5);
+
+    /* 间距系统（4px 倍数）*/
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 12px;
+    --space-lg: 16px;
+    --space-xl: 24px;
+    --space-2xl: 32px;
+
+    /* 圆角 */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --radius-xl: 16px;
+    --radius-full: 50%;
+
+    /* 阴影 */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+
+    /* 字体 */
+    --font-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'Courier New', Consolas, monospace;
+    --font-size-xs: 10px;
+    --font-size-sm: 12px;
+    --font-size-md: 14px;
+    --font-size-lg: 16px;
+    --font-size-xl: 20px;
+    --font-size-2xl: 24px;
+
+    /* 动画时长 */
+    --anim-fast: 0.2s;
+    --anim-base: 0.5s;
+    --anim-slow: 1.8s;
+    --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    /* z-index 层级 */
+    --z-base: 1;
+    --z-sticky: 10;
+    --z-modal: 100;
+    --z-toast: 200;
+    --z-banner: 9999;
+}
+
+/* 2. Reset ==================================================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* 3. Utility classes ========================================== */
+.flex { display: flex; }
+.flex-col { display: flex; flex-direction: column; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.flex-around { display: flex; align-items: center; justify-content: space-around; }
+.flex-1 { flex: 1; }
+.flex-shrink-0 { flex-shrink: 0; }
+.gap-xs { gap: var(--space-xs); }
+.gap-sm { gap: var(--space-sm); }
+.gap-md { gap: var(--space-md); }
+.gap-lg { gap: var(--space-lg); }
+.text-center { text-align: center; }
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-muted { color: var(--text-muted); }
+.text-gold { color: var(--gold); }
+.text-green { color: var(--green); }
+.text-red { color: var(--red); }
+.w-full { width: 100%; }
+.h-full { height: 100%; }
+.hidden { display: none; }
+.mt-xs { margin-top: var(--space-xs); }
+.mt-sm { margin-top: var(--space-sm); }
+.mt-md { margin-top: var(--space-md); }
+.mt-lg { margin-top: var(--space-lg); }
+.p-sm { padding: var(--space-sm); }
+.p-md { padding: var(--space-md); }
+.p-lg { padding: var(--space-lg); }
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-full { border-radius: var(--radius-full); }
+
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    user-select: none;
+}
+
+#app {
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: url('assets/images/bg.png') center center / cover no-repeat;
+    background-color: #1a1a1a;
+    position: relative;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+#app::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.6) 100%);

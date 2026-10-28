@@ -7,177 +7,204 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>末世幸存者 - 挂机肉鸽</title>
-    <link rel="stylesheet" href="style.css?v=hero-sprite-fix-20260725o">
+    <link rel="stylesheet" href="style.css?v=modal-mutex-20261028a">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 </head>
 <body>
-    <!-- 版本号横幅（确认是否加载最新代码）-->
-    <div id="version-banner" style="position:fixed;top:4px;right:4px;z-index:9999;background:#ff0066;color:#fff;font-size:11px;padding:3px 8px;border-radius:4px;font-family:monospace;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.5);">v=2d-model-style-20260725l</div>
-    <script>console.log('%c[VERSION] 2d-model-style-20260725l','background:#ff0066;color:#fff;padding:2px 6px;border-radius:3px;font-weight:bold;');</script>
+    <!-- 版本号横幅（暂时禁用以排查截图工具 viewport 渲染问题） -->
+    <!-- <div id="version-banner" style="position:fixed;bottom:4px;left:50%;transform:translateX(-50%);z-index:9999;background:#ff0066;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;font-family:monospace;font-weight:bold;box-shadow:0 2px 8px rgba(0,0,0,0.5);opacity:0.85;">v=modal-mutex-20261028a</div> -->
+    <script>console.log('%c[VERSION] modal-mutex-20261028a','background:#ff0066;color:#fff;padding:2px 6px;border-radius:3px;font-weight:bold;');</script>
+    <script type="module" src="src/main.js?v=modal-mutex-20261028a"></script>
     <div id="app">
         <div class="app-content">
-            <!-- 顶部资源栏 -->
-            <div class="top-bar">
-                <div class="resource">
-                    <div class="resource-icon gold-icon">💰</div>
-                    <span class="gold-text" id="gold-display">100</span>
+            <!-- 顶部资源栏已删除（2026-07-28：resources 数据层无 UI 入口，所有引用都是死代码） -->
+
+            <!-- 顶部 HUD v20：头像 + 玩家信息 + 设置（2026-08-04 用户调整） -->
+            <section class="hud-topbar" aria-label="玩家状态">
+                <div class="hud-avatar" onclick="openStatsModal()" title="点击查看属性">
+                    <!-- 内联 SVG 火柴人（替代 v18 hero.png，对应 v19 火柴人战斗系统） -->
+                    <svg class="hud-avatar-svg" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                        <!-- 头部 -->
+                        <circle cx="32" cy="14" r="7" fill="#2a1a0a" stroke="#ffe089" stroke-width="1.5"/>
+                        <!-- 头盔装饰（金边） -->
+                        <path d="M25 12 L32 4 L39 12" fill="#f5d089" stroke="#8a5e1a" stroke-width="0.8"/>
+                        <!-- 躯干（穿着皮甲） -->
+                        <line x1="32" y1="21" x2="32" y2="46" stroke="#f5d089" stroke-width="4" stroke-linecap="round"/>
+                        <line x1="28" y1="28" x2="36" y2="28" stroke="#8a5e1a" stroke-width="1.5"/>
+                        <line x1="28" y1="36" x2="36" y2="36" stroke="#8a5e1a" stroke-width="1.5"/>
+                        <!-- 左臂（持盾） -->
+                        <line x1="32" y1="26" x2="22" y2="38" stroke="#f5d089" stroke-width="3" stroke-linecap="round"/>
+                        <rect x="14" y="36" width="10" height="14" fill="#8a5e1a" stroke="#ffe089" stroke-width="1" rx="2"/>
+                        <!-- 右臂（持剑） -->
+                        <line x1="32" y1="26" x2="42" y2="34" stroke="#f5d089" stroke-width="3" stroke-linecap="round"/>
+                        <line x1="42" y1="34" x2="56" y2="20" stroke="#e0e0e0" stroke-width="2.5" stroke-linecap="round"/>
+                        <line x1="42" y1="34" x2="56" y2="20" stroke="#aaa" stroke-width="0.8"/>
+                        <!-- 双腿 -->
+                        <line x1="32" y1="46" x2="24" y2="60" stroke="#f5d089" stroke-width="3" stroke-linecap="round"/>
+                        <line x1="32" y1="46" x2="40" y2="60" stroke="#f5d089" stroke-width="3" stroke-linecap="round"/>
+                    </svg>
                 </div>
-                <div class="resource">
-                    <div class="resource-icon diamond-icon">💎</div>
-                    <span class="diamond-text" id="diamond-display">10</span>
+                <div class="hud-info-block">
+                    <div class="hud-info-row-1">
+                        <span class="hud-player-level">Lv.<span id="hud-level">1</span></span>
+                        <span class="hud-player-name" id="hud-name">幸存者</span>
+                        <span class="hud-player-rank" id="hud-rank-text">精英中阶</span>
+                    </div>
+                    <div class="hud-info-row-2">
+                        <span class="hud-power-cell" title="战力">
+                            <i data-lucide="swords"></i>
+                            <strong id="hud-power">0</strong>
+                        </span>
+                        <span class="hud-coin-cell" title="金币">
+                            <i data-lucide="coins"></i>
+                            <strong id="hud-gold">0</strong>
+                        </span>
+                    </div>
                 </div>
+                <button class="hud-settings" onclick="openSettings()" title="设置"><i data-lucide="settings"></i></button>
+            </section>
+
+            <!-- 红色 ribbon（v23：叙事横幅，纯文字） -->
+            <div class="hud-ribbon">
+                <span class="hud-ribbon-icon"><i data-lucide="alert-triangle"></i></span>
+                <strong>末日第 <span id="hud-day">1</span> 天</strong>
+                <span class="hud-ribbon-sub">废土走廊 · 自动远征中</span>
             </div>
 
-            <!-- 主内容区 -->
-            <div class="main-content">
-                <!-- 玩家信息 -->
-                <div class="player-card new-layout">
-                    <!-- 装备栏回归：头像左侧 4 槽 -->
-                    <div class="equip-left">
-                        <div class="equip-slot" data-type="head" onclick="openEquipSelect('head')" title="头盔" id="equip-head"></div>
-                        <div class="equip-slot" data-type="clothes" onclick="openEquipSelect('clothes')" title="衣服" id="equip-clothes"></div>
-                        <div class="equip-slot" data-type="weapon" onclick="openEquipSelect('weapon')" title="武器" id="equip-weapon"></div>
-                        <div class="equip-slot" data-type="cloak" onclick="openEquipSelect('cloak')" title="披风" id="equip-cloak"></div>
-                    </div>
+            <!-- 章节信息卡（含进度条） -->
+            <div class="hud-chapter-card">
+                <span class="hud-chapter-tag">废土·S</span>
+                <span class="hud-chapter-threat">S 级威胁</span>
+                <span class="hud-chapter-name" id="hud-chapter">异变·典狱长</span>
+                <div class="hud-chapter-progress"><span id="hud-chapter-fill" style="width:2%"></span></div>
+                <span class="hud-chapter-pct" id="hud-chapter-pct">2.0%</span>
+            </div>
 
-                    <!-- 中间头像和属性 -->
-                    <div class="player-center">
-                        <div class="player-avatar" id="player-avatar" onclick="openStatsModal()">
-                            <div class="sprite-slot hero-sprite"><img class="hero-sprite-img" src="assets/images/sprites/hero-sheet.png" alt="英雄"></div>
-                        </div>
-                        <!-- 战力 -->
-                        <div class="power-display">⚔️ 战力 <span id="power-display">0</span></div>
-                        <div class="player-name">
-                            <span id="player-name">幸存者</span>
-                            <span id="player-type" style="font-size:12px;color:var(--text-secondary);margin-left:8px;"></span>
-                        </div>
-                        <div class="player-level">等级 <span id="player-level">1</span></div>
-                        <div class="exp-bar-container">
-                            <div class="exp-bar" id="exp-bar" style="width: 0%"></div>
-                            <div class="exp-text"><span id="current-exp">0</span>/<span id="exp-needed">100</span></div>
-                        </div>
-                    </div>
-
-                    <!-- 装备栏回归：头像右侧 5 槽 -->
-                    <div class="equip-right">
-                        <div class="equip-slot" data-type="armor" onclick="openEquipSelect('armor')" title="防具" id="equip-armor"></div>
-                        <div class="equip-slot" data-type="boots" onclick="openEquipSelect('boots')" title="鞋" id="equip-boots"></div>
-                        <div class="equip-slot" data-type="ring" onclick="openEquipSelect('ring')" title="戒指" id="equip-ring"></div>
-                        <div class="equip-slot" data-type="amulet" onclick="openEquipSelect('amulet')" title="护符" id="equip-amulet"></div>
-                        <div class="equip-slot" data-type="accessory" onclick="openEquipSelect('accessory')" title="饰品" id="equip-accessory"></div>
-                    </div>
-
-                    <!-- === 快捷功能按钮组（右上角） === -->
-                    <div class="quick-actions">
-                        <button class="quick-btn" onclick="openCheckIn()" title="每日签到">📅</button>
-                        <button class="quick-btn" onclick="openTasks()" title="每日任务">📜</button>
-                        <button class="quick-btn" onclick="openAchievements()" title="成就">🏆</button>
-                        <button class="quick-btn" onclick="openStatsModal()" title="角色属性">📊</button>
-                    </div>
+            <!-- 主舞台 + 两侧圆形入口 -->
+            <div class="stage-wrap">
+                <!-- 左侧圆形入口 -->
+                <div class="side-rail side-left">
+                    <button class="side-btn" onclick="openCheckIn()" title="七日签到">
+                        <span class="side-btn-icon">🎁</span>
+                        <span class="side-btn-label">七日签到</span>
+                        <span class="side-dot"></span>
+                    </button>
+                    <button class="side-btn" onclick="openChallenge(); markSideRead('challenge')" title="世界BOSS">
+                        <span class="side-btn-icon">👹</span>
+                        <span class="side-btn-label">世界BOSS</span>
+                        <span class="side-dot"></span>
+                    </button>
                 </div>
 
-                <!-- 战斗场景 -->
-                <div class="battle-card">
-                    <div class="battle-header">
-                        <div class="battle-title">⚔️ 第 <span id="boss-level">1</span> 关</div>
-                        <div class="battle-level">进度 <span id="stage-progress">1/50</span></div>
+                <!-- 中央战斗舞台 -->
+                <div class="battle-stage">
+                    <span class="rivet r-tl"></span><span class="rivet r-tr"></span>
+                    <span class="rivet r-bl"></span><span class="rivet r-br"></span>
+                    <div class="stage-header">
+                        <span class="stage-area" id="battle-area-name">废土走廊</span>
+                        <span class="stage-wave">回合 <span id="battle-turn">0</span></span>
                     </div>
-                    <div class="battle-arena">
-                        <!-- 玩家 -->
-                        <div class="arena-player" id="arena-player">
-                            <div class="sprite-slot hero-sprite"><img class="hero-sprite-img" src="assets/images/sprites/hero-sheet.png" alt="玩家"></div>
-                            <div class="arena-hp-bar">
-                                <div class="arena-hp-fill player" id="arena-player-hp" style="width: 100%"></div>
+                    <div class="stage-canvas">
+                        <canvas id="battle-canvas"></canvas>
+                        <!-- 2026-08-14：挑战 Boss 战斗覆盖在画布上的 30 秒倒计时（替换原文字弹窗） -->
+                        <div class="challenge-overlay" id="challenge-overlay" aria-hidden="true">
+                            <div class="co-head">
+                                <span class="co-tag">⚔️ 挑战 BOSS</span>
+                                <button class="co-close" id="challenge-overlay-close" aria-label="放弃挑战">×</button>
                             </div>
-                            <div class="arena-hp-text"><span id="arena-player-hp-text">100/100</span></div>
-                        </div>
-                        <!-- VS -->
-                        <div class="arena-vs">⚔️</div>
-                        <!-- Boss -->
-                        <div class="arena-boss" id="arena-boss">
-                            <div class="arena-boss-icon" id="arena-boss-icon"></div>
-                            <div class="arena-boss-name" id="arena-boss-name">变异体</div>
-                            <div class="arena-hp-bar">
-                                <div class="arena-hp-fill boss" id="arena-boss-hp" style="width: 100%"></div>
+                            <div class="co-name">
+                                <strong id="co-boss-name">强敌</strong>
+                                <span id="co-boss-hp-text">0/0</span>
                             </div>
-                            <div class="arena-hp-text"><span id="arena-boss-hp-text">100/100</span></div>
+                            <div class="co-hp-bar"><div id="co-boss-hp" class="co-hp-bar-fill"></div></div>
+                            <div class="co-timer">
+                                <span class="co-timer-label">⏱ 倒计时</span>
+                                <span class="co-timer-text"><strong id="co-timer-text">30.0</strong>s</span>
+                            </div>
+                            <div class="co-timer-bar-bg"><div id="co-timer-bar" class="co-timer-bar-fill"></div></div>
+                            <div class="co-stats">
+                                <div><span class="co-stat-label">累计伤害</span><strong id="co-total-damage">0</strong></div>
+                                <div><span class="co-stat-label">DPS</span><strong id="co-dps">0</strong></div>
+                            </div>
                         </div>
                     </div>
-                    <!-- 战斗日志 -->
-                    <div class="battle-log" id="battle-log">
-                        <div class="log-item">战斗准备中...</div>
-                    </div>
-                    <!-- 攻击按钮 -->
-                    <div class="battle-actions">
-                        <button class="attack-btn" id="attack-btn" onclick="manualAttack()">⚔️ 攻击</button>
-                        <button class="battle-btn-sub auto" id="auto-battle-btn" onclick="toggleAutoBattle()">🤖 自动</button>
-                        <button class="battle-btn-sub heal" onclick="healInBattle()">💊 恢复</button>
+                    <div class="stage-info">
+                        <div class="stage-info-stats">
+                            <span class="stage-stat"><i data-lucide="zap"></i> 攻速 <strong id="stage-rate">1.0/s</strong></span>
+                            <span class="stage-stat"><i data-lucide="target"></i> 怪 <strong id="battle-area-name-2">1/11</strong></span>
+                            <span class="stage-stat"><i data-lucide="percent"></i> 进度 <strong id="stage-pct">0%</strong></span>
+                            <span class="stage-stat"><i data-lucide="coins"></i> 累积 <strong id="reward-coins">0</strong></span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- 固定底部聚合导航 -->
-                <nav class="action-buttons" id="game-nav">
-                    <div class="nav-group">
-                        <button class="action-btn" onclick="toggleNavGroup('survival-nav', this)">
-                            <span class="action-btn-icon">🏚️</span>
-                            <span class="action-btn-text">生存</span>
-                        </button>
-                        <div class="nav-submenu" id="survival-nav">
-                            <button onclick="openShelter(); closeNavGroups()"><span>🏠</span>庇护所</button>
-                        </div>
-                    </div>
-                    <div class="nav-group">
-                        <button class="action-btn" onclick="toggleNavGroup('growth-nav', this)">
-                            <span class="action-btn-icon">📋</span>
-                            <span class="action-btn-text">成长</span>
-                            <span class="nav-alert">!</span>
-                        </button>
-                        <div class="nav-submenu" id="growth-nav">
-                            <button onclick="openBag(); closeNavGroups()"><span>🛡️</span>装备</button>
-                            <button onclick="openCheckIn(); closeNavGroups()"><span>📅</span>签到</button>
-                            <button onclick="openTasks(); closeNavGroups()"><span>📋</span>任务</button>
-                            <button onclick="openAchievements(); closeNavGroups()"><span>🏆</span>成就</button>
-                        </div>
-                    </div>
-                    <div class="nav-group nav-group-primary">
-                        <button class="action-btn" onclick="openBattle()">
-                            <span class="action-btn-icon">⚔️</span>
-                            <span class="action-btn-text">战斗</span>
-                        </button>
-                    </div>
-                    <div class="nav-group">
-                        <button class="action-btn" onclick="toggleNavGroup('adventure-nav', this)">
-                            <span class="action-btn-icon">🗺️</span>
-                            <span class="action-btn-text">冒险</span>
-                        </button>
-                        <div class="nav-submenu" id="adventure-nav">
-                            <button onclick="openChapter(); closeNavGroups()"><span>🎯</span>章节</button>
-                            <button onclick="openDungeons(); closeNavGroups()"><span>🏰</span>副本</button>
-                            <button onclick="showCurrentChapterStory(); closeNavGroups()"><span>📜</span>剧情</button>
-                        </div>
-                    </div>
-                    <div class="nav-group">
-                        <button class="action-btn" onclick="toggleNavGroup('archive-nav', this)">
-                            <span class="action-btn-icon">🧰</span>
-                            <span class="action-btn-text">物资</span>
-                        </button>
-                        <div class="nav-submenu" id="archive-nav">
-                            <button onclick="openShop(); closeNavGroups()"><span>🛒</span>商店</button>
-                            <button onclick="openCollection(); closeNavGroups()"><span>📖</span>图鉴</button>
-                        </div>
-                    </div>
-                </nav>
+                <!-- 右侧圆形入口 -->
+                <div class="side-rail side-right">
+                    <button class="side-btn" onclick="openTasks(); markSideRead('tasks')" title="每日任务">
+                        <span class="side-btn-icon">📋</span>
+                        <span class="side-btn-label">任务</span>
+                        <span class="side-dot"></span>
+                    </button>
+                    <button class="side-btn side-btn-achievements is-locked" id="side-btn-achievements" onclick="openAchievements(); markSideRead('achievements')" title="成就（未解锁）">
+                        <span class="side-btn-icon">🏆</span>
+                        <span class="side-btn-label">成就</span>
+                        <span class="side-dot"></span>
+                    </button>
+                    <button class="side-btn" id="collect-rewards-btn" onclick="openCollectModal()" title="提取收益">
+                        <span class="side-btn-icon"><i data-lucide="hand-coins"></i></span>
+                        <span class="side-btn-label">提取收益</span>
+                        <span class="side-badge" id="collect-pending-badge" hidden>0</span>
+                    </button>
+                </div>
             </div>
 
-            <!-- 底部挂机收益 -->
-            <div class="idle-panel">
-                <div class="idle-info">
-                    <span class="idle-label">⚡ 挂机收益</span>
-                    <span class="idle-value">+<span id="idle-income">1</span> 金币/秒</span>
+            <!-- 底部状态卡：任务 + BOSS -->
+            <div class="hud-mission-row">
+                <div class="mission-card" id="mission-card" onclick="gotoMainQuest()" title="点击跳转完成此任务">
+                    <div class="mission-icon">
+                        <span class="blueprint-gear"></span>
+                    </div>
+                    <div class="mission-text">
+                        <span class="mission-title">击败异变·典狱长</span>
+                        <strong class="mission-progress">0/1</strong>
+                    </div>
+                    <span class="mission-goto-arrow">→</span>
                 </div>
-                <div class="idle-bar">
-                    <div class="idle-progress" id="idle-progress" style="width: 0%"></div>
+                <div class="boss-card" id="boss-card" data-state="idle">
+                    <!-- 默认状态：折叠展示 Boss 名字 -->
+                    <span class="boss-tag">首领</span>
+                    <div class="boss-portrait">👹</div>
+                    <div class="boss-text">
+                        <span class="boss-title" id="boss-card-title">异变·典狱长</span>
+                        <span class="boss-sub" id="boss-card-sub">下一波来袭</span>
+                    </div>
+                    <!-- Boss 出现时显示的按钮组（默认 hidden） -->
+                    <div class="boss-actions" id="boss-actions" hidden>
+                        <button class="boss-btn boss-btn-skip" onclick="window.skipCurrentBoss && window.skipCurrentBoss()">⏭ 跳过</button>
+                        <button class="boss-btn boss-btn-challenge" onclick="window.challengeCurrentBoss && window.challengeCurrentBoss()">🗡 挑战</button>
+                    </div>
                 </div>
             </div>
+
+            <!-- 收获条 -->
+            <div class="reward-bar">
+                <span class="reward-idle-time" id="reward-idle-time">00:00:00 / 08:00:00</span>
+                <div class="reward-amount-row">
+                    <span class="reward-coin"><span class="reward-coin-icon">🪙</span><span id="reward-coins-2">0</span></span>
+                    <span class="reward-exp"><span class="reward-exp-icon">✨</span><span id="reward-exp">0</span></span>
+                </div>
+                <button class="sweep-btn" id="sweep-btn" onclick="window.sweepCurrentChapter()" disabled>🧹 扫荡</button>
+                <button class="collect-btn" onclick="window.collectRewardPool()">📥 收获</button>
+            </div>
+
+            <!-- 底部 5 Tab 导航（2026-08-04 v20：删除"属性"，点击头像即可查看属性） -->
+            <nav class="bottom-tabs" id="game-nav">
+                <button class="tab-btn" onclick="openSkillBook()" title="技能"><span class="tab-icon"><i data-lucide="book-open"></i></span><span class="tab-text">技能</span></button>
+                <button class="tab-btn" onclick="openShelterV2()" title="庇护所"><span class="tab-icon"><i data-lucide="building-2"></i></span><span class="tab-text">庇护所</span></button>
+                <button class="tab-btn tab-btn-primary" onclick="goHome()" title="战斗"><span class="tab-icon"><i data-lucide="swords"></i></span><span class="tab-text">战斗</span></button>
+                <button class="tab-btn" onclick="openShop()" title="商店"><span class="tab-icon"><i data-lucide="store"></i></span><span class="tab-text">商店</span></button>
+                <button class="tab-btn" onclick="openEquipment()" title="装备"><span class="tab-icon"><i data-lucide="backpack"></i></span><span class="tab-text">装备</span></button>
+            </nav>
         </div>
     </div>
 
@@ -254,17 +281,36 @@
                 <button class="modal-close" onclick="closeShop()">×</button>
             </div>
             <div class="modal-body">
+                <div class="shop-info-bar" style="padding:8px 12px;background:var(--bg-card);font-size:11px;color:var(--text-secondary);display:flex;justify-content:space-between;align-items:center;">
+                    <span>💰 金币 <strong id="shop-gold-display" style="color:var(--gold);">0</strong></span>
+                    <span id="shop-refresh-cd">下次 +1：0:30</span>
+                    <span>剩余刷新 <strong id="refresh-count">3</strong>/10</span>
+                </div>
                 <div class="shop-grid" id="shop-grid"></div>
             </div>
             <div class="modal-footer">
-                <div class="refresh-info">
-                    <span>剩余刷新: <strong id="refresh-count">5</strong>/10</span>
-                    <span>价格: <strong id="refresh-cost" class="gold-text">50</strong></span>
+                <div class="refresh-info" style="font-size:11px;color:var(--text-secondary);">
+                    价格：<strong id="refresh-cost" class="gold-text">10</strong> 金币/次
                 </div>
                 <div class="refresh-panel">
-                    <button class="refresh-btn ad" onclick="watchAd()">📺 看广告 +1</button>
+                    <button class="refresh-btn ad" onclick="window.refreshShopByAd()">📺 看广告 +10</button>
                     <button class="refresh-btn gold" id="refresh-gold-btn" onclick="refreshShop()">💰 金币刷新</button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 商店购买二次确认弹窗（极简卡片 → 点击 → 看完整图标+描述） -->
+    <div class="modal-overlay buy-confirm-modal" id="buy-confirm-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">📦 确认购买</div>
+                <button class="modal-close" onclick="closeBuyConfirm()">×</button>
+            </div>
+            <div class="modal-body"><!-- 由 openBuyConfirm 注入 --></div>
+            <div class="modal-footer">
+                <button class="buy-confirm-btn cancel" onclick="closeBuyConfirm()">取消</button>
+                <button class="buy-confirm-btn confirm" onclick="confirmBuy()">✅ 确认购买</button>
             </div>
         </div>
     </div>
@@ -279,8 +325,7 @@
             <div class="modal-body">
                 <div class="shelter-level">
                     <div class="shelter-icon">🏰</div>
-                    <div class="shelter-title">Lv.<span id="shelter-level">1</span> 庇护所</div>
-                    <div class="shelter-subtitle">升级获得更强加成</div>
+                    <div class="shelter-title">庇护所</div>
                 </div>
                 <div class="shelter-stats">
                     <div class="shelter-stat">
@@ -334,24 +379,6 @@
     </div>
 
     <!-- 角色选择弹窗 -->
-    <div class="modal-overlay" id="character-modal">
-        <div class="modal">
-            <div class="modal-header">
-                <div class="modal-title">👤 选择你的幸存者</div>
-            </div>
-            <div class="modal-body">
-                <div class="character-intro">
-                    在这个末世中，每一个幸存者都有自己独特的生存之道。选择你的角色，开始你的末世之旅。
-                </div>
-                <div class="character-list" id="character-list"></div>
-                <div class="character-name-input">
-                    <input type="text" id="character-name-input" placeholder="输入你的幸存者名称" maxlength="10">
-                </div>
-                <button class="btn btn-primary btn-full" onclick="confirmCharacter()">开始末世求生</button>
-            </div>
-        </div>
-    </div>
-
     <!-- 剧情弹窗 -->
     <div class="modal-overlay" id="story-modal">
         <div class="modal story-modal">
@@ -396,6 +423,24 @@
             </div>
             <div class="modal-body">
                 <div class="tasks-list" id="tasks-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- v25e：任务奖励弹窗——大图标 + 数量 + 任务名 + 确认按钮 -->
+    <div class="modal-overlay" id="task-reward-modal">
+        <div class="modal task-reward-modal">
+            <div class="modal-header">
+                <div class="modal-title">🎁 任务奖励</div>
+                <button class="modal-close" onclick="closeTaskReward()">×</button>
+            </div>
+            <div class="modal-body task-reward-body">
+                <div class="task-reward-icon">💰</div>
+                <div class="task-reward-amount">+0</div>
+                <div class="task-reward-name">任务名</div>
+            </div>
+            <div class="modal-footer task-reward-footer">
+                <button class="task-reward-confirm" onclick="closeTaskReward()">确认</button>
             </div>
         </div>
     </div>
@@ -450,13 +495,211 @@
                         <span class="boss-level" id="current-boss-level">1</span>
                     </div>
                 </div>
+                <!-- 2026-10-28：剧情卡会被玩家打开的弹窗顶掉，这里给一个回看入口，避免剧情永久错过 -->
+                <button class="btn btn-primary" style="width:100%;margin:10px 0;" onclick="closeChapter(); showCurrentChapterStory();">📖 重看本章剧情</button>
                 <div class="chapter-list" id="chapter-list"></div>
             </div>
         </div>
     </div>
 
-    <!-- Toast容器 -->
-    <div class="toast-container" id="toast-container"></div>
+    <!-- 覆盖层：遮挡 chromium headless 渲染异常残留 -->
+    <div class="viewport-cover"></div>
 
-    <!-- [主入口] 模块化游戏入口（main.js 自动 import 所有依赖） -->
-    <script type="module" src="src/main.js?v=hero-sprite-fix-20260725o"></script>
+    <!-- 4 大新 Modal（PRD v2：技能书 + 商店 + 挑战 + 设置） -->
+    <div class="modal-overlay" id="skillbook-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">📖 技能书</div>
+                <button class="modal-close" onclick="closeSkillBook()">×</button>
+            </div>
+            <div class="modal-body" id="skillbook-content"></div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal">
+            <div class="modal-header"><div class="modal-title">⚙️ 设置</div><button class="modal-close" onclick="closeSettings()">×</button></div>
+            <div class="modal-body">
+                <div style="padding:16px;">
+                    <div style="font-size:14px;line-height:2;color:var(--text-primary);">
+                        <div>🔊 音效：开</div>
+                        <div>📳 震动：开</div>
+                        <div>📦 存档版本：<span id="save-version">v3.0</span></div>
+                        <div>📅 上次在线：<span id="last-online"></span></div>
+                        <div style="margin-top:16px;color:var(--text-secondary);font-size:12px;">基于 PRD《废土余生》v2.0（技能书 + 商店 + 挑战）</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提取收益 modal（v22：成就下面侧栏按钮 → 二级确认弹窗） -->
+    <div class="modal-overlay collect-modal" id="collect-rewards-modal">
+        <div class="modal collect-modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i data-lucide="hand-coins"></i>
+                    <span>提取收益</span>
+                </div>
+                <button class="modal-close" onclick="closeCollectModal()">×</button>
+            </div>
+            <div class="modal-body" id="collect-modal-body">
+                <div class="collect-hint">
+                    战斗 + 离线挂机 累积的金币 / 经验会在此提取
+                </div>
+                <div class="collect-card collect-card-gold">
+                    <div class="collect-card-icon"><i data-lucide="coins"></i></div>
+                    <div class="collect-card-text">
+                        <span class="collect-card-label">累积金币</span>
+                        <strong class="collect-card-value" id="collect-pending-coins">0</strong>
+                    </div>
+                </div>
+                <div class="collect-card collect-card-exp">
+                    <div class="collect-card-icon"><i data-lucide="sparkles"></i></div>
+                    <div class="collect-card-text">
+                        <span class="collect-card-label">累积经验</span>
+                        <strong class="collect-card-value" id="collect-pending-exp">0</strong>
+                    </div>
+                </div>
+                <div class="collect-meta" id="collect-meta">
+                    <!-- 提取时如触发升级 / 升星，在此占位显示 -->
+                </div>
+                <button class="collect-confirm-btn" id="collect-confirm-btn" onclick="confirmCollectRewards()">
+                    <i data-lucide="download"></i>
+                    <span>提取全部</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 庇护所 modal-v2（PRD v3 · 2026-08-04：3 建筑 tab） -->
+    <div class="modal-overlay shelter-v2-modal" id="shelter-v2-modal">
+        <div class="modal shelter-v2-modal-content">
+            <div class="modal-header">
+                <div class="modal-title">🏠 庇护所</div>
+                <button class="modal-close" onclick="closeShelterV2()">×</button>
+            </div>
+            <div class="shelter-v2-tabs">
+                <button class="shelter-v2-tab active" data-tab="evolution" onclick="switchShelterTab('evolution')">
+                    <i data-lucide="dna"></i>
+                    <span>进化所</span>
+                </button>
+                <button class="shelter-v2-tab" data-tab="powerplant" onclick="switchShelterTab('powerplant')">
+                    <i data-lucide="zap"></i>
+                    <span>发电站</span>
+                </button>
+                <button class="shelter-v2-tab" data-tab="training" onclick="switchShelterTab('training')">
+                    <i data-lucide="dumbbell"></i>
+                    <span>训练场</span>
+                </button>
+                <button class="shelter-v2-tab" data-tab="shoplevel" onclick="switchShelterTab('shoplevel')">
+                    <i data-lucide="trending-up"></i>
+                    <span>商店等级</span>
+                </button>
+            </div>
+            <div class="modal-body" id="shelter-v2-body"></div>
+        </div>
+    </div>
+
+    <!-- Boss 出现卡片（10 怪打完，不自动挑战） -->
+    <div class="modal-overlay" id="boss-intro-modal">
+        <div class="modal boss-intro">
+            <div class="modal-header">
+                <div class="modal-title boss-intro-chapter">第 0 章 Boss</div>
+                <button class="modal-close" onclick="window.skipCurrentBoss && window.skipCurrentBoss()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="boss-intro-name" style="font-size:24px;font-weight:600;color:#f87171;margin:16px 0 8px;text-align:center;">👹 巨尸 Lv.1</div>
+                <div class="boss-intro-stats" style="display:grid;grid-template-columns:1fr;gap:8px;margin:0 16px;">
+                    <div class="stat-cell"><span style="color:#888;">⏱ 30 秒限时</span> <span class="boss-intro-hp">按 DPS 累积伤害击败它</span></div>
+                </div>
+                <div style="text-align:center;color:#fbbf24;font-size:12px;margin-top:8px;padding:0 16px;">⚠ 主动发起挑战，失败不扣次数</div>
+            </div>
+            <div class="modal-footer" style="display:flex;gap:8px;padding:12px;">
+                <button class="btn btn-secondary" style="flex:1;" onclick="window.skipCurrentBoss && window.skipCurrentBoss()">⏭ 跳过</button>
+                <button class="btn btn-primary" style="flex:2;background:linear-gradient(180deg,#f87171,#dc2626);" onclick="window.challengeCurrentBoss && window.challengeCurrentBoss()">🗡 挑战</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Boss 战失败 modal：重新挑战 / 回到上一章 -->
+    <div class="modal-overlay" id="battle-fail-modal">
+        <div class="modal battle-fail">
+            <div class="modal-header">
+                <div class="modal-title">💀 战斗失败</div>
+            </div>
+            <div class="modal-body">
+                <div class="fail-msg" style="text-align:center;padding:16px;">
+                    <div style="font-size:48px;margin-bottom:8px;">💀</div>
+                    <div style="font-size:16px;font-weight:600;margin-bottom:8px;">倒在了 <span class="fail-boss-name" style="color:#f87171;">废土之王</span> 面前</div>
+                    <div style="font-size:12px;color:var(--text-secondary);"><span class="fail-chapter">第 0 章</span></div>
+                </div>
+            </div>
+            <div class="modal-footer" style="display:flex;gap:8px;padding:12px;">
+                <button class="btn btn-secondary" style="flex:1;" onclick="window.backToPrevChapter && window.backToPrevChapter()">⏭ 回到上一章</button>
+                <button class="btn btn-primary" style="flex:2;background:linear-gradient(180deg,#fbbf24,#d97706);" onclick="window.restartCurrentBoss && window.restartCurrentBoss()">🔄 重新挑战</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 装备背包 modal：已装备 9 槽 + 背包栏 + 过滤 + 回收 -->
+    <div class="modal-overlay" id="equipment-modal">
+        <div class="modal equipment-modal">
+            <div class="modal-header">
+                <div class="modal-title">🎒 装备背包 <span id="equip-bag-info" style="font-size:11px;color:#fbbf24;margin-left:8px;">0/30</span></div>
+                <button class="modal-close" onclick="closeEquipment()">×</button>
+            </div>
+            <div class="modal-body" style="padding:8px;">
+                <div class="equip-tabs" id="equip-tabs" style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px;font-size:11px;">
+                    <button class="equip-tab active" data-part="all">全部</button>
+                    <button class="equip-tab" data-part="weapon">武器</button>
+                    <button class="equip-tab" data-part="armor">防具</button>
+                    <button class="equip-tab" data-part="head">头</button>
+                    <button class="equip-tab" data-part="boots">靴</button>
+                    <button class="equip-tab" data-part="clothes">衣</button>
+                    <button class="equip-tab" data-part="accessory">饰</button>
+                </div>
+                <div class="equip-set-row" id="equip-set-row" style="font-size:10px;color:#fbbf24;margin-bottom:6px;min-height:14px;"></div>
+                <div style="font-size:10px;color:#888;margin-bottom:4px;">✅ 已装备（点击槽位可卸下）</div>
+                <div class="equip-slots-equipped" id="equip-slots-equipped" style="display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-bottom:12px;"></div>
+                <div style="font-size:10px;color:#888;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;">
+                    <span>📦 背包（点击穿装 / 长按回收）</span>
+                    <button class="recycle-all-btn" onclick="window.recycleAllWhite()" style="font-size:10px;padding:2px 6px;background:#374151;color:#fbbf24;border:1px solid #fbbf24;border-radius:3px;cursor:pointer;">♻ 批量回收白装</button>
+                </div>
+                <div class="equip-bag-list" id="equip-bag-list" style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 装备详情 / 对比浮窗 -->
+    <div class="modal-overlay" id="equip-detail-modal" onclick="if(event.target===this) closeEquipDetail()">
+        <div class="modal equip-detail-modal">
+            <div class="modal-header">
+                <div class="modal-title" id="equip-detail-name">装备详情</div>
+                <button class="modal-close" onclick="closeEquipDetail()">×</button>
+            </div>
+            <div class="modal-body" id="equip-detail-body" style="padding:12px;font-size:12px;"></div>
+        </div>
+    </div>
+
+    <!-- 挑战强敌：列表 / 战斗 / 战利品 三个 modal -->
+    <div class="modal-overlay" id="challenge-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">👹 挑战强敌</div>
+                <button class="modal-close" onclick="closeChallenge()">×</button>
+            </div>
+            <div class="modal-body" id="challenge-tiers"></div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="challenge-loot-modal">
+        <div class="modal">
+            <div class="modal-body" id="challenge-loot-content"></div>
+        </div>
+    </div>
+
+    <!-- [主入口] 已在 <head> line 17 加载，底部旧版已删除 -->
+
+    <!-- Toast 通知容器（showToast 必需，缺失会导致所有反馈静默失败） -->
+    <div class="toast-container" id="toast-container"></div>
+</body>
+</html>

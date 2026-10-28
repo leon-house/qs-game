@@ -9,6 +9,18 @@
 // 元素缓存，避免重复查询DOM
 const elementCache = new Map();
 
+// 2026-10-28：受保护弹窗 —— 持有「活的游戏状态」，别的弹窗打开时不能顶掉它们
+//   dungeon-battle-modal  : 副本战斗，currentWave / currentEnemy / isDungeonBattle 都在模块作用域，
+//                           被隐藏等于丢掉战斗进度（closeDungeonBattle 还会额外重置血量）
+//   challenge-battle-modal: 挑战战斗（当前 src 内已无引用，保留语义占位）
+//   challenge-loot-modal  : 挑战战利品确认，被顶掉玩家就看不到战利品
+// 二级弹窗（buy-confirm / equip-detail / challenge-loot）不在名单里 —— 它们本来就该叠在父弹窗之上
+const PROTECTED_MODAL_IDS = new Set([
+    'dungeon-battle-modal',
+    'challenge-battle-modal',
+    'challenge-loot-modal',
+]);
+
 export const Renderer = {
     /**
      * 获取元素（带缓存）
@@ -120,28 +132,27 @@ export const Renderer = {
     /**
      * 显示弹窗
      * 自动关闭其他 active 弹窗（互斥）+ 注册遮罩点击关闭
+     *
+     * 2026-10-28：互斥改成「非对称」——
+     *   · 普通弹窗打开：关掉其它所有普通弹窗（含自动剧情卡片 story-modal），
+     *                  但不碰受保护弹窗（战斗态 / 战利品确认），否则会丢进度或丢奖励；
+     *   · 受保护弹窗打开：要接管整个画面，允许关掉任何其它弹窗。
      * @param {string} modalId
      */
     showModal(modalId) {
+        const takingOver = PROTECTED_MODAL_IDS.has(modalId);
         // 互斥：先关闭所有其他 active 弹窗
         const overlays = document.querySelectorAll('.modal-overlay.active');
         overlays.forEach(m => {
-            if (m.id !== modalId) m.classList.remove('active');
+            if (m.id === modalId) return;
+            if (!takingOver && PROTECTED_MODAL_IDS.has(m.id)) return;
+            m.classList.remove('active');
         });
 
         this.addClass(modalId, 'active');
 
-        // 绑定点击遮罩关闭（仅绑定一次）
-        const el = this.$(modalId);
-        if (el && !el._backdropBound) {
-            el.addEventListener('click', (e) => {
-                // 仅当点击的是遮罩本身（不是内部 modal 内容）才关闭
-                if (e.target === el) {
-                    this.hideModal(modalId);
-                }
-            });
-            el._backdropBound = true;
-        }
+        // 点击空白处关闭由 main.js bindModalOverlayClose() 一次性绑定
+        // （此处不再重复绑定，避免 init 时已绑的 listener 被重复触发）
     },
 
     /**

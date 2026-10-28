@@ -1,42 +1,139 @@
-# Dependencies
+# ============================================================
+# 末世幸存者（废土余生）— .gitignore
+#
+# 约定：仓库根目录是「工作台」，长期堆着一次性排查脚本和截图。
+# 真正进版本库的是：
+#   src/ assets/ test/ index.html style.css
+#   + 构建配置（tailwind / postcss / vite）
+#   + 工具链（构建、部署、SSH 排查、截图、测试）
+# ============================================================
+
+# ── 依赖 ───────────────────────────────────────────────
 node_modules/
 
-# Build output
+# ── 构建产物（build-sass.mjs / sync-dist.mjs 生成，不入库）──
 dist/
-test-index.html
-bundle.js
+dist-release/
+dist-v2/
+*.css.map
 
-# Temporary extract / historical files
-B_extracted.txt
-index_old.html
-test.html
-vite.config.js
+# ── 历史归档 / 废弃工程 ─────────────────────────────────
+/.archive/
+/NewProject/
+/index_old.html
+/index_v2.html
+/v2-style.css
+
+# ── 根目录散落的截图（assets/ 下的图片是真资源，不受影响）──
+/*.png
+/*.jpg
+/*.jpeg
+/shots-*/
+/output-preview/
+/generated-images/
+/chrome-*/
+/.chrome-test-*/
+
+# ── 一次性诊断脚本 ──────────────────────────────────────
+/diag-*.mjs
+/diag-*.py
+/diag-prod.mjs
+/diag-side-read.mjs
+/diag-story-center.mjs
+/diag-achievement-lock.mjs
+/diag-checkin.mjs
+/diag-checkin-e2e.mjs
+/diag-loop.mjs
+/diag-net.mjs
+/diag-once.mjs
+/diag-render.mjs
+/diag-403.mjs
+/diag-403b.mjs
+/debug-*.mjs
+/debug-*.html
+/debug-*.py
+/battle-*-diag.mjs
+/battle-diag.mjs
+/battle-deep.mjs
+/battle-trace.mjs
+/battle-hook.mjs
+/battle-zoom.mjs
+/battle-pulse-trace.mjs
+/battle-stick-trace.mjs
+/battle-render-trace.mjs
+/battle-timeline.mjs
+/battle-fresh.mjs
+/battle-clean.mjs
+/battle-clean2.mjs
+/battle-final.mjs
+/battle-animation-diag.mjs
+/battle-screenshot.mjs
+/battle-screenshot-deep.mjs
+/canvas-dump.mjs
+/canvas-dump-prod.mjs
+/v19-*.mjs
+/v19-*.html
+/check-boss-cooldown.mjs
+/check-decomp.mjs
+/check-errors.mjs
+/equip-shot.mjs
+/shop-before.mjs
+/shop-after.mjs
+/screenshot-fixes.mjs
+/flow-e2e.mjs
+/flow-e2e-result.json
+/inspect-flow.mjs
+/list-monster.mjs
+/tmp-listfiles.mjs
+/fix-403.mjs
+/sweep-diag.mjs
+/sweep-diag.mjs.txt
+/_*.mjs
+/ssh-diff2.mjs
+/ssh-ls2.mjs
+/ssh-ls3.mjs
+
+# ── 一次性测试页 / 临时脚本 ─────────────────────────────
+/preview-*.html
+/test-*.html
+/test_*.py
+/test_*.png
+/test_node.py
+/snap_test.py
+/walk.py
+/append_css.py
+/resize-images.py
+/diff_src_dr.py
+/snapshot-idle.py
+/snapshot_equip.py
+/snapshot_equip_v2.py
+/capture_v2.cjs
+/B_extracted.txt
+/test_output.txt
+/test.html
+
+# ── 部署脚本的历史残留 ─────────────────────────────────
 deploy.sh
 nginx_game.conf
 
-# IDE
+# ── IDE ────────────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS
+# ── OS ─────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# Logs
+# ── 日志 ───────────────────────────────────────────────
 *.log
 npm-debug.log*
 
-# Test artifacts (keep source)
-dev-server.mjs
-browser-test.mjs
-ux-test.mjs
-
-# Env
+# ── 环境变量 ───────────────────────────────────────────
 .env
 .env.local
 
-# Workbuddy memory
+# ── Workbuddy 项目记忆（本地）──────────────────────────
 .workbuddy/

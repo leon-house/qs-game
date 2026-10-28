@@ -1,9 +1,9 @@
 /**
  * 章节系统
  */
-import { GameData } from '../data/gameData.js?v=hero-sprite-fix-20260725o';
-import { Renderer } from '../core/renderer.js?v=hero-sprite-fix-20260725o';
-import { showToast } from '../ui/ui.js?v=hero-sprite-fix-20260725o';
+import { GameData } from '../data/gameData.js';
+import { Renderer } from '../core/renderer.js';
+import { showToast } from '../ui/ui.js';
 
 const CHAPTERS = [
     { chapter: 1, name: '废墟之城', bossStart: 1, bossEnd: 10 },
@@ -29,7 +29,7 @@ export function closeChapter() {
 
 function renderChapter() {
     const currentChapter = GameData.player.chapter || 1;
-    const currentBoss = GameData.player.currentBossLevel || 1;
+    const currentBoss = GameData.player.bossLevel || 1;
 
     Renderer.setText('current-chapter', currentChapter);
     Renderer.setText('current-boss-level', currentBoss);
@@ -50,7 +50,7 @@ function renderChapter() {
 }
 
 export function updateChapter() {
-    const bossLevel = GameData.player.currentBossLevel;
+    const bossLevel = GameData.player.bossLevel;
     let newChapter = 1;
     CHAPTERS.forEach(c => {
         if (bossLevel > c.bossEnd) newChapter = c.chapter;

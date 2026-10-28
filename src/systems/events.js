@@ -2,10 +2,10 @@
  * 随机事件系统
  * 宝箱/商人/突袭等
  */
-import { GameData, saveData } from '../data/gameData.js?v=hero-sprite-fix-20260725o';
-import { Renderer } from '../core/renderer.js?v=hero-sprite-fix-20260725o';
-import { MATERIALS } from '../data/config.js?v=hero-sprite-fix-20260725o';
-import { showToast, updateUI } from '../ui/ui.js?v=hero-sprite-fix-20260725o';
+import { GameData, saveData } from '../data/gameData.js';
+import { Renderer } from '../core/renderer.js';
+import { MATERIALS } from '../data/config.js';
+import { showToast, updateUI } from '../ui/ui.js';
 
 const RANDOM_EVENTS = [
     { type: 'chest', name: '神秘宝箱', icon: '📦', weight: 30 },

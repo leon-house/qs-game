@@ -1,12 +1,12 @@
 /**
  * 副本系统（普通/精英副本 + 扫荡）
  */
-import { GameData, saveData } from '../data/gameData.js?v=hero-sprite-fix-20260725o';
-import { Renderer } from '../core/renderer.js?v=hero-sprite-fix-20260725o';
-import { MATERIALS } from '../data/config.js?v=hero-sprite-fix-20260725o';
-import { calculateStats } from './equipment.js?v=hero-sprite-fix-20260725o';
-import { showToast, updateUI } from '../ui/ui.js?v=hero-sprite-fix-20260725o';
-import { triggerRandomEvent } from './events.js?v=hero-sprite-fix-20260725o';
+import { GameData, saveData } from '../data/gameData.js';
+import { Renderer } from '../core/renderer.js';
+import { MATERIALS } from '../data/config.js';
+import { calculateStats } from './equipment.js';
+import { showToast, updateUI } from '../ui/ui.js';
+import { triggerRandomEvent } from './events.js';
 
 const DUNGEONS = [
     { id: 'normal_1', name: '废墟副本', chapter: 1, waves: 10, hpScale: 0.3, rewardScale: 1, type: 'normal' },
@@ -56,7 +56,7 @@ function renderDungeons() {
     DUNGEONS.forEach(dungeon => {
         const progress = GameData.player.dungeonProgress[dungeon.id] || { maxWave: 0 };
         const isElite = dungeon.type === 'elite';
-        const isUnlocked = !isElite || (GameData.player.currentBossLevel >= (dungeon.unlockReq || 999));
+        const isUnlocked = !isElite || (GameData.player.bossLevel >= (dungeon.unlockReq || 999));
 
         const div = Renderer.create('div', {
             className: `dungeon-card ${isElite ? 'elite' : 'normal'} ${!isUnlocked ? 'locked' : ''}`
@@ -112,11 +112,11 @@ function updateDungeonBattleUI() {
     Renderer.setText('dungeon-wave', `第 ${currentWave}/${currentDungeon.waves} 波`);
     Renderer.setText('dungeon-enemy-icon', currentEnemy.icon);
     Renderer.setText('dungeon-enemy-name', currentEnemy.name);
-    Renderer.setText('dungeon-enemy-hp', `${Math.floor(currentEnemy.currentHp)}/${currentEnemy.maxHp}`);
-    Renderer.setStyle('dungeon-enemy-hp-bar', 'width', (currentEnemy.currentHp / currentEnemy.maxHp * 100) + '%');
+    Renderer.setText('dungeon-enemy-hp', `${Math.max(0, Math.floor(currentEnemy.currentHp))}/${currentEnemy.maxHp}`);
+    Renderer.setStyle('dungeon-enemy-hp-bar', 'width', Math.max(0, currentEnemy.currentHp / currentEnemy.maxHp * 100) + '%');
 
-    Renderer.setText('dungeon-player-hp', `${Math.floor(GameData.player.currentHp)}/${GameData.player.maxHp}`);
-    Renderer.setStyle('dungeon-player-hp-bar', 'width', (GameData.player.currentHp / GameData.player.maxHp * 100) + '%');
+    Renderer.setText('dungeon-player-hp', `${Math.max(0, Math.floor(GameData.player.currentHp))}/${GameData.player.maxHp}`);
+    Renderer.setStyle('dungeon-player-hp-bar', 'width', Math.max(0, GameData.player.currentHp / GameData.player.maxHp * 100) + '%');
 
     Renderer.setText('dungeon-combo', `连击: ${GameData.player.combo || 0}`);
 }
@@ -150,21 +150,8 @@ export function performDungeonAttack() {
     GameData.player.combo = (GameData.player.combo || 0) + 1;
     GameData.player.maxCombo = Math.max(GameData.player.maxCombo || 0, GameData.player.combo);
 
-    // 敌人反击
-    if (currentEnemy.currentHp > 0) {
-        let enemyDamage = Math.max(1, currentEnemy.attack - stats.defense);
-        GameData.player.currentHp -= enemyDamage;
-
-        if (GameData.player.currentHp <= 0) {
-            GameData.player.currentHp = 0;
-            GameData.player.combo = 0;
-            stopDungeonBattle();
-            showToast('副本失败！连击已中断', 'warning');
-            closeDungeonBattle();
-            return;
-        }
-    }
-
+    // 2026-08-03：副本敌人不再反击玩家（角色不受伤害，DPS 模型）
+    // 保留 combo 计数；如果想加 boss 战化可以单独做
     updateDungeonBattleUI();
 
     // 敌人死亡

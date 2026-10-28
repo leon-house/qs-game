@@ -1,9 +1,9 @@
 /**
  * 图鉴系统
  */
-import { GameData } from '../data/gameData.js?v=hero-sprite-fix-20260725o';
-import { EQUIPMENT_TEMPLATES } from '../data/config.js?v=hero-sprite-fix-20260725o';
-import { Renderer } from '../core/renderer.js?v=hero-sprite-fix-20260725o';
+import { GameData } from '../data/gameData.js';
+import { EQUIPMENT_TEMPLATES } from '../data/config.js';
+import { Renderer } from '../core/renderer.js';
 
 let currentCollectionType = 'equipment';
 
@@ -34,7 +34,7 @@ export function renderCollection() {
     });
     const ownedMaterials = new Set();
     (GameData.player.bag.material || []).forEach(m => ownedMaterials.add(m.id));
-    const defeatedBosses = GameData.player.currentBossLevel || 1;
+    const defeatedBosses = GameData.player.bossLevel || 1;
 
     if (currentCollectionType === 'equipment') {
         items = EQUIPMENT_TEMPLATES.weapon.concat(
