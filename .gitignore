@@ -138,3 +138,5 @@ npm-debug.log*
 
 # ── Workbuddy 项目记忆（本地）──────────────────────────
 .workbuddy/
+# fix-alpha-assets.mjs 的预览输出
+.alpha-fix-preview/
