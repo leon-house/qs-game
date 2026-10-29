@@ -23,8 +23,11 @@ import { FX } from './combat-fx.js';
 
 // ============ 常量 ============
 const ARENA_WIDTH = 480;
-const ARENA_HEIGHT = 240;            // 加高（用户反馈 Boss 顶部被切）— 逻辑坐标系固定 480x240，舞台按同比例铺开
-const GROUND_Y = 200;                // 角色脚的 Y 坐标
+// 2026-10-28 UI P1：ARENA_HEIGHT 240→280、GROUND_Y 200→240，两者同步下移。
+// 角色在屏幕上的位置一像素不变（脚下留白仍是 40px），但头顶多出 40px 逻辑空间，
+// 用来放「名牌 + 血条 + 血量数字」——原来血条固定在 GROUND_Y-100，正好压在怪物胸口。
+const ARENA_HEIGHT = 280;
+const GROUND_Y = 240;                // 角色脚的 Y 坐标
 const PLAYER_X_BASE = 80;            // 角色起始 X
 const ENEMY_X_BASE = 340;            // 怪物起始 X（角色右方；往左挪 20 让 Boss 横向不溢出）
 const PLAYER_STEP = 30;              // 每击败 1 只移动的距离
@@ -184,6 +187,25 @@ function monsterShadow(ctx, w = 30, h = 6) {
     ctx.fillStyle = 'rgba(0,0,0,0.45)';
     ctx.beginPath();
     ctx.ellipse(0, -2, w, h, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+}
+
+// 接地阴影（2026-10-28 UI P1）
+// 程序化角色本身不带影子：怪物自带的黑影是纯黑 rgba(0,0,0,.4)，
+// 压在暗色废墟背景上完全看不见，主角则根本没有影子，
+// 结果角色像"飘"在背景上。这里补一层柔和的接地阴影把角色焊进场景。
+function contactShadow(x, y, radius) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(1, 0.3);
+    const g = ctx.createRadialGradient(0, 0, 1, 0, 0, radius);
+    g.addColorStop(0, 'rgba(0,0,0,0.62)');
+    g.addColorStop(0.55, 'rgba(0,0,0,0.34)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius, 0, Math.PI * 2);
     ctx.fill();
     ctx.restore();
 }
@@ -1303,20 +1325,26 @@ export function onDamageDealt(damage, isCrit) {
     state.enemy.hp -= damage;
     state.enemy.flashUntil = performance.now() + HIT_FLASH_DURATION;
     state.player.attackAnimStart = performance.now();
-    spawnDamageNumber(damage, isCrit);
+    // 2026-10-28 UI P1：删掉旧的 spawnDamageNumber(damage, isCrit)。
+    // 下面 FX.spawnDamageNumber 弹的是同一个数字，两套系统同时生效 →
+    // 一次攻击浮出两个数字，叠在怪物身上糊成一团。这里只保留 FX 那套。
     // ===== 镜头后缩 + 怪物抖动 + 血污溅射 =====
     state.cameraKickback = Math.max(0.88, state.cameraKickback - (isCrit ? 0.10 : 0.06));
     state.enemyShake.until = performance.now() + (isCrit ? 200 : 120);
     spawnBloodParticles(damage, isCrit);
 
     // ===== 2026-08-04 火柴人反馈：浮动数字 + 粒子 + 屏幕震动 =====
-    const enemyCenterX = state.enemy.x || ENEMY_X_BASE;
-    const enemyCenterY = GROUND_Y - 70;
+    // 2026-10-28 UI P1：伤害数字加随机横向偏移。
+    // 自动攻击 800ms 一次、每个数字上浮 1200ms，连续命中会完全重叠在一起，
+    // 现在按 ±13px 随机散开，堆叠时也能逐个看清。
+    const enemyCenterX = (state.enemy.x || ENEMY_X_BASE) + (Math.random() - 0.5) * 26;
+    // 数字从怪物躯干中段冒出来（原来正好落在名牌/血条那一行）
+    const enemyCenterY = GROUND_Y - 88;
     if (isCrit) {
         FX.critEffect(enemyCenterX, enemyCenterY);
         FX.spawnDamageNumber({
             x: enemyCenterX,
-            y: enemyCenterY - 30,
+            y: enemyCenterY - 12,
             value: damage,
             style: 'crit'
         });
@@ -1324,7 +1352,7 @@ export function onDamageDealt(damage, isCrit) {
         FX.hitEffect(enemyCenterX, enemyCenterY);
         FX.spawnDamageNumber({
             x: enemyCenterX,
-            y: enemyCenterY - 30,
+            y: enemyCenterY - 12,
             value: damage,
             style: 'normal'
         });
@@ -1358,22 +1386,6 @@ function onEnemyDeath() {
             state.phase = 'moving';
         }
     }, DEATH_FADE_DURATION);
-}
-
-function spawnDamageNumber(damage, isCrit = false, isPlayerHit = false) {
-    state.particles.push({
-        type: 'damage-text',
-        text: isPlayerHit ? `-${damage}` : (isCrit ? `暴击! ${damage}` : `${damage}`),
-        x: isPlayerHit ? state.player.x : state.enemy.x,
-        // 2026-10-28：怪物伤害数字从更低的位置起跳。原来从 enemy.y-90（=名牌高度）冒出来，
-        // 会和头顶名牌 / 血条叠在一起糊成一团，现在从名牌下方起跳。
-        y: isPlayerHit ? GROUND_Y - 55 : state.enemy.y - 52,
-        vy: -1.2,
-        life: 1000,
-        born: performance.now(),
-        crit: isCrit && !isPlayerHit,
-        isPlayerHit
-    });
 }
 
 function spawnCoinParticles(enemy) {
@@ -1505,9 +1517,6 @@ function update(dt, now) {
                 // 飞到位 → 仅视觉反馈粒子，不再二次加金币（避免双倍计数）
                 return false;
             }
-        } else if (p.type === 'damage-text') {
-            p.y += p.vy;
-            if (now - p.born > p.life) return false;
         } else if (p.type === 'blood') {
             // 血污溅射：抛物线 + 重力 + 颜色衰减
             const t = Math.min((now - p.born) / p.life, 1);
@@ -1627,6 +1636,8 @@ function drawPlayer(now) {
 
         ctx.save();
         ctx.translate(cx, GROUND_Y);
+        // 2026-10-28 UI P1：接地阴影
+        contactShadow(cx, GROUND_Y + 2, 24);
         heroFigure.render(ctx);
         ctx.restore();
     } catch (err) {
@@ -1758,6 +1769,8 @@ function drawEnemy(now) {
 
         const hpRatio = e.maxHp ? e.hp / e.maxHp : 1;
         const isFlashing = Boolean(e.flashUntil && now < e.flashUntil);
+        // 2026-10-28 UI P1：接地阴影
+        contactShadow(enemyX, GROUND_Y + 2, e.boss ? 58 : 28);
         const opts = {
             x: enemyX,
             y: GROUND_Y,
@@ -1817,101 +1830,104 @@ function drawEnemyFallback(x, enemy) {
     ctx.restore();
 }
 
+// 角色 / 怪物在画布逻辑坐标里的绘制高度（用来把血条定位到头顶上方）。
+// 原始造型高 180~190，renderMonster / renderBoss 内部统一再乘 0.85。
+const FIGURE_SCALE = 0.85;
+const MONSTER_FIGURE_H = 190;
+const BOSS_FIGURE_H = 155;
+
 function drawHealthBar() {
     if (!state.enemy) return;
     const e = state.enemy;
-    // 精致版：宽 120（小怪）/ 160（Boss），高 16 / 20，圆角 + 渐变 + 边框 + 数字
-    const w = e.boss ? 160 : 120;
-    const h = e.boss ? 20 : 16;
-    const x = e.x - w / 2;
-    // 血条位置：Boss 顶部（画布上方），小怪头顶上方
-    const y = e.boss ? 4 : GROUND_Y - 100;
-    const radius = h / 2;
+    const isBoss = Boolean(e.boss);
 
-    // 1. 阴影（柔光感）
+    // 2026-10-28 UI P1：血条原本固定在 GROUND_Y-100，正好压在怪物胸口；
+    // 血量数字又写在条子正中，和填充色撞在一起，怪物被糊成一团看不见。
+    // 现在「名牌 + 血条 + 血量数字」作为一组，整体贴在怪物头顶上方。
+    const nameH = 16;
+    const barH = isBoss ? 12 : 9;
+    const txtH = 11;
+    const groupH = nameH + 2 + barH + 2 + txtH;
+    const figureH = (isBoss ? BOSS_FIGURE_H : MONSTER_FIGURE_H) * FIGURE_SCALE * (e.scale || 1);
+    const headTop = GROUND_Y - figureH;
+    const groupTop = Math.max(2, headTop - groupH - 4);
+    const nameY = groupTop;
+    const barY = nameY + nameH + 2;
+    const txtY = barY + barH + 2;
+
+    const w = isBoss ? 150 : 92;
+    const x = e.x - w / 2;
+    const radius = barH / 2;
+    const hpRatio = e.maxHp > 0 ? Math.max(0, Math.min(1, e.hp / e.maxHp)) : 0;
+
+    // 1. 名牌（实心暗底，压在亮背景上也能读）
+    if (e.name) {
+        ctx.font = 'bold 11px sans-serif';
+        const tagText = `${e.name} Lv.${e.level || 1}`;
+        const tagW = ctx.measureText(tagText).width + 14;
+        ctx.fillStyle = 'rgba(12,9,5,0.88)';
+        roundRect(ctx, e.x - tagW / 2, nameY, tagW, nameH, 4);
+        ctx.fill();
+        ctx.fillStyle = isBoss ? '#ff9a8a' : '#f5e1a4';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(tagText, e.x, nameY + nameH / 2 + 0.5);
+    }
+
+    // 2. 血条外框（深色基底 + 圆角 + 投影）
     ctx.save();
-    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.shadowColor = 'rgba(0,0,0,0.7)';
     ctx.shadowBlur = 4;
-    ctx.shadowOffsetY = 2;
-    // 2. 外框（深色基底 + 圆角）
-    ctx.fillStyle = 'rgba(15,10,6,0.95)';
-    roundRect(ctx, x, y, w, h, radius);
+    ctx.shadowOffsetY = 1;
+    ctx.fillStyle = 'rgba(10,7,4,0.95)';
+    roundRect(ctx, x, barY, w, barH, radius);
     ctx.fill();
     ctx.restore();
 
-    // 3. 内部凹槽（暗紫色阴影）
-    ctx.fillStyle = 'rgba(0,0,0,0.6)';
-    roundRect(ctx, x + 1, y + 1, w - 2, h - 2, radius - 1);
-    ctx.fill();
-
-    // 4. 实际血量
-    const hpRatio = e.maxHp > 0 ? Math.max(0, Math.min(1, e.hp / e.maxHp)) : 0;
+    // 3. 血量填充（绿 → 黄 → 红）
     const fillW = Math.max(radius * 2, hpRatio * (w - 2));  // 保证填满至少圆形端
-
-    // 5. 颜色渐变（按血量变色：绿 → 黄 → 红）
     let gradColor1, gradColor2;
     if (hpRatio > 0.5) {
-        gradColor1 = e.boss ? '#ff6b35' : '#4ade80';
-        gradColor2 = e.boss ? '#f97316' : '#22c55e';
+        gradColor1 = isBoss ? '#e07a4a' : '#7ec87a';
+        gradColor2 = isBoss ? '#a8461f' : '#3f8f4a';
     } else if (hpRatio > 0.25) {
-        gradColor1 = '#fbbf24';
-        gradColor2 = '#f59e0b';
+        gradColor1 = '#e8b44a';
+        gradColor2 = '#a3701d';
     } else {
-        gradColor1 = '#f87171';
-        gradColor2 = '#dc2626';
+        gradColor1 = '#e0664f';
+        gradColor2 = '#8e2a1c';
     }
-    const fill = ctx.createLinearGradient(x, y, x, y + h);
+    const fill = ctx.createLinearGradient(x, barY, x, barY + barH);
     fill.addColorStop(0, gradColor1);
     fill.addColorStop(1, gradColor2);
     ctx.fillStyle = fill;
-    roundRect(ctx, x + 1, y + 1, fillW, h - 2, radius - 1);
+    roundRect(ctx, x + 1, barY + 1, fillW, barH - 2, radius - 1);
     ctx.fill();
 
-    // 6. 高光（上半部分亮色）
-    const highlight = ctx.createLinearGradient(x, y, x, y + h / 2);
-    highlight.addColorStop(0, 'rgba(255,255,255,0.4)');
+    // 4. 顶部高光
+    const highlight = ctx.createLinearGradient(x, barY, x, barY + barH / 2);
+    highlight.addColorStop(0, 'rgba(255,255,255,0.35)');
     highlight.addColorStop(1, 'rgba(255,255,255,0)');
     ctx.fillStyle = highlight;
-    roundRect(ctx, x + 1, y + 1, fillW, h / 2, radius - 1);
+    roundRect(ctx, x + 1, barY + 1, fillW, barH / 2, radius - 1);
     ctx.fill();
 
-    // 7. 边框（暖金边）
-    ctx.strokeStyle = 'rgba(212,185,122,0.8)';
-    ctx.lineWidth = 1.2;
-    roundRect(ctx, x, y, w, h, radius);
+    // 5. 边框（暗铜边，不用亮金，避免在暗背景上抢戏）
+    ctx.strokeStyle = 'rgba(150,118,68,0.85)';
+    ctx.lineWidth = 1;
+    roundRect(ctx, x, barY, w, barH, radius);
     ctx.stroke();
 
-    // 8. 数值（血量数字）
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 11px sans-serif';
+    // 6. 血量数字移到血条下方（原来写在条子正中，和填充色撞色看不清）
+    ctx.font = 'bold 10px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     const hpText = `${Math.max(0, Math.ceil(e.hp))} / ${e.maxHp}`;
-    ctx.fillText(hpText, e.x, y + h / 2 + 0.5);
-    // 黑色描边让数字清晰
-    ctx.strokeStyle = 'rgba(0,0,0,0.8)';
-    ctx.lineWidth = 2;
-    ctx.strokeText(hpText, e.x, y + h / 2 + 0.5);
-    ctx.fillText(hpText, e.x, y + h / 2 + 0.5);
-
-    // 9. 名字 + Lv（血条上方）
-    if (e.name) {
-        const tagH = 17;
-        const tagW = e.name.length * 8 + 34;
-        const tagX = e.x - tagW / 2;
-        const tagY = y - tagH - 2;
-        // 名字底色（半透明暗色）
-        ctx.fillStyle = 'rgba(15,10,6,0.85)';
-        roundRect(ctx, tagX, tagY, tagW, tagH, 4);
-        ctx.fill();
-        // 名字文字
-        ctx.fillStyle = e.boss ? '#ff8585' : '#f5e1a4';
-        ctx.font = 'bold 11px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        const tagText = `${e.name} Lv.${e.level || 1}`;
-        ctx.fillText(tagText, e.x, tagY + tagH / 2);
-    }
+    ctx.strokeStyle = 'rgba(0,0,0,0.9)';
+    ctx.lineWidth = 3;
+    ctx.strokeText(hpText, e.x, txtY + txtH / 2);
+    ctx.fillStyle = isBoss ? '#ffb3a0' : '#e8d5a8';
+    ctx.fillText(hpText, e.x, txtY + txtH / 2);
 }
 
 // 圆角矩形辅助（兼容旧版浏览器）
@@ -1957,19 +1973,6 @@ function drawParticles(now) {
             ctx.font = '14px sans-serif';
             ctx.textAlign = 'center';
             ctx.fillText('🪙', p.x, p.y);
-            ctx.restore();
-        } else if (p.type === 'damage-text') {
-            const age = now - p.born;
-            const t = age / p.life;
-            ctx.save();
-            ctx.globalAlpha = 1 - t;
-            ctx.font = p.crit ? 'bold 18px sans-serif' : '15px sans-serif';
-            ctx.fillStyle = p.isPlayerHit ? '#f44336' : (p.crit ? '#ffc107' : '#fff');
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 3;
-            ctx.textAlign = 'center';
-            ctx.strokeText(p.text, p.x, p.y);
-            ctx.fillText(p.text, p.x, p.y);
             ctx.restore();
         } else if (p.type === 'blood') {
             // 血污溅射：圆形 + 颜色衰减

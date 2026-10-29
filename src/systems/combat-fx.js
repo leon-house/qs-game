@@ -44,14 +44,17 @@ export function spawnDamageNumber(opts) {
     FX_QUEUE.damageNumbers.push({
         x,
         y,
-        vy: -50,           // 上浮速度
+        // 2026-10-28 UI P1：上浮更快、存活更短。
+        // 自动攻击 800ms 一次，原来的 ttl 1200ms 会让相邻两次的数字同时存在、
+        // 叠在一起糊成一团；现在基本同一时刻只有一个数字在飞。
+        vy: -72,           // 上浮速度
         text: `${style.prefix}${value}`,
         color: style.color,
         size: style.size,
         weight: style.weight,
         value,
         born: performance.now(),
-        ttl: 1200,
+        ttl: 900,
         crit: opts.style === 'crit' || opts.style === 'super'
     });
 

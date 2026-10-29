@@ -191,6 +191,17 @@
                 </div>
             </div>
 
+<!-- 2026-10-28 UI P1：装备快捷条。任务卡和收获条之间原本空 158px，
+     页面下半部看着像没做完。这里用 9 个装备槽填上：
+     一眼看到当前穿了什么，点一下进装备页。内容由 equipment.js 的 renderGearStrip() 渲染。 -->
+<div class="gear-strip" id="gear-strip" onclick="openEquipment()" title="点击打开装备">
+<div class="gear-strip-head">
+<span class="gear-strip-title"><i data-lucide="backpack"></i> 我的装备</span>
+<span class="gear-strip-hint" id="gear-strip-hint">0 / 9</span>
+</div>
+<div class="gear-slots" id="gear-slots"></div>
+</div>
+
             <!-- 收获条 -->
             <div class="reward-bar">
                 <span class="reward-idle-time" id="reward-idle-time">00:00:00 / 08:00:00</span>

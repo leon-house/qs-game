@@ -389,4 +389,47 @@ export function updateEquipmentBar() {
             slot.title = names[type] + ' (点击穿戴)';
         }
     });
+
+    // 2026-10-28 UI P1：首页装备快捷条跟着一起刷新
+    renderGearStrip();
+}
+
+// ===== 装备快捷条（2026-10-28 UI P1）=====
+// 首页任务卡和收获条之间原本空着 158px，用 9 个装备槽填上。
+// 渲染函数放在 equipment.js 里，和 updateEquipmentBar 放在一起，
+// 由 updateEquipmentBar() 统一调用，装备一变就跟着刷新。
+const GEAR_SLOT_TYPES = [
+    { type: 'weapon', label: '武器' },
+    { type: 'head', label: '头盔' },
+    { type: 'armor', label: '防具' },
+    { type: 'clothes', label: '衣服' },
+    { type: 'cloak', label: '披风' },
+    { type: 'boots', label: '鞋' },
+    { type: 'ring', label: '戒指' },
+    { type: 'amulet', label: '护符' },
+    { type: 'accessory', label: '饰品' },
+];
+
+const GEAR_QUALITY_LABEL = {
+    white: '普通', green: '优秀', blue: '精良', purple: '史诗', gold: '传说', red: '神话',
+};
+
+export function renderGearStrip() {
+    const wrap = document.getElementById('gear-slots');
+    if (!wrap) return;
+    const equipped = (GameData && GameData.player && GameData.player.equipment) || {};
+    let count = 0;
+    wrap.innerHTML = GEAR_SLOT_TYPES.map(({ type, label }) => {
+        const item = equipped[type];
+        if (item) count++;
+        const quality = item ? (item.quality || 'white') : '';
+        const dot = item ? `<span class="gear-slot-dot quality-${quality}"></span>` : '';
+        const title = item
+            ? `${item.name}（${GEAR_QUALITY_LABEL[quality] || quality}）`
+            : `${label}（未装备）`;
+        return `<button type="button" class="gear-slot${item ? ' is-equipped' : ''}" data-gear-type="${type}" title="${title}">`
+            + `<img class="gear-slot-img" src="assets/images/equip/${type}.webp" alt="">${dot}</button>`;
+    }).join('');
+    const hint = document.getElementById('gear-strip-hint');
+    if (hint) hint.textContent = `${count} / ${GEAR_SLOT_TYPES.length}`;
 }

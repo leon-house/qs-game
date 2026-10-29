@@ -1685,18 +1685,19 @@ body {
 }
 
 .toast.success {
-    border-color: var(--green);
-    color: var(--green);
+    /* 2026-10-28 UI P1：亮绿在棕金主调里太跳，改成和其它元素同一套暖金 */
+    border-color: rgba(216, 178, 101, 0.75);
+    color: #e8c87a;
 }
 
 .toast.warning {
-    border-color: var(--orange);
-    color: var(--orange);
+    border-color: rgba(214, 150, 70, 0.8);
+    color: #e0a050;
 }
 
 .toast.error {
-    border-color: var(--red);
-    color: var(--red);
+    border-color: rgba(198, 90, 68, 0.8);
+    color: #e07a5c;
 }
 
 @keyframes toastIn {
@@ -3678,7 +3679,14 @@ body {
     z-index: 8;
     /* 2026-10-28：两侧功能入口改为浮在舞台上，不再各占 56px 栅格列。
        舞台宽度从 292px 变成满宽 414px（+42%），角色画布也同步放大。 */
-    display: block;
+    /* 2026-10-28 UI P1：改成 flex 纵向列，舞台吸收页面剩余高度。
+       页面下半部原本有 158px 死区（任务卡底 654 → 收获条顶 820），
+       现在把这段空间给舞台，底部再由装备条补上。 */
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: 460px;
     margin: 8px 6px 0;
     padding-bottom: 4px;
 }
@@ -3757,6 +3765,11 @@ body {
     position: relative;
     margin: 0;
     overflow: hidden;
+    /* 2026-10-28 UI P1：跟随 .stage-wrap 撑高，画布再吃掉剩余部分 */
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
     background:
         radial-gradient(circle at 78% 35%, rgba(255, 60, 40, 0.25), transparent 45%),
         radial-gradient(circle at 18% 75%, rgba(120, 30, 10, 0.35), transparent 55%),
@@ -3779,7 +3792,12 @@ body {
     // 舞台可以比 2:1 高：画布内容按 480x240 等比缩放后贴底对齐（battle-canvas.js fitCanvas），
     // 多出来的高度就是天空，角色既不变形也不会悬空。
     // 旧版是硬撑高度再被 canvas 的 width/height:100%!important 拉伸，纵横比被压成 1.54:1。
-    height: clamp(240px, 33vh, 300px);
+    // 2026-10-28 UI P1：改成 flex 撑满 .battle-stage 的剩余高度（原来是固定 clamp 高度，
+    // 页面下半部因此空出 158px）。逻辑坐标系同步从 480x240 改成 480x280（battle-canvas.js），
+    // 角色在屏幕上的位置不变，只是头顶多出空间放血条和名牌。
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 180px;
     position: relative;
     overflow: hidden;
     isolation: isolate;
@@ -3947,14 +3965,16 @@ body {
     display: flex; align-items: center; gap: 8px;
     padding: 7px 8px;
     background: linear-gradient(180deg, #0a0805 0%, #050302 100%);
-    border-top: 1px solid #c43333;
+    /* 2026-10-28 UI P1：原来是 #c43333 纯红，属于 P0 漏掉的一处红色滥用，改暗铜 */
+    border-top: 1px solid #6b5330;
     position: relative;
     z-index: 3;
 }
 .stage-info-stats { display: flex; align-items: center; gap: 6px; flex: 1; flex-wrap: wrap; min-width: 0; }
 .stage-info-stats span {
     color: #d8b265;
-    font-size: 9px;
+    /* 2026-10-28 UI P1：9px 在手机上几乎读不出来，提到 11px */
+    font-size: 11px;
     font-weight: 600;
     text-shadow: 0 1px 0 rgba(0, 0, 0, 0.7);
 }
@@ -4289,12 +4309,88 @@ body {
     display: none !important;
 }
 
+/* ===== 装备快捷条（2026-10-28 UI P1）=====
+ * 任务卡和收获条之间原本空 158px，页面下半部看着像没做完。
+ * 这里放 9 个装备槽：一眼看到当前穿了什么，点一下进装备页。 */
+.gear-strip {
+    margin: 8px 8px 0;
+    padding: 8px 10px 9px;
+    background: linear-gradient(180deg, rgba(26, 21, 14, 0.92) 0%, rgba(8, 6, 4, 0.92) 100%);
+    border: 1px solid rgba(120, 100, 80, 0.35);
+    border-radius: 4px;
+    cursor: pointer;
+}
+.gear-strip-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 7px;
+}
+.gear-strip-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: #d8b265;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .5px;
+}
+.gear-strip-title svg { width: 13px; height: 13px; stroke-width: 2.2; }
+.gear-strip-hint { color: #8c7c62; font-size: 10px; font-weight: 700; }
+.gear-slots {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 4px;
+}
+.gear-slot {
+    position: relative;
+    aspect-ratio: 1;
+    padding: 0;
+    border-radius: 4px;
+    border: 1px solid rgba(110, 92, 66, 0.5);
+    background: radial-gradient(circle at 50% 38%, rgba(58, 47, 32, 0.55), rgba(12, 9, 6, 0.92) 72%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.gear-slot-img {
+    width: 76%;
+    height: 76%;
+    object-fit: contain;
+    opacity: .42;
+    filter: grayscale(1);
+}
+.gear-slot.is-equipped {
+    border-color: rgba(216, 178, 101, 0.75);
+    background: radial-gradient(circle at 50% 38%, rgba(88, 68, 38, 0.75), rgba(20, 14, 8, 0.95) 72%);
+}
+.gear-slot.is-equipped .gear-slot-img { opacity: 1; filter: none; }
+.gear-slot-dot {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.8);
+}
+.gear-slot-dot.quality-white  { background: #c8c8c8; }
+.gear-slot-dot.quality-green  { background: #4ade80; }
+.gear-slot-dot.quality-blue   { background: #60a5fa; }
+.gear-slot-dot.quality-purple { background: #c084fc; }
+.gear-slot-dot.quality-gold   { background: #fbbf24; }
+.gear-slot-dot.quality-red    { background: #f87171; }
+
 @media (max-width: 370px) {
     .stage-info-stats { gap: 4px; }
 }
 @media (max-height: 700px) {
-    // 矮屏：舞台压扁一点（高度随宽度等比缩放，这里只收紧比例）
-    .stage-canvas { aspect-ratio: 480 / 205; }
+    // 矮屏：舞台压扁一点。画布高度由 flex 决定，这里只给个下限。
+    .stage-canvas { min-height: 150px; }
+    .stage-wrap { max-height: 360px; }
+    .gear-strip { padding: 6px 8px 7px; }
+    .gear-strip-head { margin-bottom: 5px; }
     .side-btn { min-height: 56px; }
     .hud-topbar { min-height: 68px; }
 }
